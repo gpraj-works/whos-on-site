@@ -119,33 +119,15 @@ Small field-service businesses (10–50 field workers) coordinate their entire d
 
 ## 4. System architecture
 
-```
-┌─────────────────────────┐         ┌──────────────────────────────┐
-│   React Frontend (Vite)  │  REST   │      Express API Server      │
-│  Dispatcher board (web)  │ ◄─────► │  Auth · RBAC · Job lifecycle │
-│  Field-worker view (web) │  WS     │  Socket.io server (rooms)    │
-└─────────────────────────┘ ◄─────► └──────────────┬───────────────┘
-                                                     │
-                          ┌──────────────────────────┼──────────────────────────┐
-                          ▼                          ▼                          ▼
-                ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐
-                │   PostgreSQL     │      │   Redis + BullMQ  │      │   Observability   │
-                │   + PostGIS      │      │   Job queue       │      │  Pino logs        │
-                │  (jobs, users,   │      │  (reminders,      │      │  Sentry errors    │
-                │  locations,      │      │   notifications)  │      │  Health checks    │
-                │  status history) │      └──────────────────┘      └──────────────────┘
-                └──────────────────┘
-                          │
-                          ▼
-                ┌──────────────────┐
-                │  Worker process   │
-                │  Processes queued │
-                │  jobs, sends      │
-                │  notifications    │
-                └──────────────────┘
-```
+![RouteBoard system architecture diagram showing client layer, API layer, data layer, and observability layer](diagrams/01-system-architecture.png)
+
+The client layer (React dispatcher board + technician mobile-web view) talks to the Express API over REST and WebSocket. The API layer writes to PostgreSQL+PostGIS and enqueues background work in Redis+BullMQ, which a separate worker process consumes to send notifications. Pino and Sentry sit alongside as the observability layer, watching both the API and the worker.
 
 **Tenant isolation model:** every row in `jobs`, `technicians`, and related tables carries a `company_id`. All queries are scoped by `company_id` via a middleware layer — no query is ever written without it. Socket.io rooms are namespaced per company (`company:<id>`) so real-time events never leak across tenants.
+
+![Multi-tenancy and data isolation diagram showing two companies sharing tables filtered by company_id, enforced by central tenant-scoping middleware](diagrams/06-multi-tenancy.png)
+
+Every incoming request passes through the tenant-scoping middleware before it ever reaches a route handler: identify the tenant from the JWT, verify permissions, then inject the `company_id` filter. Both Company A and Company B's users, technicians, and jobs live in the same physical tables — isolation is enforced centrally in one place, not re-implemented per query. This is the single piece of the system worth testing most thoroughly (see [Testing strategy](#11-testing-strategy)).
 
 ---
 
@@ -153,16 +135,9 @@ Small field-service businesses (10–50 field workers) coordinate their entire d
 
 ### Entity relationship overview
 
-```
-companies ──< users ──< technicians
-    │                        │
-    │                        │ (current location)
-    ▼                        ▼
-  jobs ──< job_status_history
-    │
-    ├──< job_assignments (links job ↔ technician, supports reassignment history)
-    └──< notifications
-```
+![Entity relationship diagram showing companies, users, technicians, jobs, job_status_history, job_assignments, and notifications tables with primary and foreign keys](diagrams/02-erd.png)
+
+`companies` is the tenant root — `users` and `technicians` both hang off it, and `technicians` optionally link to a `users` row if that field worker has a login. `jobs` carries geography columns for pickup/dropoff and branches into `job_status_history` (the audit trail) and `job_assignments` (which technician is on which job, supporting reassignment). `notifications` references both the company and the user it's meant for.
 
 ### Core tables
 
@@ -231,6 +206,12 @@ companies ──< users ──< technicians
 | type | enum(job_delayed, tech_assigned, daily_summary, ...) | |
 | payload | jsonb | |
 | sent_at | timestamptz, nullable | null = pending |
+
+### Job status state machine
+
+![Job status state machine diagram showing transitions from unassigned to assigned, en_route, on_site, and complete, with a cancelled branch reachable from unassigned, assigned, or en_route](diagrams/03-job-status-state-machine.png)
+
+A job moves strictly forward through `unassigned → assigned → en_route → on_site → complete`, with `cancelled` reachable as a side-exit from the first three states (a job can't be cancelled once it's already complete, or once the technician is on site and mid-repair — enforce that in the transition logic, not just the UI). Every transition writes a row to `job_status_history`.
 
 ### Key PostGIS queries you'll implement
 
@@ -346,15 +327,23 @@ routeboard/
 ## 9. Core user flows
 
 ### Flow A — Dispatcher assigns a job
+
+![Sequence diagram of the job assignment flow between dispatcher, API server, PostGIS database, technician device, and Socket.io](diagrams/04-sequence-job-assignment.png)
+
 1. Dispatcher creates a job with address (geocoded to lat/lng on save).
 2. Dispatcher clicks "Find nearby technicians" → calls `/api/technicians/nearby` (PostGIS query).
 3. Assigns a technician → `job:assigned` socket event fires → technician's device updates instantly.
 
 ### Flow B — Technician works a job
+
+![Sequence diagram of the real-time status update flow between technician device, API server, database, Socket.io, dispatcher board, and customer status page](diagrams/05-sequence-status-update.png)
+
 1. Technician's phone shows their queue for the day.
 2. Taps "En route" → `POST /api/jobs/:id/status` → history logged, dispatcher board updates live.
 3. Device periodically sends `location:ping` while status is `en_route`/`on_site`.
 4. Taps "Complete" with optional note → job closed, history finalized.
+
+Note the fan-out in step 2: one status write triggers a single `job:statusChanged` event that Socket.io relays to both the dispatcher board and the customer status page simultaneously — neither client polls the other's view into consistency, they both react to the same event.
 
 ### Flow C — Customer checks status
 1. Customer receives a share link (`/api/public/jobs/:token`) via SMS/email at booking.
@@ -396,6 +385,10 @@ routeboard/
 ---
 
 ## 12. DevOps & deployment
+
+![CI/CD pipeline diagram showing GitHub Actions running lint, typecheck, test, and build, then deploying the API/worker to Railway or Fly.io and the static frontend to a CDN, with managed PostgreSQL+PostGIS and Redis+BullMQ add-ons](diagrams/07-cicd-pipeline.png)
+
+A push to `main` triggers GitHub Actions: lint → typecheck → test → build. On success, the API and worker are containerized and deployed to Railway/Fly.io, while the frontend builds to static assets served separately. Both connect to the same managed PostgreSQL+PostGIS and Redis+BullMQ add-ons.
 
 - **Local dev:** `docker-compose up` spins up Postgres (with PostGIS image), Redis, API, and worker.
 - **CI (GitHub Actions):** on every PR — lint → typecheck → unit/integration tests → build. On merge to main — deploy.
