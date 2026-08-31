@@ -17,7 +17,7 @@
 7. [Real-time events (Socket.io)](#7-real-time-events-socketio)
 8. [Monorepo folder structure](#8-monorepo-folder-structure)
 9. [Core user flows](#9-core-user-flows)
-10. [8-week implementation roadmap](#10-8-week-implementation-roadmap)
+10. [Implementation roadmap — 8 phases](#10-implementation-roadmap--8-phases)
 11. [Testing strategy](#11-testing-strategy)
 12. [DevOps & deployment](#12-devops--deployment)
 13. [Security checklist](#13-security-checklist)
@@ -35,7 +35,7 @@
 | **Primary vertical (demo framing)** | Home services (HVAC / plumbing / electrical repair) |
 | **Also fits** | Courier/delivery, cleaning crews, roadside assistance, security patrol, inspections |
 | **Core differentiator** | PostGIS-backed real-time proximity dispatch |
-| **Timeline** | 8 weeks · 3 hrs/day · ~180 hours total |
+| **Timeline** | 8 weeks · 3 hrs/day · ~180 hours total, organized into 8 phases (one phase per week) |
 | **Goal** | Portfolio-grade, production-quality project for job applications |
 
 **One-line pitch:** *A live, permissioned dispatch board that replaces phone-call coordination with real-time job status, technician location, and a timestamped audit trail.*
@@ -89,13 +89,21 @@ Small field-service businesses (10–50 field workers) coordinate their entire d
 | Database | `postgresql` (+ `postgis` extension) | Relational integrity + geospatial queries |
 | Real-time server | `socket.io` | Rooms scoped per company (tenant isolation) |
 | Validation | `zod` | Runtime-safe, shared with frontend |
-| Auth | `jsonwebtoken`, `argon2` | Hand-rolled JWT access/refresh — interview-defensible, no black box |
+| Auth | `jsonwebtoken`, `argon2` | Hand-rolled JWT access/refresh — interview-defensible, no black box. See [Auth details](#auth-details) below. |
 | Background jobs | `bullmq`, `ioredis` | Scheduled reminders, notification fan-out |
 | Rate limiting | `express-rate-limit` | Protects auth + public endpoints |
 | Geo utilities | `@turf/turf` | Distance/proximity helper functions in app layer |
 | Logging | `pino`, `pino-http` | Structured JSON logs |
-| API docs | `swagger-jsdoc`, `swagger-ui-express` | Auto-generated OpenAPI docs |
 | Error tracking | `@sentry/node` | Production error visibility |
+
+API reference for this project is maintained as a hand-written Markdown document (`docs/api-reference.md`) generated from the route table in [section 6](#6-api-design), rather than an auto-generated OpenAPI/Swagger UI — there's a single consumer (the project's own frontend), so a lightweight, version-controlled reference is enough and avoids an extra runtime dependency and attack surface on the API process.
+
+#### Auth details
+
+- **Access tokens**: JWT, 15-minute expiry, sent in the `Authorization` header. Never persisted server-side.
+- **Refresh tokens**: opaque random strings (not JWTs), stored hashed in a `refresh_tokens` table (`user_id`, `token_hash`, `expires_at`, `revoked_at`). Sent to the client as an httpOnly, secure cookie — never exposed to JS. Revocation is a single `UPDATE ... SET revoked_at = now()` row, which is why they're stored in a table instead of being self-contained JWTs (a JWT refresh token can't be revoked without an extra denylist anyway, so a DB-backed opaque token is simpler for the same guarantee).
+- **Rotation**: every refresh issues a new refresh token and revokes the old one (rotation-on-use), so a stolen, already-used refresh token is detected and the whole chain can be revoked.
+- **Technician authentication**: technicians authenticate with the same JWT access/refresh flow as dispatchers, scoped by a `technician` role with a narrower permission set (can only read/update their own assigned jobs, cannot see other technicians' data or company-wide job lists). No separate auth system — one flow, enforced by RBAC, not by a different mechanism.
 
 ### Testing
 
@@ -114,6 +122,13 @@ Small field-service businesses (10–50 field workers) coordinate their entire d
 | Deployment | Railway or Fly.io |
 | Monorepo tooling | pnpm workspaces |
 | Linting/formatting | ESLint, Prettier |
+
+### External dependencies
+
+| Dependency | Provider | Notes |
+|---|---|---|
+| Geocoding (address → lat/lng) | **Nominatim** (OpenStreetMap) via self-hosted rate limit or a free-tier hosted instance | Free, no API key, but rate-limited (~1 req/sec) and lower accuracy than commercial providers — acceptable for portfolio scale. If accuracy becomes a problem, swap to Mapbox Geocoding (free tier: 100k req/month) with no other code changes, since the geocoding call is isolated behind a single service function. |
+| Geocoding failure handling | — | Job creation does not hard-fail if geocoding fails — the job saves with `location = null` and a `geocoding_status: pending` flag, retried via a BullMQ job. A job with no location simply can't be included in "nearby technician" queries until it resolves. |
 
 ---
 
@@ -139,6 +154,63 @@ Every incoming request passes through the tenant-scoping middleware before it ev
 
 `companies` is the tenant root — `users` and `technicians` both hang off it, and `technicians` optionally link to a `users` row if that field worker has a login. `jobs` carries geography columns for pickup/dropoff and branches into `job_status_history` (the audit trail) and `job_assignments` (which technician is on which job, supporting reassignment). `notifications` references both the company and the user it's meant for.
 
+<details>
+<summary>Mermaid source (diffable, kept in sync with the diagram above)</summary>
+
+```mermaid
+erDiagram
+    companies ||--o{ users : has
+    companies ||--o{ technicians : has
+    companies ||--o{ jobs : has
+    users ||--o| technicians : "may log in as"
+    jobs ||--o{ job_status_history : has
+    jobs ||--o{ job_assignments : has
+    technicians ||--o{ job_assignments : "assigned to"
+    companies ||--o{ notifications : has
+
+    companies {
+        uuid id PK
+        text name
+    }
+    users {
+        uuid id PK
+        uuid company_id FK
+        text email
+        text role
+    }
+    technicians {
+        uuid id PK
+        uuid company_id FK
+        uuid user_id FK
+        geography current_location
+        text status
+    }
+    jobs {
+        uuid id PK
+        uuid company_id FK
+        geography location
+        text status
+    }
+    job_status_history {
+        uuid id PK
+        uuid job_id FK
+        text to_status
+        timestamptz changed_at
+    }
+    job_assignments {
+        uuid id PK
+        uuid job_id FK
+        uuid technician_id FK
+    }
+    notifications {
+        uuid id PK
+        uuid company_id FK
+        uuid job_id FK
+    }
+```
+
+</details>
+
 ### Core tables
 
 **companies**
@@ -155,7 +227,7 @@ Every incoming request passes through the tenant-scoping middleware before it ev
 | company_id | uuid, FK → companies | tenant scope |
 | email | text, unique | |
 | password_hash | text | argon2 |
-| role | enum(owner, admin, dispatcher) | RBAC |
+| role | enum(owner, admin, dispatcher, technician) | RBAC — see [Auth details](#auth-details) for how `technician` differs |
 | created_at | timestamptz | |
 
 **technicians** (field workers — may or may not have login accounts)
@@ -213,6 +285,23 @@ Every incoming request passes through the tenant-scoping middleware before it ev
 
 A job moves strictly forward through `unassigned → assigned → en_route → on_site → complete`, with `cancelled` reachable as a side-exit from the first three states (a job can't be cancelled once it's already complete, or once the technician is on site and mid-repair — enforce that in the transition logic, not just the UI). Every transition writes a row to `job_status_history`.
 
+<details>
+<summary>Mermaid source (diffable, kept in sync with the diagram above)</summary>
+
+```mermaid
+stateDiagram-v2
+    [*] --> unassigned
+    unassigned --> assigned: dispatcher assigns technician
+    assigned --> en_route: technician taps en route
+    en_route --> on_site: technician taps arrived on site
+    on_site --> complete: technician taps complete
+    unassigned --> cancelled: dispatcher cancels
+    assigned --> cancelled: dispatcher cancels or tech declines
+    en_route --> cancelled: dispatcher cancels mid-transit
+```
+
+</details>
+
 ### Key PostGIS queries you'll implement
 
 ```sql
@@ -235,6 +324,11 @@ WHERE id = :technician_id;
 ```
 
 With Drizzle, these are written using `sql\`...\`` template queries against typed columns — you get PostGIS power without losing type safety on the rest of the schema.
+
+**Indexing:**
+- `technicians.current_location` and `jobs.location` — GiST index (required for `ST_DWithin`/`ST_Distance` to be fast; without it, every proximity query does a full table scan).
+- `jobs (company_id, status)` — composite B-tree index, since the dispatcher board's main query is always "this company's jobs, filtered by status."
+- `job_status_history (job_id, changed_at)` — composite index for fast history lookups per job.
 
 ---
 
@@ -274,6 +368,10 @@ With Drizzle, these are written using `sql\`...\`` template queries against type
 
 All authenticated routes pass through: JWT verification → tenant-scoping middleware (injects `company_id` filter) → RBAC check → rate limiter (auth routes only).
 
+**Versioning:** no `/v1/` prefix for this project — single consumer (own frontend), no external API contract to preserve yet. If RouteBoard ever exposes a public API, routes move under `/api/v1/` at that point; deferring the prefix now is a deliberate scope decision, not an oversight.
+
+**Documentation:** the table above is the source of truth and is mirrored into `docs/api-reference.md` (request/response shapes, status codes, and example payloads per route) as a static, hand-maintained Markdown file kept current alongside route changes — no generated OpenAPI spec or Swagger UI is served by the API.
+
 ---
 
 ## 7. Real-time events (Socket.io)
@@ -287,6 +385,8 @@ Rooms are namespaced per company: clients join `company:<company_id>` on connect
 | `technician:locationUpdated` | server → client | `{ technicianId, lat, lng }` | Move the pin on the map |
 | `technician:statusChanged` | server → client | `{ technicianId, status }` | Available/busy/offline updates |
 | `location:ping` | client → server | `{ lat, lng }` | Field worker's device sends periodic location |
+
+**Scaling note:** at single-instance scale (this project's target), Socket.io needs no extra setup. If the API ever runs on more than one instance, events stop reaching clients connected to a different instance — the fix is the `@socket.io/redis-adapter`, which uses the existing Redis instance as a pub/sub backbone so all instances broadcast to all connected clients regardless of which one they're attached to. Documented here as the known scaling path, not implemented, since it's unneeded at this project's scale.
 
 ---
 
@@ -317,6 +417,8 @@ routeboard/
 │       └── src/worker.ts       # separate process entrypoint
 ├── packages/
 │   └── shared/                 # Zod schemas + types shared frontend/backend
+├── docs/
+│   └── api-reference.md        # hand-maintained route reference (see section 6)
 ├── docker-compose.yml
 ├── .github/workflows/ci.yml
 └── pnpm-workspace.yaml
@@ -343,11 +445,14 @@ routeboard/
 3. Device periodically sends `location:ping` while status is `en_route`/`on_site`.
 4. Taps "Complete" with optional note → job closed, history finalized.
 
+**Known limitation (documented, not silently missed):** status updates and location pings assume network connectivity. If a request fails, the client retries with exponential backoff (3 attempts) and shows a "not synced" indicator on that job until it succeeds — it does not currently queue writes for later replay while fully offline. A true offline queue (service worker + background sync) is listed under [Stretch goals](#15-stretch-goals) rather than core scope, since field connectivity gaps are usually seconds-to-minutes, not full offline sessions, for the target verticals (HVAC/plumbing dispatch).
+
 Note the fan-out in step 2: one status write triggers a single `job:statusChanged` event that Socket.io relays to both the dispatcher board and the customer status page simultaneously — neither client polls the other's view into consistency, they both react to the same event.
 
 ### Flow C — Customer checks status
 1. Customer receives a share link (`/api/public/jobs/:token`) via SMS/email at booking.
 2. Opens link → sees live status without calling in.
+3. The token is a signed, single-purpose value (not a raw sequential ID) and expires automatically 48 hours after the job reaches `complete` or `cancelled` — after that, the link returns 404 instead of stale job data.
 
 ### Flow D — Mid-day reassignment
 1. Technician marked "offline" (sick call).
@@ -357,18 +462,224 @@ Note the fan-out in step 2: one status write triggers a single `job:statusChange
 
 ---
 
-## 10. 8-week implementation roadmap
+## 10. Implementation roadmap — 8 phases
 
-| Week | Focus | Key deliverables |
-|---|---|---|
-| **1** | Foundations + Postgres/PostGIS basics | Monorepo setup, Docker Postgres w/ PostGIS enabled, Drizzle schema v1, ERD finalized, ADR written |
-| **2** | Auth, tenancy, PostGIS queries | JWT auth + RBAC, tenant-scoping middleware, nearby-technician query working end-to-end |
-| **3** | Core job lifecycle | Job CRUD, status transitions, job_status_history logging, validation layer |
-| **4** | Real-time layer | Socket.io rooms per company, live status broadcast, location ping handling |
-| **5** | Frontend — dispatcher board | Mantine UI, live job list, map view (Leaflet), assign/reassign flow |
-| **6** | Frontend — technician view + customer view | Mobile-web status flow, public read-only status page, BullMQ reminder jobs |
-| **7** | Testing | Vitest unit tests, Supertest integration tests, Playwright e2e (assign → status change → live update) |
-| **8** | Production hardening | Docker, CI/CD, Sentry, Pino logging, Swagger docs, deploy, README + case study write-up |
+The 8-week/~180-hour build is organized into 8 sequential phases, one per week (~3 hrs/day, ~22.5 hrs/phase). Each phase below defines its objective, the detailed task list, concrete deliverables, and the exit criteria that must be true before moving to the next phase. Phases are intentionally sequential — each one depends on the tables, middleware, or endpoints the previous phase produced.
+
+### Phase 1 — Foundations & Data Layer
+**Duration:** Week 1 (~22.5 hrs) · **Depends on:** nothing (starting point)
+
+**Objective:** Stand up the monorepo, get Postgres+PostGIS running locally, and land a reviewable schema + architecture decision record before any feature code is written.
+
+**Detailed tasks:**
+- Initialize the pnpm workspace monorepo (`apps/web`, `apps/api`, `packages/shared`) per the [folder structure](#8-monorepo-folder-structure).
+- Configure `docker-compose.yml` with a PostGIS-enabled Postgres image and a Redis service; verify both start cleanly with `docker-compose up`.
+- Set up TypeScript configs (shared `tsconfig.base.json`), ESLint, and Prettier across all workspace packages.
+- Write the Drizzle schema v1 for `companies`, `users`, `technicians`, `jobs`, `job_status_history`, `job_assignments`, and `notifications`, matching the [database schema](#5-database-schema).
+- Enable the PostGIS extension in a migration and add the `geography(Point, 4326)` columns for `technicians.current_location` and `jobs.location`.
+- Add the GiST and composite B-tree indexes called out in [Indexing](#5-database-schema) as part of the initial migration, not as an afterthought.
+- Finalize and commit the ERD (Mermaid source + rendered diagram) matching the schema exactly.
+- Write an Architecture Decision Record (ADR) covering: why Drizzle over a heavier ORM, why hand-rolled JWT auth, why Nominatim for geocoding, and the tenant-isolation model — this becomes interview material later.
+- Wire up `pino` for structured logging in the API skeleton so every subsequent phase logs consistently from day one.
+
+**Deliverables:**
+- Working monorepo that boots via `docker-compose up` with zero manual steps.
+- Drizzle schema v1 + generated migration, applied cleanly to a fresh database.
+- Committed ERD diagram (image + Mermaid source) in sync with the schema.
+- First ADR document in the repo.
+
+**Exit criteria:**
+- `docker-compose up` brings up Postgres (with PostGIS confirmed via `SELECT postgis_version();`), Redis, and an empty API skeleton with no errors.
+- Migrations run idempotently against a clean database.
+- Lint and typecheck pass with zero errors on an empty/skeleton codebase.
+
+---
+
+### Phase 2 — Auth, Tenancy & Geospatial Core
+**Duration:** Week 2 (~22.5 hrs) · **Depends on:** Phase 1 schema and API skeleton
+
+**Objective:** Land the security spine of the whole app — authentication, RBAC, and tenant isolation — plus prove out the PostGIS proximity query end-to-end, since both are foundational to every feature that follows.
+
+**Detailed tasks:**
+- Implement `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` per [Auth details](#auth-details): argon2 password hashing, 15-minute JWT access tokens, opaque refresh tokens hashed in a `refresh_tokens` table.
+- Implement refresh-token rotation-on-use and revocation (`revoked_at` column, single-row update).
+- Build the tenant-scoping middleware that extracts `company_id` from the JWT and injects it into every downstream query — write this once, centrally, per the [architecture](#4-system-architecture) model.
+- Implement RBAC for `owner`, `admin`, `dispatcher`, and `technician` roles, including the narrower technician permission set described in [Auth details](#auth-details).
+- Add `express-rate-limit` to all `/api/auth/*` routes.
+- Implement the `technicians/nearby` PostGIS query (`ST_DWithin` + `ST_Distance`, ordered by distance) end-to-end, from route → service → typed Drizzle `sql` query → response.
+- Implement the technician location-ping endpoint (`PATCH /api/technicians/:id/location`) that updates `current_location` and `last_location_at`.
+- Write a seed script that creates two companies with overlapping technician/job data, specifically to make tenant-isolation bugs visible during manual testing.
+
+**Deliverables:**
+- Full JWT access/refresh auth flow, working via Postman/Insomnia or curl scripts.
+- Tenant-scoping middleware applied to every route module.
+- Working `/api/technicians/nearby` endpoint returning correctly ordered, distance-annotated results.
+- Seed script for two-tenant test data.
+
+**Exit criteria:**
+- A user from Company A can never retrieve, list, or mutate Company B's data, verified manually against the seeded two-tenant dataset.
+- Refresh-token rotation is verified: reusing an already-rotated refresh token is rejected and revokes the chain.
+- The nearby-technician query returns correct results against seeded geodata within a known radius.
+
+---
+
+### Phase 3 — Core Job Lifecycle
+**Duration:** Week 3 (~22.5 hrs) · **Depends on:** Phase 2 auth/tenancy middleware
+
+**Objective:** Implement full job CRUD and the status state machine that drives the rest of the product, including the immutable audit trail.
+
+**Detailed tasks:**
+- Implement `POST /api/jobs` (create, with geocoding on save via Nominatim, and the `geocoding_status: pending` fallback path if geocoding fails).
+- Implement `GET /api/jobs` with filters for status, date, and assigned technician.
+- Implement `GET /api/jobs/:id` including embedded status history.
+- Implement `PATCH /api/jobs/:id` for address/schedule/notes updates, re-triggering geocoding when the address changes.
+- Implement `POST /api/jobs/:id/assign` for initial assignment and reassignment, writing a `job_assignments` row.
+- Implement the job status state machine (`unassigned → assigned → en_route → on_site → complete`, with `cancelled` reachable only from the first three states) as enforced transition logic, not just UI guardrails.
+- Implement `POST /api/jobs/:id/status`, writing a `job_status_history` row (`from_status`, `to_status`, `changed_by`, `changed_at`) on every transition.
+- Implement `GET /api/jobs/:id/history` returning the full timestamped trail.
+- Add the BullMQ retry job for pending geocoding failures.
+- Add Zod validation schemas (shared between frontend/backend via `packages/shared`) for every mutating job/technician endpoint.
+
+**Deliverables:**
+- Complete job CRUD + assignment + status-transition API surface.
+- Enforced, tested state machine that rejects illegal transitions (e.g., `complete → cancelled`).
+- Geocoding pipeline with automatic retry on failure.
+- Shared Zod validation schemas in `packages/shared`.
+
+**Exit criteria:**
+- Every route in the [Jobs API table](#6-api-design) is implemented and passes manual/curl verification.
+- Illegal status transitions are rejected at the service layer with a clear error, independent of any frontend check.
+- A job created with a bad/ungeocodable address saves successfully with `location = null` and is retried automatically.
+
+---
+
+### Phase 4 — Real-Time Layer
+**Duration:** Week 4 (~22.5 hrs) · **Depends on:** Phase 3 job lifecycle endpoints
+
+**Objective:** Wire Socket.io into the existing REST flows so job and technician state changes propagate live, with tenant isolation preserved in the socket layer too.
+
+**Detailed tasks:**
+- Set up the Socket.io server alongside Express, with connection-time JWT verification.
+- Implement per-company rooms (`company:<company_id>`) and confirm clients only ever join their own company's room.
+- Emit `job:statusChanged` from the status-update service call (not from the route handler directly, to keep the emit tied to the actual state change).
+- Emit `job:assigned` from the assign/reassign service call.
+- Emit `technician:locationUpdated` and `technician:statusChanged` from the location-ping and technician-status update paths.
+- Implement the `location:ping` client→server event and route it into the same service used by `PATCH /api/technicians/:id/location`, so REST and socket paths share one code path.
+- Verify the fan-out behavior described in [Flow B](#9-core-user-flows): one status write reaches both the dispatcher board and the customer status page from a single event.
+- Document (do not implement) the `@socket.io/redis-adapter` scaling path in the codebase README for future multi-instance deployment.
+
+**Deliverables:**
+- Working Socket.io server with company-scoped rooms.
+- All five events from the [event table](#7-real-time-events-socketio) implemented and firing from the correct service-layer call sites.
+- A minimal test client (script or Postman-equivalent) that demonstrates two tenants' sockets never cross-receive events.
+
+**Exit criteria:**
+- A status change made via REST is visible over the socket connection within roughly a second, to clients in the same company room only.
+- A socket client connected as Company A never receives any event scoped to Company B, verified with the two-tenant seed data from Phase 2.
+
+---
+
+### Phase 5 — Frontend: Dispatcher Experience
+**Duration:** Week 5 (~22.5 hrs) · **Depends on:** Phases 2–4 (auth, job APIs, sockets)
+
+**Objective:** Build the primary dispatcher-facing UI: the live job board and map, backed by the real APIs and sockets from prior phases.
+
+**Detailed tasks:**
+- Scaffold the React + Vite app with Mantine, React Query, React Router, and the socket.io-client wired to the authenticated session.
+- Build the login/register flow against `/api/auth/*`, including access-token refresh handling in the React Query client.
+- Build the dispatcher job list/board view, driven by `GET /api/jobs`, with status and date filters.
+- Build the Leaflet map view showing job locations and technician positions, updating live from `technician:locationUpdated` and `job:statusChanged` socket events.
+- Build the "find nearby technicians" and assign/reassign flow against `/api/technicians/nearby` and `/api/jobs/:id/assign`.
+- Build the job detail view showing the full status history from `GET /api/jobs/:id/history`.
+- Wire React Query cache invalidation/updates to incoming socket events so the UI never needs manual refresh.
+- Apply Mantine dark-mode support and basic responsive layout for the dispatcher board.
+
+**Deliverables:**
+- Functional dispatcher login → job board → map → assign/reassign flow, fully live-updating.
+- Job detail view with a readable audit trail.
+
+**Exit criteria:**
+- A dispatcher can create a job, find and assign a nearby technician, and see status updates reflect live on the board without a manual page refresh, using only the UI.
+- The map correctly reflects technician positions from seeded/test location pings.
+
+---
+
+### Phase 6 — Frontend: Technician & Customer Experience
+**Duration:** Week 6 (~22.5 hrs) · **Depends on:** Phase 5 shared frontend scaffolding
+
+**Objective:** Complete the two remaining user-facing surfaces — the technician's mobile-web flow and the public customer status page — plus the reminder notification pipeline.
+
+**Detailed tasks:**
+- Build the technician mobile-web view: today's assigned job queue, scoped by the `technician` RBAC role.
+- Implement the one-tap status update flow (`assigned → en_route → on_site → complete`) with the retry-with-backoff and "not synced" indicator described in [Flow B](#9-core-user-flows).
+- Implement periodic `location:ping` emission from the technician view while status is `en_route`/`on_site`.
+- Build the public, unauthenticated customer status page consuming `GET /api/public/jobs/:token`, including the 48-hour post-completion token expiry behavior (confirm it 404s correctly after expiry).
+- Implement BullMQ reminder jobs (e.g., scheduled reminder notifications) and the `notifications` table read/write path.
+- Add mobile-friendly, minimal-chrome styling for both the technician and customer views, distinct from the denser dispatcher board.
+
+**Deliverables:**
+- Technician mobile-web status-update flow, working against real devices/browsers at mobile widths.
+- Public customer status page with working share-link expiry.
+- BullMQ-driven reminder notifications visibly landing in the `notifications` table.
+
+**Exit criteria:**
+- The full [Flow B](#9-core-user-flows) and [Flow C](#9-core-user-flows) sequences work end-to-end on a phone-width browser.
+- An expired share-link token returns 404, not stale job data.
+
+---
+
+### Phase 7 — Testing
+**Duration:** Week 7 (~22.5 hrs) · **Depends on:** Phases 1–6 (full feature surface must exist)
+
+**Objective:** Build out the test suite in priority order, treating tenant isolation as the single most important thing to prove, per the [testing strategy](#11-testing-strategy).
+
+**Detailed tasks:**
+- Write Vitest unit tests for the job status transition rules (every legal and illegal transition).
+- Write Vitest unit tests for the tenant-scoping middleware logic in isolation.
+- Write Vitest unit tests for the PostGIS query builders (mocked/parameterized, not hitting a live DB).
+- Write Supertest integration tests for the full auth flow, including refresh-token rotation and revocation.
+- Write Supertest integration tests for job CRUD with RBAC enforcement (technician role restrictions specifically).
+- Write Supertest integration tests for the nearby-technician endpoint against a seeded PostGIS dataset.
+- Write Supertest **tenant-isolation tests** as the top priority: confirm Company A's authenticated requests can never read or mutate Company B's rows, across every resource type.
+- Write the Playwright e2e happy path: dispatcher assigns a job → technician updates status → dispatcher board reflects it live.
+- Set up test coverage reporting and fix any gaps the priority order above surfaces.
+
+**Deliverables:**
+- Full test suite matching the [priority order](#11-testing-strategy): tenant-isolation > auth > status-transition > e2e happy path.
+- CI-runnable test commands (`pnpm test`, `pnpm test:e2e`) that pass locally.
+
+**Exit criteria:**
+- All tenant-isolation tests pass and specifically include at least one test that would fail if the `company_id` filter were accidentally omitted.
+- The Playwright happy-path e2e test passes reliably (not flaky) on repeated runs.
+
+---
+
+### Phase 8 — Production Hardening & Deployment
+**Duration:** Week 8 (~22.5 hrs) · **Depends on:** Phase 7 test suite (CI needs something to run)
+
+**Objective:** Containerize, wire CI/CD, add observability, harden security, deploy, and write the final documentation and case-study material.
+
+**Detailed tasks:**
+- Write production Dockerfiles for the API and worker processes; confirm `docker-compose up` still works end-to-end locally.
+- Set up the GitHub Actions pipeline: lint → typecheck → test → build on every PR, deploy on merge to `main`, per the [CI/CD pipeline](#12-devops--deployment).
+- Wire `pino` structured logs to the deployment platform's log viewer (or a free-tier aggregator).
+- Wire `@sentry/node` into both the API and worker processes and confirm a test error is captured.
+- Implement `/health` (liveness) and `/ready` (DB + Redis connectivity) endpoints.
+- Deploy the API and worker to Railway or Fly.io, and the frontend as static assets to a CDN, connected to managed PostgreSQL+PostGIS and Redis add-ons.
+- Work through the full [security checklist](#13-security-checklist) item by item: argon2 hashing confirmed not logged, short-lived/rotatable JWTs, universal `company_id` scoping, auth rate limiting, Zod validation on every mutating route, unguessable share-link tokens, Helmet headers, CORS locked to the known frontend origin, and no secrets in source control.
+- Write and commit `docs/api-reference.md`, the hand-maintained route reference described in [API design](#6-api-design), covering request/response shapes and example payloads for every route.
+- Write the final project README and a short case-study write-up (problem, architecture decisions, trade-offs, what you'd do differently at scale) suitable for a portfolio or interview conversation.
+
+**Deliverables:**
+- Deployed, publicly reachable RouteBoard instance (API + worker + frontend + managed Postgres/Redis).
+- Green CI pipeline on the `main` branch.
+- Sentry and structured logging visibly capturing real events in the deployed environment.
+- Completed `docs/api-reference.md` and final case-study write-up.
+
+**Exit criteria:**
+- Every box in the [security checklist](#13-security-checklist) is checked and manually verified, not just assumed.
+- A fresh visitor can register a company, create a job, assign a technician, and watch live status updates entirely against the deployed environment — no local setup required.
+- `/health` and `/ready` both return healthy status against the live deployment.
 
 ---
 
@@ -417,13 +728,17 @@ A push to `main` triggers GitHub Actions: lint → typecheck → test → build.
 
 ```
 # API
+NODE_ENV=development
 DATABASE_URL=postgresql://user:pass@localhost:5432/routeboard
 REDIS_URL=redis://localhost:6379
 JWT_ACCESS_SECRET=
 JWT_REFRESH_SECRET=
 SENTRY_DSN=
+LOG_LEVEL=info
 PORT=4000
 CORS_ORIGIN=http://localhost:5173
+GEOCODING_PROVIDER=nominatim
+GEOCODING_API_KEY=
 
 # Web
 VITE_API_URL=http://localhost:4000
@@ -434,7 +749,7 @@ VITE_SOCKET_URL=http://localhost:4000
 
 ## 15. Stretch goals
 
-*Only pursue these after weeks 1–8 are solid and deployed.*
+*Only pursue these after all 8 phases are solid and deployed.*
 
 1. **Route optimization** — order a technician's multiple stops for the day using a basic TSP heuristic.
 2. **SMS notifications** — Twilio integration for customer status updates instead of just a link.
@@ -444,4 +759,4 @@ VITE_SOCKET_URL=http://localhost:4000
 
 ---
 
-*Document version 1.0 — last updated to reflect: Express, Drizzle ORM, PostgreSQL + PostGIS, Mantine UI, express-rate-limit.*
+*Document version 1.2 — removed Swagger/OpenAPI auto-generated docs in favor of a hand-maintained Markdown API reference (`docs/api-reference.md`); restructured the 8-week roadmap into 8 detailed phases, each with objective, task list, deliverables, and exit criteria.*
