@@ -1,6 +1,7 @@
 import { ErrorMessages } from './error-messages'
 import { HttpStatus } from './http-status'
 
+/** Base application error caught by global error middleware */
 export class AppError extends Error {
   public readonly statusCode: HttpStatus
   public readonly code?: string

@@ -8,6 +8,42 @@ Static, hand-maintained documentation for RouteBoard API endpoints.
 
 ---
 
+## Standard Response Envelope
+
+All API endpoints return JSON responses wrapped in a standard response envelope:
+
+### Success Response Format (2xx)
+
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully.",
+  "data": {},
+  "timestamp": "2026-09-01T09:00:00.000Z"
+}
+```
+
+### Error Response Format (4xx / 5xx)
+
+```json
+{
+  "success": false,
+  "error": {
+    "message": "Validation failed for the submitted data.",
+    "code": "VALIDATION_ERROR",
+    "details": [
+      {
+        "field": "email",
+        "message": "Invalid email address"
+      }
+    ]
+  },
+  "timestamp": "2026-09-01T09:00:00.000Z"
+}
+```
+
+---
+
 ## Health & System Endpoints
 
 ### Liveness Check

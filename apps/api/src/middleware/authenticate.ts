@@ -6,6 +6,7 @@ import { sendError } from '../common/response-handler'
 import { HttpStatus } from '../common/http-status'
 import { ErrorMessages } from '../common/error-messages'
 
+/** Validates Bearer JWT and sets req.auth user context */
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization
 

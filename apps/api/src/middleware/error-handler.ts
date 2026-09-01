@@ -6,24 +6,15 @@ import { HttpStatus } from '../common/http-status'
 import { sendError } from '../common/response-handler'
 import { logger } from '../infrastructure/logging/logger'
 
-/**
- * Higher-order function to wrap async controller handlers and automatically pass errors to Express error middleware.
- */
+/** Wraps async controller handlers to pass errors to Express error handler */
 export function asyncHandler(fn: RequestHandler): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next)
   }
 }
 
-/**
- * Global Express error handling middleware.
- */
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-): void {
+/** Global Express error handling middleware */
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction): void {
   // Handle custom AppErrors
   if (err instanceof AppError) {
     sendError(res, err.message, err.statusCode, err.details, err.code)

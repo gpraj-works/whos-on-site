@@ -109,7 +109,11 @@ export async function updateTechnicianLocation(
   return updated || null
 }
 
-export async function findTechnicianById(id: string, companyId: string, client: DatabaseClient = db) {
+export async function findTechnicianById(
+  id: string,
+  companyId: string,
+  client: DatabaseClient = db
+) {
   const [row] = await client
     .select()
     .from(technicians)

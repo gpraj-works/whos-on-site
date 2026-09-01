@@ -6,7 +6,7 @@ import { logger } from '../../logging/logger'
 import { UserRole } from '@routeboard/shared'
 
 export async function seedDatabase() {
-  logger.info('Starting two-company tenant-isolation database seed...')
+  logger.info('Starting multi-company database seed...')
 
   const defaultPasswordHash = await argon2.hash('Password123!')
 

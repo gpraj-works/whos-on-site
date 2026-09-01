@@ -1,33 +1,15 @@
-import { AnyPgColumn, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { companies } from './companies.js'
-import { users } from './users.js'
+import { timestamp } from 'drizzle-orm/pg-core'
 
-// Company tenant scope helper
-export const companyId = () =>
-  uuid('company_id')
-    .references(() => companies.id, { onDelete: 'cascade' })
-    .notNull()
-
-// Reusable timestamp helpers
+/** Reusable created_at timestamp column */
 export const createdAt = () =>
   timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 
+/** Reusable updated_at timestamp column */
 export const updatedAt = () =>
   timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 
+/** Reusable created_at and updated_at timestamp columns */
 export const timestamps = () => ({
   createdAt: createdAt(),
   updatedAt: updatedAt()
-})
-
-// Reusable user audit helpers
-export const createdBy = () =>
-  uuid('created_by').references((): AnyPgColumn => users.id, { onDelete: 'set null' })
-
-export const updatedBy = () =>
-  uuid('updated_by').references((): AnyPgColumn => users.id, { onDelete: 'set null' })
-
-export const auditUserFields = () => ({
-  createdBy: createdBy(),
-  updatedBy: updatedBy()
 })

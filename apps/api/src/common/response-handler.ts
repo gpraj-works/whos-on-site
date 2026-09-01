@@ -1,6 +1,7 @@
 import { Response } from 'express'
 import { HttpStatus } from './http-status'
 
+/** Standard API JSON response structure */
 export interface ApiResponse<T = unknown> {
   success: boolean
   message?: string
@@ -13,9 +14,7 @@ export interface ApiResponse<T = unknown> {
   timestamp: string
 }
 
-/**
- * Send a standardized API success response.
- */
+/** Sends a standard JSON success response */
 export function sendSuccess<T = unknown>(
   res: Response,
   data?: T,
@@ -38,9 +37,7 @@ export function sendSuccess<T = unknown>(
   return res.status(statusCode).json(response)
 }
 
-/**
- * Send a standardized API error response.
- */
+/** Sends a standard JSON error response */
 export function sendError(
   res: Response,
   message: string,

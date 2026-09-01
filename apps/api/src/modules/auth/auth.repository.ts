@@ -23,7 +23,10 @@ export async function findUserById(id: string, client: DatabaseClient = db) {
   return user || null
 }
 
-export async function createRefreshToken(data: CreateRefreshTokenData, client: DatabaseClient = db) {
+export async function createRefreshToken(
+  data: CreateRefreshTokenData,
+  client: DatabaseClient = db
+) {
   const [token] = await client.insert(refreshTokens).values(data).returning()
   return token
 }
@@ -55,10 +58,7 @@ export async function revokeUserRefreshTokens(userId: string, client: DatabaseCl
 /**
  * Example native SQL query for complex multi-table joins or custom raw SQL expressions.
  */
-export async function findActiveUserWithCompanyNative(
-  userId: string,
-  client: DatabaseClient = db
-) {
+export async function findActiveUserWithCompanyNative(userId: string, client: DatabaseClient = db) {
   const query = sql`
     SELECT 
       u.id AS user_id,

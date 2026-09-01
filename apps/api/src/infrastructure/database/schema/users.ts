@@ -1,5 +1,7 @@
 import { index, pgEnum, pgTable, text, uuid } from 'drizzle-orm/pg-core'
-import { auditUserFields, companyId, timestamps } from './common'
+import { timestamps } from './common'
+import { companyId } from './company'
+import { auditUserFields } from './audit'
 
 export const userRoleEnum = pgEnum('user_role', ['owner', 'admin', 'dispatcher', 'technician'])
 

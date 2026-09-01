@@ -2,7 +2,7 @@ import { index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { jobs } from './jobs'
 import { technicians } from './technicians'
 import { users } from './users'
-import { companyId } from './common'
+import { companyId } from './company'
 
 export const jobAssignments = pgTable(
   'job_assignments',

@@ -1,6 +1,8 @@
 import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { users } from './users'
-import { companyId, createdAt, createdBy } from './common'
+import { createdAt } from './common'
+import { companyId } from './company'
+import { createdBy } from './audit'
 
 export const refreshTokens = pgTable(
   'refresh_tokens',

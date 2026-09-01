@@ -12,14 +12,13 @@ export const queryClient = postgres(env.DATABASE_URL, {
 
 export const db = drizzle(queryClient, { schema })
 
-export type DatabaseClient = PostgresJsDatabase<typeof schema> | Parameters<Parameters<typeof db.transaction>[0]>[0]
+export type DatabaseClient =
+  PostgresJsDatabase<typeof schema> | Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 /**
  * Execute callback within an atomic database transaction.
  */
-export async function withTransaction<T>(
-  fn: (tx: DatabaseClient) => Promise<T>
-): Promise<T> {
+export async function withTransaction<T>(fn: (tx: DatabaseClient) => Promise<T>): Promise<T> {
   return db.transaction(fn)
 }
 
