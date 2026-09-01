@@ -1,8 +1,8 @@
 import { index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { jobs } from './jobs.js'
-import { technicians } from './technicians.js'
-import { users } from './users.js'
-import { companyId } from './common.js'
+import { jobs } from './jobs'
+import { technicians } from './technicians'
+import { users } from './users'
+import { companyId } from './common'
 
 export const jobAssignments = pgTable(
   'job_assignments',

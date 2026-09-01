@@ -1,16 +1,20 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import { pinoHttp } from 'pino-http'
-import { logger } from './infrastructure/logging/logger.js'
-import { queryClient } from './infrastructure/database/client.js'
-import { redis } from './infrastructure/redis/client.js'
+import { logger } from './infrastructure/logging/logger'
+import { queryClient } from './infrastructure/database/client'
+import { redis } from './infrastructure/redis/client'
 import { HealthResponse, ReadinessResponse } from '@routeboard/shared'
+import { apiRouter } from './routes/index'
 
 const app: express.Express = express()
 
 app.use(cors())
 app.use(express.json())
 app.use(pinoHttp({ logger }))
+
+// Mount Central API Router
+app.use('/api', apiRouter)
 
 // Liveness check: process is alive
 app.get('/health', (_req: Request, res: Response<HealthResponse>) => {

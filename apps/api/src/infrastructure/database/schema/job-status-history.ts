@@ -1,7 +1,7 @@
 import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { jobs, jobStatusEnum } from './jobs.js'
-import { users } from './users.js'
-import { companyId } from './common.js'
+import { jobs, jobStatusEnum } from './jobs'
+import { users } from './users'
+import { companyId } from './common'
 
 export const jobStatusHistory = pgTable(
   'job_status_history',

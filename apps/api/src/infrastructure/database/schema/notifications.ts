@@ -1,6 +1,6 @@
 import { index, jsonb, pgEnum, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { jobs } from './jobs.js'
-import { companyId, createdAt, createdBy } from './common.js'
+import { jobs } from './jobs'
+import { companyId, createdAt, createdBy } from './common'
 
 export const notificationTypeEnum = pgEnum('notification_type', [
   'job_delayed',

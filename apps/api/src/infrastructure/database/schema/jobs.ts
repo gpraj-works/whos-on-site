@@ -1,7 +1,7 @@
 import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
-import { technicians } from './technicians.js'
-import { postgisGeometry } from '../custom-types/postgis.js'
-import { auditUserFields, companyId, timestamps } from './common.js'
+import { technicians } from './technicians'
+import { postgisGeometry } from '../custom-types/postgis'
+import { auditUserFields, companyId, timestamps } from './common'
 
 export const jobStatusEnum = pgEnum('job_status', [
   'unassigned',

@@ -1,5 +1,5 @@
 import pino from 'pino'
-import { env } from '../../config/env.js'
+import { env } from '../../config/env'
 
 const pinoDevConfig = {
   target: 'pino-pretty',
