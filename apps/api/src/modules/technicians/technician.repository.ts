@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { and, eq, sql } from 'drizzle-orm'
 import { Coordinates, TechnicianStatus } from '@routeboard/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
@@ -29,7 +30,7 @@ export async function findCompanyTechnicians(
   return rows.map((r) => ({
     ...r,
     status: r.status as TechnicianStatus,
-    lastLocationAt: r.lastLocationAt ? r.lastLocationAt.toISOString() : null
+    lastLocationAt: r.lastLocationAt ? dayjs(r.lastLocationAt).toISOString() : null
   }))
 }
 
@@ -67,7 +68,7 @@ export async function findNearbyAvailableTechnicians(
     ...r,
     status: r.status as TechnicianStatus,
     distanceMeters: Math.round(r.distanceMeters),
-    lastLocationAt: r.lastLocationAt ? r.lastLocationAt.toISOString() : null
+    lastLocationAt: r.lastLocationAt ? dayjs(r.lastLocationAt).toISOString() : null
   }))
 }
 
@@ -100,8 +101,8 @@ export async function updateTechnicianLocation(
     .update(technicians)
     .set({
       currentLocation: pointSql,
-      lastLocationAt: new Date(),
-      updatedAt: new Date()
+      lastLocationAt: dayjs().toDate(),
+      updatedAt: dayjs().toDate()
     })
     .where(and(eq(technicians.id, id), eq(technicians.companyId, companyId)))
     .returning()

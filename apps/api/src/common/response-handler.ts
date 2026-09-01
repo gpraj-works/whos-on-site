@@ -1,3 +1,4 @@
+import dayjs from 'dayjs'
 import { Response } from 'express'
 import { HttpStatus } from './http-status'
 
@@ -23,7 +24,7 @@ export function sendSuccess<T = unknown>(
 ): Response {
   const response: ApiResponse<T> = {
     success: true,
-    timestamp: new Date().toISOString()
+    timestamp: dayjs().toISOString()
   }
 
   if (message) {
@@ -52,7 +53,7 @@ export function sendError(
       ...(code && { code }),
       ...(details !== undefined && { details })
     },
-    timestamp: new Date().toISOString()
+    timestamp: dayjs().toISOString()
   }
 
   return res.status(statusCode).json(response)

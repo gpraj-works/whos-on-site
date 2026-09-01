@@ -5,7 +5,8 @@ import { HttpStatus } from '../common/http-status'
 import { ErrorMessages } from '../common/error-messages'
 
 /** Enforces user role permissions */
-export function authorize(allowedRoles: UserRole[]) {
+export function authorize(...roles: (UserRole | UserRole[])[]) {
+  const allowedRoles = roles.flat()
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.auth) {
       sendError(res, ErrorMessages.UNAUTHORIZED, HttpStatus.UNAUTHORIZED)

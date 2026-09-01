@@ -30,3 +30,48 @@ export const refreshSchema = z.object({
 export const logoutSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required')
 })
+
+export const createJobSchema = z.object({
+  customerName: z.string().min(2, 'Customer name must be at least 2 characters'),
+  customerPhone: z.string().min(7, 'Customer phone number is required'),
+  address: z.string().min(5, 'Address is required'),
+  location: coordinatesSchema.optional(),
+  scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
+  notes: z.string().optional()
+})
+
+export type CreateJobInput = z.infer<typeof createJobSchema>
+
+export const updateJobSchema = z.object({
+  customerName: z.string().min(2).optional(),
+  customerPhone: z.string().min(7).optional(),
+  address: z.string().min(5).optional(),
+  location: coordinatesSchema.optional(),
+  scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).nullable().optional(),
+  notes: z.string().nullable().optional()
+})
+
+export type UpdateJobInput = z.infer<typeof updateJobSchema>
+
+export const assignJobSchema = z.object({
+  technicianId: z.string().uuid('Invalid technician ID')
+})
+
+export type AssignJobInput = z.infer<typeof assignJobSchema>
+
+export const updateJobStatusSchema = z.object({
+  status: jobStatusSchema,
+  note: z.string().optional()
+})
+
+export type UpdateJobStatusInput = z.infer<typeof updateJobStatusSchema>
+
+export const jobFilterQuerySchema = z.object({
+  status: jobStatusSchema.optional(),
+  assignedTechnicianId: z.string().uuid().optional(),
+  date: z.string().optional(),
+  limit: z.coerce.number().min(1).max(100).default(50).optional(),
+  offset: z.coerce.number().min(0).default(0).optional()
+})
+
+export type JobFilterQuery = z.infer<typeof jobFilterQuerySchema>
