@@ -1,5 +1,6 @@
 import crypto from 'crypto'
 import argon2 from 'argon2'
+import dayjs from 'dayjs'
 import jwt from 'jsonwebtoken'
 import { AuthResponse, AuthUser, JwtPayload, RegisterRequest, UserRole } from '@routeboard/shared'
 import { env } from '../../config/env'
@@ -35,7 +36,7 @@ function formatAuthUser(user: {
     companyId: user.companyId,
     email: user.email,
     role: user.role,
-    createdAt: user.createdAt.toISOString()
+    createdAt: dayjs(user.createdAt).toISOString()
   }
 }
 
@@ -67,7 +68,7 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
     })
     const refreshToken = generateOpaqueToken()
     const tokenHash = hashToken(refreshToken)
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const expiresAt = dayjs().add(7, 'day').toDate()
 
     await authRepo.createRefreshToken(
       {
@@ -108,7 +109,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
   })
   const refreshToken = generateOpaqueToken()
   const tokenHash = hashToken(refreshToken)
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  const expiresAt = dayjs().add(7, 'day').toDate()
 
   await authRepo.createRefreshToken({
     companyId: user.companyId,
@@ -135,7 +136,7 @@ export async function refreshToken(rawRefreshToken: string): Promise<AuthRespons
     throw new Error('Invalid or revoked refresh token.')
   }
 
-  if (new Date() > activeToken.expiresAt) {
+  if (dayjs().isAfter(activeToken.expiresAt)) {
     await authRepo.revokeRefreshToken(activeToken.id)
     throw new Error('Refresh token expired. Please log in again.')
   }
@@ -155,7 +156,7 @@ export async function refreshToken(rawRefreshToken: string): Promise<AuthRespons
   })
   const newRefreshToken = generateOpaqueToken()
   const newTokenHash = hashToken(newRefreshToken)
-  const newExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  const newExpiresAt = dayjs().add(7, 'day').toDate()
 
   await authRepo.createRefreshToken({
     companyId: user.companyId,

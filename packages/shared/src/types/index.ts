@@ -1,4 +1,5 @@
-import { UserRole } from '../enums/index'
+import { JobStatus, UserRole } from '../enums/index'
+import { Coordinates } from '../schemas/index'
 
 export interface HealthResponse {
   status: 'ok' | 'error'
@@ -48,4 +49,32 @@ export interface LoginRequest {
 
 export interface TokenRefreshRequest {
   refreshToken: string
+}
+
+export interface JobDto {
+  id: string
+  companyId: string
+  customerName: string
+  customerPhone: string
+  address: string
+  location: Coordinates | null
+  status: JobStatus
+  scheduledAt: string | null
+  assignedTechnicianId: string | null
+  assignedTechnicianName?: string | null
+  notes: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface JobStatusHistoryDto {
+  id: string
+  companyId: string
+  jobId: string
+  fromStatus: JobStatus | null
+  toStatus: JobStatus
+  changedBy: string | null
+  changedByName?: string | null
+  changedAt: string
+  note: string | null
 }

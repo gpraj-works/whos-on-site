@@ -11,13 +11,13 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:seed": "tsx src/infrastructure/database/seed/index.ts",
-    "test:phase2": "tsx src/test/phase2-verification.ts"
+    "db:seed": "tsx src/infrastructure/database/seed/index.ts"
   },
   "dependencies": {
     "@routeboard/shared": "workspace:*",
     "argon2": "^0.41.1",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.23",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.3",
     "express": "^4.21.2",
