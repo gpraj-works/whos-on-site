@@ -3,6 +3,7 @@ import argon2 from 'argon2'
 import jwt from 'jsonwebtoken'
 import { AuthResponse, AuthUser, JwtPayload, RegisterRequest, UserRole } from '@routeboard/shared'
 import { env } from '../../config/env'
+import { withTransaction } from '../../infrastructure/database/client'
 import * as authRepo from './auth.repository'
 
 function hashToken(token: string): string {
@@ -44,40 +45,49 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
     throw new Error('A user with this email address already exists.')
   }
 
-  const company = await authRepo.createCompany({ name: data.companyName })
   const passwordHash = await argon2.hash(data.password)
 
-  const user = await authRepo.createUser({
-    companyId: company.id,
-    email: data.email.toLowerCase(),
-    passwordHash,
-    role: UserRole.OWNER
-  })
+  return withTransaction(async (tx) => {
+    const company = await authRepo.createCompany({ name: data.companyName }, tx)
 
-  const accessToken = generateAccessToken({
-    id: user.id,
-    companyId: user.companyId,
-    role: user.role as UserRole
-  })
-  const refreshToken = generateOpaqueToken()
-  const tokenHash = hashToken(refreshToken)
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const user = await authRepo.createUser(
+      {
+        companyId: company.id,
+        email: data.email.toLowerCase(),
+        passwordHash,
+        role: UserRole.OWNER
+      },
+      tx
+    )
 
-  await authRepo.createRefreshToken({
-    companyId: company.id,
-    userId: user.id,
-    tokenHash,
-    expiresAt
-  })
-
-  return {
-    accessToken,
-    refreshToken,
-    user: formatAuthUser({
-      ...user,
+    const accessToken = generateAccessToken({
+      id: user.id,
+      companyId: user.companyId,
       role: user.role as UserRole
     })
-  }
+    const refreshToken = generateOpaqueToken()
+    const tokenHash = hashToken(refreshToken)
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+    await authRepo.createRefreshToken(
+      {
+        companyId: company.id,
+        userId: user.id,
+        tokenHash,
+        expiresAt
+      },
+      tx
+    )
+
+    return {
+      accessToken,
+      refreshToken,
+      user: formatAuthUser({
+        ...user,
+        role: user.role as UserRole
+      })
+    }
+  })
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {

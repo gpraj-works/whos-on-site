@@ -7,6 +7,8 @@ import { redis } from './infrastructure/redis/client'
 import { HealthResponse, ReadinessResponse } from '@routeboard/shared'
 import { apiRouter } from './routes/index'
 
+import { errorHandler } from './middleware/error-handler'
+
 const app: express.Express = express()
 
 app.use(cors())
@@ -61,5 +63,8 @@ app.get('/ready', async (_req: Request, res: Response<ReadinessResponse>) => {
     timestamp: new Date().toISOString()
   })
 })
+
+// Register Global Error Handling Middleware
+app.use(errorHandler)
 
 export { app }

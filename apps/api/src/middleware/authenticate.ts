@@ -2,12 +2,15 @@ import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { JwtPayload } from '@routeboard/shared'
 import { env } from '../config/env'
+import { sendError } from '../common/response-handler'
+import { HttpStatus } from '../common/http-status'
+import { ErrorMessages } from '../common/error-messages'
 
 export function authenticate(req: Request, res: Response, next: NextFunction): void {
   const authHeader = req.headers.authorization
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Authentication required. Missing Bearer token.' })
+    sendError(res, ErrorMessages.UNAUTHORIZED, HttpStatus.UNAUTHORIZED)
     return
   }
 
@@ -24,9 +27,11 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
 
     next()
   } catch (err) {
-    res.status(401).json({
-      error: 'Invalid or expired access token.',
-      details: err instanceof Error ? err.message : undefined
-    })
+    sendError(
+      res,
+      ErrorMessages.INVALID_TOKEN,
+      HttpStatus.UNAUTHORIZED,
+      err instanceof Error ? err.message : undefined
+    )
   }
 }

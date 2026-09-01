@@ -1,6 +1,6 @@
 import { and, eq, sql } from 'drizzle-orm'
 import { Coordinates, TechnicianStatus } from '@routeboard/shared'
-import { db } from '../../infrastructure/database/client'
+import { DatabaseClient, db } from '../../infrastructure/database/client'
 import { technicians } from '../../infrastructure/database/schema/index'
 import {
   CreateTechnicianData,
@@ -8,8 +8,11 @@ import {
   TechnicianQueryResult
 } from './technician.types'
 
-export async function findCompanyTechnicians(companyId: string): Promise<TechnicianQueryResult[]> {
-  const rows = await db
+export async function findCompanyTechnicians(
+  companyId: string,
+  client: DatabaseClient = db
+): Promise<TechnicianQueryResult[]> {
+  const rows = await client
     .select({
       id: technicians.id,
       companyId: technicians.companyId,
@@ -31,13 +34,14 @@ export async function findCompanyTechnicians(companyId: string): Promise<Technic
 }
 
 export async function findNearbyAvailableTechnicians(
-  query: NearbyTechnicianQuery
+  query: NearbyTechnicianQuery,
+  client: DatabaseClient = db
 ): Promise<TechnicianQueryResult[]> {
   const radiusMeters = query.radiusMeters || 10000
 
   const pointSql = sql`ST_SetSRID(ST_MakePoint(${query.lng}, ${query.lat}), 4326)`
 
-  const rows = await db
+  const rows = await client
     .select({
       id: technicians.id,
       companyId: technicians.companyId,
@@ -67,8 +71,8 @@ export async function findNearbyAvailableTechnicians(
   }))
 }
 
-export async function createTechnician(data: CreateTechnicianData) {
-  const [row] = await db
+export async function createTechnician(data: CreateTechnicianData, client: DatabaseClient = db) {
+  const [row] = await client
     .insert(technicians)
     .values({
       companyId: data.companyId,
@@ -84,10 +88,15 @@ export async function createTechnician(data: CreateTechnicianData) {
   return row
 }
 
-export async function updateTechnicianLocation(id: string, companyId: string, coords: Coordinates) {
+export async function updateTechnicianLocation(
+  id: string,
+  companyId: string,
+  coords: Coordinates,
+  client: DatabaseClient = db
+) {
   const pointSql = sql`ST_SetSRID(ST_MakePoint(${coords.lng}, ${coords.lat}), 4326)`
 
-  const [updated] = await db
+  const [updated] = await client
     .update(technicians)
     .set({
       currentLocation: pointSql,
@@ -100,8 +109,8 @@ export async function updateTechnicianLocation(id: string, companyId: string, co
   return updated || null
 }
 
-export async function findTechnicianById(id: string, companyId: string) {
-  const [row] = await db
+export async function findTechnicianById(id: string, companyId: string, client: DatabaseClient = db) {
+  const [row] = await client
     .select()
     .from(technicians)
     .where(and(eq(technicians.id, id), eq(technicians.companyId, companyId)))
