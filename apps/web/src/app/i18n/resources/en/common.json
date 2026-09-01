@@ -1,0 +1,14 @@
+{
+  "appName": "RouteBoard",
+  "tagline": "Field-service dispatch & real-time job tracking platform",
+  "dashboard": "Dashboard",
+  "jobs": "Jobs",
+  "technicians": "Technicians",
+  "settings": "Settings",
+  "language": "Language",
+  "status": "Status",
+  "loading": "Loading...",
+  "actions": "Actions",
+  "save": "Save",
+  "cancel": "Cancel"
+}

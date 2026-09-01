@@ -1,0 +1,10 @@
+{
+  "title": "Dispatch Board",
+  "createJob": "Create Job",
+  "unassigned": "Unassigned",
+  "assigned": "Assigned",
+  "enRoute": "En Route",
+  "onSite": "On Site",
+  "complete": "Complete",
+  "cancelled": "Cancelled"
+}
