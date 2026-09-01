@@ -1,0 +1,65 @@
+---
+name: routeboard-domain
+description: >-
+  Field-service dispatch and real-time job tracking domain runbook for RouteBoard.
+  Use when implementing or modifying Jobs, Technicians, Status State Machine, PostGIS Spatial queries, or Socket.io events.
+---
+
+# RouteBoard Domain & Workflow Runbook
+
+This skill provides domain context and workflow rules for RouteBoard's field dispatch operations.
+
+---
+
+## 1. Job Lifecycle & Status State Machine
+
+The Job domain strictly enforces the following status transitions:
+
+```text
+  UNASSIGNED ────────┐
+      │              │
+      ▼              │
+   ASSIGNED ─────────┼───► CANCELLED
+      │              │
+      ▼              │
+   EN_ROUTE ─────────┘
+      │
+      ▼
+   ON_SITE
+      │
+      ▼
+   COMPLETE
+```
+
+### Transition Rules:
+- `UNASSIGNED` → `ASSIGNED`, `CANCELLED`
+- `ASSIGNED` → `EN_ROUTE`, `UNASSIGNED`, `CANCELLED`
+- `EN_ROUTE` → `ON_SITE`, `CANCELLED`
+- `ON_SITE` → `COMPLETE`
+- `COMPLETE` → Terminal state (no further transitions allowed)
+- `CANCELLED` → Terminal state (no further transitions allowed)
+
+### Mandatory Audit Logging:
+Every job status transition MUST record an audit log in `job_status_history` (`job_id`, `company_id`, `from_status`, `to_status`, `changed_by`, `changed_at`, `note`) wrapped in an atomic `withTransaction`.
+
+---
+
+## 2. PostGIS Spatial Queries & Technician Proximity
+
+- **Technician Location**: Stored as `geography(Point, 4326)` in `technicians.current_location`.
+- **Job Location**: Stored as `geography(Point, 4326)` in `jobs.location`.
+- **Proximity Query (`/api/technicians/nearby`)**:
+  - Uses `ST_DWithin` for spatial radius filtering (e.g. within 10,000 meters).
+  - Uses `ST_Distance` to order technicians by proximity.
+  - MUST enforce `company_id = req.auth.companyId` in the exact same spatial SQL query so competitor technicians are NEVER returned.
+
+---
+
+## 3. Real-Time Socket.io Events
+
+- Socket rooms are strictly scoped per company: `company:${companyId}`.
+- Core events:
+  - `job:created` — Broadcast when dispatcher creates a new job.
+  - `job:assigned` — Emitted to assigned technician device & dispatcher board.
+  - `job:statusChanged` — Emitted simultaneously to dispatcher board & public customer status view.
+  - `location:ping` — Technician live location broadcast while `en_route` or `on_site`.
