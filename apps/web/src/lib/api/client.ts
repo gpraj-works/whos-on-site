@@ -12,7 +12,7 @@ export interface ApiResponse<T = unknown> {
   timestamp?: string
 }
 
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:4000/api'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 let memoryAccessToken: string | null = null
 
@@ -28,10 +28,10 @@ export function getAccessToken(): string | null {
 let isRefreshing = false
 let failedQueue: Array<{
   resolve: (token: string) => void
-  reject: (err: any) => void
+  reject: (err: unknown) => void
 }> = []
 
-function processQueue(error: any, token: string | null = null) {
+function processQueue(error: unknown, token: string | null = null) {
   failedQueue.forEach((promise) => {
     if (error) {
       promise.reject(error)
@@ -148,7 +148,7 @@ export async function apiClient<T = unknown>(
   }
 
   if (!response.ok || !json.success) {
-    const rawError = json.error as any
+    const rawError = json.error as { message?: string; code?: string; details?: unknown } | string | undefined
     const errorMessage =
       (typeof rawError === 'string' ? rawError : rawError?.message) ||
       json.message ||
@@ -157,8 +157,8 @@ export async function apiClient<T = unknown>(
     throw new ApiError(
       errorMessage,
       response.status,
-      typeof rawError === 'object' ? rawError?.code : undefined,
-      typeof rawError === 'object' ? rawError?.details : undefined
+      typeof rawError === 'object' && rawError !== null ? rawError.code : undefined,
+      typeof rawError === 'object' && rawError !== null ? rawError.details : undefined
     )
   }
 

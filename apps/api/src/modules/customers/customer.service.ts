@@ -61,9 +61,14 @@ export async function deleteCustomer(
     if (!deleted) {
       throw new NotFoundError('Failed to delete customer')
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     // Postgres FK violation (23503): customer still referenced by jobs
-    if (err?.code === '23503') {
+    if (
+      typeof err === 'object' &&
+      err !== null &&
+      'code' in err &&
+      (err as { code: string }).code === '23503'
+    ) {
       throw new ConflictError(
         'Customer cannot be deleted because they have associated jobs. Reassign or remove the jobs first.'
       )

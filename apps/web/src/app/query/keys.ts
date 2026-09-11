@@ -7,7 +7,7 @@ export const authKeys = {
 export const jobKeys = {
   all: ['jobs'] as const,
   lists: () => [...jobKeys.all, 'list'] as const,
-  list: (filters: Record<string, any>) => [...jobKeys.lists(), filters] as const,
+  list: (filters: Record<string, unknown>) => [...jobKeys.lists(), filters] as const,
   details: () => [...jobKeys.all, 'detail'] as const,
   detail: (id: string) => [...jobKeys.details(), id] as const,
   history: (id: string) => [...jobKeys.detail(id), 'history'] as const

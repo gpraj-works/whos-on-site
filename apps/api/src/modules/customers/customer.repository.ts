@@ -10,7 +10,7 @@ import {
 } from './customer.types'
 
 /** Helper to format database customer row into CustomerDto */
-function mapCustomerRow(row: any): CustomerDto {
+function mapCustomerRow(row: typeof customers.$inferSelect): CustomerDto {
   const additionalInfo = row.additionalInfo
     ? typeof row.additionalInfo === 'string'
       ? JSON.parse(row.additionalInfo)
@@ -104,7 +104,7 @@ export async function updateCustomer(
   data: UpdateCustomerData,
   client: DatabaseClient = db
 ): Promise<CustomerDto | null> {
-  const updatePayload: Record<string, any> = {
+  const updatePayload: Record<string, unknown> = {
     updatedAt: dayjs().toDate()
   }
 
