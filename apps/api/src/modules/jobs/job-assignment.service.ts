@@ -2,6 +2,7 @@ import { JobAssignedEvent, JobDto, JobStatus } from '@whosonsite/shared'
 import { BadRequestError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
+import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
 import { findTechnicianById } from '../technicians/technician.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
@@ -76,6 +77,18 @@ export async function assignTechnicianToJob(
     jobId: updatedJob.id,
     technicianId,
     assignedAt: new Date().toISOString()
+  })
+
+  // Enqueue notification job
+  enqueueNotificationJob({
+    companyId,
+    jobId: updatedJob.id,
+    type: 'tech_assigned',
+    payload: {
+      jobId: updatedJob.id,
+      technicianId,
+      assignedBy: userId
+    }
   })
 
   return updatedJob
