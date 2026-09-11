@@ -8,6 +8,7 @@ import { DispatcherOnly } from '../components/auth/DispatcherOnly'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
 import { TechnicianOnly } from '../components/auth/TechnicianOnly'
+import { Analytics } from '../pages/Analytics'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
 import { Dispatch } from '../pages/Dispatch'
@@ -51,6 +52,14 @@ export const App: React.FC = () => {
                     element={
                       <DispatcherOnly>
                         <Dispatch />
+                      </DispatcherOnly>
+                    }
+                  />
+                  <Route
+                    path="/analytics"
+                    element={
+                      <DispatcherOnly>
+                        <Analytics />
                       </DispatcherOnly>
                     }
                   />
