@@ -46,7 +46,12 @@ export type CreateJobInput = z.infer<typeof createJobSchema>
 export const updateJobSchema = z.object({
   customerId: z.string().uuid('Invalid customer ID').optional(),
   location: coordinatesSchema.optional(),
-  scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).nullable().optional(),
+  scheduledAt: z
+    .string()
+    .datetime({ offset: true })
+    .or(z.string().datetime())
+    .nullable()
+    .optional(),
   notes: z.string().nullable().optional()
 })
 
@@ -77,9 +82,7 @@ export type JobFilterQuery = z.infer<typeof jobFilterQuerySchema>
 
 export const createCustomerSchema = z.object({
   name: z.string().min(2, 'Customer name must be at least 2 characters'),
-  email: z
-    .union([z.string().email('Invalid email address'), z.literal('')])
-    .optional(),
+  email: z.union([z.string().email('Invalid email address'), z.literal('')]).optional(),
   mobile: z.string().min(7, 'Customer phone number is required'),
   address: z.string().min(5, 'Address is required'),
   additionalInfo: z.record(z.string(), z.unknown()).optional()

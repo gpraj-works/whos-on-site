@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { technicianKeys } from '../../../app/query/keys'
-import { listTechnicians, nearbyTechnicians } from './technicianApi'
+import { technicianKeys } from '../../app/query/keys'
+import { listTechnicians, nearbyTechnicians } from './api'
 
 export function useTechnicians() {
   return useQuery({

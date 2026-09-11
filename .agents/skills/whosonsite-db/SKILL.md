@@ -14,6 +14,7 @@ This skill provides step-by-step procedures for database schema changes, Drizzle
 ## 1. Drizzle Schema File Layout
 
 Schema definitions are located in `apps/api/src/infrastructure/database/schema/`:
+
 - `common.ts` — Pure timestamp helpers (`createdAt`, `updatedAt`, `timestamps`). Zero dependencies on schema tables to prevent circular imports.
 - `company.ts` — `companyId` reference helper.
 - `audit.ts` — `createdBy`, `updatedBy`, `auditUserFields` helpers.
@@ -44,7 +45,9 @@ When schema definitions are updated in `apps/api/src/infrastructure/database/sch
 ## 3. Database Transactions & Native SQL
 
 ### Transaction Helper:
+
 Always wrap multi-table mutations in `withTransaction`:
+
 ```ts
 import { withTransaction, DatabaseClient } from '../infrastructure/database/client'
 
@@ -64,15 +67,20 @@ export async function changeJobStatus(
 ```
 
 ### Native SQL Queries:
+
 Use `executeRaw` with `sql` template tags:
+
 ```ts
 import { executeRaw } from '../infrastructure/database/client'
 import { sql } from 'drizzle-orm'
 
-const results = await executeRaw(sql`
+const results = await executeRaw(
+  sql`
   SELECT id, name, ST_Distance(current_location, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography) AS distance
   FROM technicians
   WHERE company_id = ${companyId}
   ORDER BY distance ASC
-`, client)
+`,
+  client
+)
 ```

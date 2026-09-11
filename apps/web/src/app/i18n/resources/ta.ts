@@ -8,6 +8,7 @@ export const ta = {
       dashboard: 'முகப்பு',
       jobs: 'வேலை பலகை',
       technicians: 'தொழில்நுட்ப வல்லுநர்கள்',
+      customers: 'வாடிக்கையாளர்கள்',
       analytics: 'பகுப்பாய்வு',
       settings: 'நிறுவன அமைப்புகள்'
     },
@@ -37,6 +38,9 @@ export const ta = {
     },
     common: {
       actions: 'செயல்கள்',
+      add: 'சேர்',
+      update: 'புதுப்பி',
+      new: 'புதியது',
       save: 'சேமிக்கவும்',
       cancel: 'ரத்துசெய்',
       confirm: 'உறுதிசெய்',
@@ -58,7 +62,7 @@ export const ta = {
     jobs: {
       title: 'வேலை பலகை',
       subtitle: 'வேலை ஒதுக்கீடுகள் மற்றும் நிலைகளை நிர்வகிக்கவும்',
-      newJob: 'புதிய வேலை',
+      newJob: 'புதியது',
       createTitle: 'புதிய வேலை உருவாக்கவும்',
       jobId: 'வேலை எண்',
       customer: 'வாடிக்கையாளர்',
@@ -70,17 +74,17 @@ export const ta = {
       customerMobile: 'தொலைபேசி எண்',
       customerAddressField: 'முகவரி',
       customerEmail: 'மின்னஞ்சல்',
-      saveCustomer: 'வாடிக்கையாளரை சேமிக்கவும்',
+      saveCustomer: 'சேர்',
       scheduledAt: 'திட்டமிடப்பட்ட நேரம்',
       scheduledFor: 'திட்டமிடப்பட்டது',
       createdAt: 'உருவாக்கப்பட்டது',
       notes: 'குறிப்புகள்',
       notesPlaceholder: 'வேலை பற்றிய குறிப்புகள் உள்ளிடவும்',
-      createSubmit: 'வேலையை உருவாக்கவும்',
+      createSubmit: 'சேர்',
       assignTitle: 'தொழில்நுட்ப வல்லுநரை ஒதுக்கவும்',
       selectTechnician: 'தொழில்நுட்ப வல்லுநரைத் தேர்ந்தெடுக்கவும்',
       chooseTechnician: 'வல்லுநரைத் தேர்ந்தெடுக்கவும்',
-      assignConfirm: 'ஒதுக்கவும்',
+      assignConfirm: 'புதுப்பி',
       unassignButton: 'ஒதுக்கீட்டை நீக்கு',
       noCustomer: 'வாடிக்கையாளர் இல்லை',
       status: 'நிலை',
@@ -109,7 +113,18 @@ export const ta = {
       phone: 'தொலைபேசி எண்',
       location: 'கடைசி இருப்பிடம்',
       lastUpdated: 'கடைசி புதுப்பிப்பு'
+    },
+    customers: {
+      title: 'வாடிக்கையாளர்கள்',
+      subtitle: 'வாடிக்கையாளர் கணக்குகள் மற்றும் முகவரிகளை நிர்வகிக்கவும்',
+      addCustomer: 'புதியது',
+      createTitle: 'புதிய வாடிக்கையாளரைச் சேர்',
+      name: 'வாடிக்கையாளர் பெயர்',
+      phone: 'தொலைபேசி எண்',
+      address: 'முகவரி',
+      email: 'மின்னஞ்சல்',
+      createdAt: 'உருவாக்கப்பட்ட நாள்',
+      saveSubmit: 'சேர்'
     }
   }
 }
-

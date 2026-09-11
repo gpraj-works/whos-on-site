@@ -2,9 +2,9 @@ import React from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { UserRole } from '@whosonsite/shared'
 
-import { LoadingState } from '../../../components/common/LoadingState'
-import { AppLayout } from '../../../components/layout/AppLayout'
-import { useAuth } from '../context/AuthContext'
+import { LoadingState } from '../common/LoadingState'
+import { AppLayout } from '../layout/AppLayout'
+import { useAuth } from './AuthContext'
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[]

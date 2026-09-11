@@ -26,11 +26,11 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { ConfirmDialog } from '../../../components/common/ConfirmDialog'
-import { StatusBadge } from '../../../components/common/StatusBadge'
-import { ApiErrorAlert } from '../../../components/feedback/ApiErrorAlert'
-import { formatDate, formatDateTime, formatRelative } from '../../../lib/date/format'
-import { useCancelJob, useJobHistory, useUpdateJobStatus } from '../api/jobQueries'
+import { formatDate, formatDateTime, formatRelative } from '../../lib/date/format'
+import { ConfirmDialog } from '../common/ConfirmDialog'
+import { StatusBadge } from '../common/StatusBadge'
+import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import { useCancelJob, useJobHistory, useUpdateJobStatus } from './queries'
 
 interface JobDetailDrawerProps {
   opened: boolean
@@ -85,7 +85,6 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
     }
   }
 
-  // Legal transitions defined by job state machine
   const renderStatusActionButtons = () => {
     if (job.status === JobStatus.CANCELLED || job.status === JobStatus.COMPLETE) {
       return (
@@ -191,7 +190,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 loading={updateStatusMutation.isPending}
                 onClick={() => handleStatusTransition(showNoteInput)}
               >
-                {t('common.confirm', 'Confirm Transition')}
+                {t('common.update', 'Update')}
               </Button>
             </Group>
           </Paper>
@@ -284,7 +283,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
               {job.notes && (
                 <Paper p="xs" bg="var(--mantine-color-body)" withBorder mt="xs">
                   <Text size="xs" fw={600} c="dimmed" mb={2}>
-                    {t('jobs.notes', 'Job Notes')}
+                    {t('jobs.notes', 'Description')}
                   </Text>
                   <Text size="xs">{job.notes}</Text>
                 </Paper>
@@ -353,7 +352,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         opened={confirmCancelOpened}
         onClose={() => setConfirmCancelOpened(false)}
         onConfirm={handleConfirmCancel}
-        title={t('jobs.cancelTitle', 'Cancel Dispatch Job')}
+        title={t('jobs.cancelTitle', 'Cancel Job')}
         message={t(
           'jobs.cancelConfirmMessage',
           'Are you sure you want to cancel this job? This will update status to Cancelled.'

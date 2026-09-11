@@ -1,11 +1,19 @@
 import React from 'react'
 import { NavLink, Stack } from '@mantine/core'
 import { UserRole } from '@whosonsite/shared'
-import { BarChart3, LayoutDashboard, Palette, Settings, Truck, Users } from 'lucide-react'
+import {
+  BarChart3,
+  LayoutDashboard,
+  Palette,
+  Settings,
+  Truck,
+  UserCheck,
+  Users
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 
-import { useAuth } from '../../features/auth/context/AuthContext'
+import { useAuth } from '../auth/AuthContext'
 
 interface AppSidebarProps {
   onNavigate?: () => void
@@ -28,13 +36,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
     {
       icon: Truck,
       label: t('nav.jobs'),
-      path: '/jobs',
+      path: '/dispatch',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
     },
     {
       icon: Users,
       label: t('nav.technicians'),
       path: '/technicians',
+      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+    },
+    {
+      icon: UserCheck,
+      label: t('nav.customers', 'Customers'),
+      path: '/customers',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
     },
     {
@@ -63,7 +77,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
     <Stack gap="xs" p="xs">
       {visibleItems.map((item) => {
         const isActive =
-          location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/')
+          location.pathname === item.path ||
+          (item.path === '/dashboard' && location.pathname === '/')
         return (
           <NavLink
             key={item.path}

@@ -27,4 +27,3 @@ export const customerKeys = {
   details: () => [...customerKeys.all, 'detail'] as const,
   detail: (id: string) => [...customerKeys.details(), id] as const
 }
-

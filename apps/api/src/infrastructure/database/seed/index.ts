@@ -121,10 +121,12 @@ export async function seedDatabase() {
       customerId: customerA2.id,
       location: sql`ST_SetSRID(ST_MakePoint(-84.3529, 33.8250), 4326)`,
       status: 'assigned',
-      assignedTechnicianId: (await db
-        .select({ id: technicians.id })
-        .from(technicians)
-        .where(sql`${technicians.name} = 'John Atlanta Tech'`))[0]?.id,
+      assignedTechnicianId: (
+        await db
+          .select({ id: technicians.id })
+          .from(technicians)
+          .where(sql`${technicians.name} = 'John Atlanta Tech'`)
+      )[0]?.id,
       notes: 'Routine HVAC filter replacement for common areas',
       createdBy: dispatcherA.id
     }
@@ -238,10 +240,12 @@ export async function seedDatabase() {
       customerId: customerB2.id,
       location: sql`ST_SetSRID(ST_MakePoint(-73.9105, 40.7427), 4326)`,
       status: 'assigned',
-      assignedTechnicianId: (await db
-        .select({ id: technicians.id })
-        .from(technicians)
-        .where(sql`${technicians.name} = 'Mike Brooklyn Tech'`))[0]?.id,
+      assignedTechnicianId: (
+        await db
+          .select({ id: technicians.id })
+          .from(technicians)
+          .where(sql`${technicians.name} = 'Mike Brooklyn Tech'`)
+      )[0]?.id,
       notes: 'Replace broken water heater in back stock room',
       createdBy: dispatcherB.id
     }

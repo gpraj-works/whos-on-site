@@ -48,6 +48,7 @@ If Git information cannot be obtained, STOP.
 The diff determines what is being reviewed.
 
 You MAY inspect unchanged surrounding code only when necessary to understand:
+
 - Callers
 - Dependencies
 - Existing contracts
@@ -62,6 +63,7 @@ Never report a pre-existing issue merely because you encountered it while tracin
 Every finding MUST reference a changed file and changed code.
 
 Do NOT:
+
 - Review the entire repository
 - Review unrelated existing issues
 - Review commits outside the current diff
@@ -128,6 +130,7 @@ If an issue cannot be confirmed, do not report it.
 ### CRITICAL
 
 Only for:
+
 - Multi-company data leak / tenant isolation bypass
 - Serious security vulnerability
 - Authentication/authorization bypass

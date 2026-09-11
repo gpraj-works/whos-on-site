@@ -6,10 +6,11 @@ export const en = {
     },
     nav: {
       dashboard: 'Dashboard',
-      jobs: 'Dispatch Board',
+      jobs: 'Dispatch',
       technicians: 'Technicians',
+      customers: 'Customers',
       analytics: 'Analytics',
-      settings: 'Company Settings'
+      settings: 'Settings'
     },
     theme: {
       title: 'Appearance',
@@ -37,6 +38,9 @@ export const en = {
     },
     common: {
       actions: 'Actions',
+      add: 'Add',
+      update: 'Update',
+      new: 'New',
       save: 'Save Changes',
       cancel: 'Cancel',
       confirm: 'Confirm',
@@ -58,7 +62,7 @@ export const en = {
     jobs: {
       title: 'Dispatch Board',
       subtitle: 'Manage job assignments, status state machine, and customer dispatches',
-      newJob: 'New Dispatch Job',
+      newJob: 'New',
       createTitle: 'Create Dispatch Job',
       jobId: 'Job ID',
       customer: 'Customer',
@@ -70,17 +74,17 @@ export const en = {
       customerMobile: 'Phone Number',
       customerAddressField: 'Address',
       customerEmail: 'Email (Optional)',
-      saveCustomer: 'Save Customer',
-      scheduledAt: 'Scheduled Date & Time',
+      saveCustomer: 'Add',
+      scheduledAt: 'Schedule',
       scheduledFor: 'Scheduled For',
       createdAt: 'Created',
-      notes: 'Job Notes / Description',
+      notes: 'Description',
       notesPlaceholder: 'Enter job service details or instructions',
-      createSubmit: 'Create Dispatch Job',
+      createSubmit: 'Add',
       assignTitle: 'Assign Technician',
       selectTechnician: 'Select Field Technician',
       chooseTechnician: 'Choose an available technician',
-      assignConfirm: 'Assign Technician',
+      assignConfirm: 'Update',
       unassignButton: 'Unassign Current Technician',
       noCustomer: 'Unassigned Customer',
       status: 'Status',
@@ -92,7 +96,8 @@ export const en = {
       markComplete: 'Complete Job',
       cancelJob: 'Cancel Job',
       cancelTitle: 'Cancel Job',
-      cancelConfirmMessage: 'Are you sure you want to cancel this job? This will update status to Cancelled.',
+      cancelConfirmMessage:
+        'Are you sure you want to cancel this job? This will update status to Cancelled.',
       terminalStateNotice: 'This job is in a terminal state.',
       availableActions: 'Available Status Actions',
       addStatusNote: 'Add optional note for status change:',
@@ -103,13 +108,25 @@ export const en = {
     },
     technicians: {
       title: 'Field Technicians',
-      subtitle: 'Real-time technician availability, status tracking, and location dispatch readiness',
+      subtitle:
+        'Real-time technician availability, status tracking, and location dispatch readiness',
       name: 'Technician',
       status: 'Status',
       phone: 'Phone Number',
       location: 'Last Known Location',
       lastUpdated: 'Last Updated'
+    },
+    customers: {
+      title: 'Customers',
+      subtitle: 'Manage company customer accounts and service locations',
+      addCustomer: 'New',
+      createTitle: 'Add New Customer',
+      name: 'Customer Name',
+      phone: 'Phone Number',
+      address: 'Address',
+      email: 'Email',
+      createdAt: 'Created At',
+      saveSubmit: 'Add'
     }
   }
 }
-

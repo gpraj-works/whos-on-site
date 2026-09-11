@@ -1,5 +1,5 @@
 import { CreateCustomerInput, CustomerDto } from '@whosonsite/shared'
-import { apiClient } from '../../../lib/api'
+import { apiClient } from '../../lib/api'
 
 export async function listCustomers(search?: string): Promise<CustomerDto[]> {
   const query = search ? `?search=${encodeURIComponent(search)}` : ''

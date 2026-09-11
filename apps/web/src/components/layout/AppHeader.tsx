@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
-import { useAuth } from '../../features/auth/context/AuthContext'
+import { useAuth } from '../auth/AuthContext'
 import { Logo } from '../common/Logo'
 
 interface AppHeaderProps {
@@ -38,7 +38,8 @@ const SWATCH_HEX_MAP: Record<ThemeColorType, string> = {
 
 export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile }) => {
   const { t, i18n } = useTranslation()
-  const { colorScheme, toggleColorScheme, primaryColor, setPrimaryColor, themeColors } = useAppTheme()
+  const { colorScheme, toggleColorScheme, primaryColor, setPrimaryColor, themeColors } =
+    useAppTheme()
   const { user, company, logout } = useAuth()
 
   const changeLanguage = (lng: string) => {
@@ -48,13 +49,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
   const companyName = company?.name || 'WhosOnSite'
 
   return (
-    <Group
-      h="100%"
-      px={{ base: 'xs', sm: 'md' }}
-      justify="space-between"
-      align="center"
-      gap="md"
-    >
+    <Group h="100%" px={{ base: 'xs', sm: 'md' }} justify="space-between" align="center" gap="md">
       {/* Brand & Mobile Burger */}
       <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
         <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
@@ -71,13 +66,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
             >
               {t('app.name')}
             </Title>
-            <Text
-              size="xs"
-              c="dimmed"
-              lh={1.1}
-              truncate
-              maw={140}
-            >
+            <Text size="xs" c="dimmed" lh={1.1} truncate maw={140}>
               {companyName}
             </Text>
           </Box>
@@ -96,7 +85,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
                   size={18}
                   style={{
                     cursor: 'pointer',
-                    outline: primaryColor === color ? '2px solid var(--mantine-primary-color-filled)' : 'none',
+                    outline:
+                      primaryColor === color
+                        ? '2px solid var(--mantine-primary-color-filled)'
+                        : 'none',
                     outlineOffset: 2
                   }}
                 />
@@ -124,12 +116,8 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
 
           <Menu.Dropdown>
             <Menu.Label>{t('language.selectLanguage')}</Menu.Label>
-            <Menu.Item onClick={() => changeLanguage('en')}>
-              {t('language.english')}
-            </Menu.Item>
-            <Menu.Item onClick={() => changeLanguage('ta')}>
-              {t('language.tamil')}
-            </Menu.Item>
+            <Menu.Item onClick={() => changeLanguage('en')}>{t('language.english')}</Menu.Item>
+            <Menu.Item onClick={() => changeLanguage('ta')}>{t('language.tamil')}</Menu.Item>
           </Menu.Dropdown>
         </Menu>
 

@@ -2,7 +2,14 @@ import crypto from 'crypto'
 import argon2 from 'argon2'
 import dayjs from 'dayjs'
 import jwt from 'jsonwebtoken'
-import { AuthResponse, AuthUser, CompanyDto, JwtPayload, RegisterRequest, UserRole } from '@whosonsite/shared'
+import {
+  AuthResponse,
+  AuthUser,
+  CompanyDto,
+  JwtPayload,
+  RegisterRequest,
+  UserRole
+} from '@whosonsite/shared'
 import { env } from '../../config/env'
 import { withTransaction } from '../../infrastructure/database/client'
 import * as authRepo from './auth.repository'
@@ -219,7 +226,9 @@ export async function logout(rawRefreshToken: string): Promise<void> {
   }
 }
 
-export async function getCurrentUser(userId: string): Promise<{ user: AuthUser; company?: CompanyDto }> {
+export async function getCurrentUser(
+  userId: string
+): Promise<{ user: AuthUser; company?: CompanyDto }> {
   const user = await authRepo.findUserById(userId)
   if (!user) {
     throw new Error('User not found.')

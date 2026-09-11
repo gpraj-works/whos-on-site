@@ -1,12 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import {
-  CreateJobInput,
-  JobFilterQuery,
-  JobStatus,
-  UpdateJobInput
-} from '@whosonsite/shared'
+import { CreateJobInput, JobFilterQuery, JobStatus, UpdateJobInput } from '@whosonsite/shared'
 
-import { jobKeys } from '../../../app/query/keys'
+import { jobKeys } from '../../app/query/keys'
 import {
   assignJob,
   cancelJob,
@@ -17,7 +12,7 @@ import {
   unassignJob,
   updateJob,
   updateJobStatus
-} from './jobApi'
+} from './api'
 
 export function useJobs(filters?: JobFilterQuery) {
   return useQuery({

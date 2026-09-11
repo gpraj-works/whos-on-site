@@ -2,9 +2,9 @@ import React, { useState } from 'react'
 import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 
-import { ApiErrorAlert } from '../../../components/feedback/ApiErrorAlert'
-import { useTechnicians } from '../../technicians/api/technicianQueries'
-import { useAssignJob, useUnassignJob } from '../api/jobQueries'
+import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import { useTechnicians } from '../technicians/queries'
+import { useAssignJob, useUnassignJob } from './queries'
 
 interface AssignTechnicianModalProps {
   opened: boolean
@@ -127,7 +127,7 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
               loading={assignJobMutation.isPending}
               disabled={!selectedTechId}
             >
-              {t('jobs.assignConfirm', 'Assign Technician')}
+              {t('jobs.assignConfirm', 'Update')}
             </Button>
           </Group>
         </Group>

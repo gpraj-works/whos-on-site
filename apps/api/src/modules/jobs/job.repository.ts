@@ -1,6 +1,12 @@
 import dayjs from 'dayjs'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { Coordinates, CustomerDto, JobDto, JobStatus, JobStatusHistoryDto } from '@whosonsite/shared'
+import {
+  Coordinates,
+  CustomerDto,
+  JobDto,
+  JobStatus,
+  JobStatusHistoryDto
+} from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import {
   customers,
@@ -59,10 +65,7 @@ function mapJobRow(row: Record<string, unknown>): JobDto {
 }
 
 /** Create a new job record */
-export async function createJob(
-  data: CreateJobData,
-  client: DatabaseClient = db
-): Promise<JobDto> {
+export async function createJob(data: CreateJobData, client: DatabaseClient = db): Promise<JobDto> {
   const locationSql = data.location
     ? sql`ST_SetSRID(ST_MakePoint(${data.location.lng}, ${data.location.lat}), 4326)`
     : null
@@ -140,7 +143,9 @@ export async function findJobs(
     const startOfDay = dayjs(params.date).startOf('day').toDate()
     const endOfDay = dayjs(params.date).endOf('day').toDate()
 
-    conditions.push(sql`${jobs.scheduledAt} >= ${startOfDay} AND ${jobs.scheduledAt} <= ${endOfDay}`)
+    conditions.push(
+      sql`${jobs.scheduledAt} >= ${startOfDay} AND ${jobs.scheduledAt} <= ${endOfDay}`
+    )
   }
 
   const limit = params.limit || 50

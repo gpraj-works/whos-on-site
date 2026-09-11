@@ -1,5 +1,5 @@
 import { TechnicianDto } from '@whosonsite/shared'
-import { apiClient } from '../../../lib/api'
+import { apiClient } from '../../lib/api'
 
 export async function listTechnicians(): Promise<TechnicianDto[]> {
   return apiClient<TechnicianDto[]>('/technicians')

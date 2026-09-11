@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CreateCustomerInput } from '@whosonsite/shared'
 
-import { customerKeys } from '../../../app/query/keys'
-import { createCustomer, listCustomers } from './customerApi'
+import { customerKeys } from '../../app/query/keys'
+import { createCustomer, listCustomers } from './api'
 
 export function useCustomers(search?: string) {
   return useQuery({

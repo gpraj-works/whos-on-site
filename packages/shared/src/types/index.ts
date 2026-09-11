@@ -110,4 +110,3 @@ export interface TechnicianDto {
   lastLocationAt: string | null
   distanceMeters?: number
 }
-

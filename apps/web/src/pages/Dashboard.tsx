@@ -30,16 +30,16 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { useAppTheme } from '../app/theme/ThemeContext'
+import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { ApiErrorAlert } from '../components/feedback/ApiErrorAlert'
-import { useAuth } from '../features/auth/context/AuthContext'
-import { useJobs } from '../features/jobs/api/jobQueries'
-import { CreateJobModal } from '../features/jobs/components/CreateJobModal'
-import { useTechnicians } from '../features/technicians/api/technicianQueries'
+import { CreateJobModal } from '../components/jobs/Form'
+import { useJobs } from '../components/jobs/queries'
+import { useTechnicians } from '../components/technicians/queries'
 import { formatDateTime } from '../lib/date/format'
 
-export const DashboardPage: React.FC = () => {
+export const Dashboard: React.FC = () => {
   const { t } = useTranslation()
   const { user, company } = useAuth()
   const { primaryColor } = useAppTheme()
@@ -48,15 +48,24 @@ export const DashboardPage: React.FC = () => {
 
   const companyName = company?.name || 'WhosOnSite Operations'
 
-  const { data: jobs = [], isLoading: isLoadingJobs, error: jobsError, refetch: refetchJobs } = useJobs()
-  const { data: technicians = [], isLoading: isLoadingTechs, error: techsError, refetch: refetchTechs } = useTechnicians()
+  const {
+    data: jobs = [],
+    isLoading: isLoadingJobs,
+    error: jobsError,
+    refetch: refetchJobs
+  } = useJobs()
+  const {
+    data: technicians = [],
+    isLoading: isLoadingTechs,
+    error: techsError,
+    refetch: refetchTechs
+  } = useTechnicians()
 
   const handleRefreshAll = () => {
     refetchJobs()
     refetchTechs()
   }
 
-  // Real KPI calculations derived from API data
   const activeJobs = jobs.filter(
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
   )
@@ -124,7 +133,7 @@ export const DashboardPage: React.FC = () => {
                 color={primaryColor}
                 onClick={() => setCreateModalOpened(true)}
               >
-                {t('jobs.newJob', 'New Dispatch Job')}
+                {t('common.new', 'New')}
               </Button>
             </Group>
           }
@@ -293,13 +302,16 @@ export const DashboardPage: React.FC = () => {
                     roundCaps
                     sections={[
                       {
-                        value: jobs.length > 0 ? Math.round((completedToday / jobs.length) * 100) : 0,
+                        value:
+                          jobs.length > 0 ? Math.round((completedToday / jobs.length) * 100) : 0,
                         color: primaryColor
                       }
                     ]}
                     label={
                       <Text ta="center" fw={700} size="lg">
-                        {jobs.length > 0 ? `${Math.round((completedToday / jobs.length) * 100)}%` : '0%'}
+                        {jobs.length > 0
+                          ? `${Math.round((completedToday / jobs.length) * 100)}%`
+                          : '0%'}
                       </Text>
                     }
                   />
@@ -334,7 +346,13 @@ export const DashboardPage: React.FC = () => {
                     </Text>
                   ) : (
                     technicians.slice(0, 4).map((tech) => (
-                      <Paper key={tech.id} p="xs" radius="sm" withBorder bg="var(--mantine-color-body)">
+                      <Paper
+                        key={tech.id}
+                        p="xs"
+                        radius="sm"
+                        withBorder
+                        bg="var(--mantine-color-body)"
+                      >
                         <Group justify="space-between">
                           <Group gap="xs">
                             <Avatar size="sm" radius="xl" color={primaryColor}>
@@ -373,12 +391,9 @@ export const DashboardPage: React.FC = () => {
         </Grid>
       </Stack>
 
-      <CreateJobModal
-        opened={createModalOpened}
-        onClose={() => setCreateModalOpened(false)}
-      />
+      <CreateJobModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
     </Container>
   )
 }
 
-export default DashboardPage
+export default Dashboard
