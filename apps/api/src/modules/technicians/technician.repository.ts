@@ -121,3 +121,16 @@ export async function findTechnicianById(
     .where(and(eq(technicians.id, id), eq(technicians.companyId, companyId)))
   return row || null
 }
+
+export async function findTechnicianByUserId(
+  userId: string,
+  companyId: string,
+  client: DatabaseClient = db
+) {
+  const [row] = await client
+    .select()
+    .from(technicians)
+    .where(and(eq(technicians.userId, userId), eq(technicians.companyId, companyId)))
+  return row || null
+}
+

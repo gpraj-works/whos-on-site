@@ -8,7 +8,6 @@ import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
-import { DesignSystem } from '../pages/DesignSystem'
 import { Jobs } from '../pages/Jobs'
 import { Login } from '../pages/Login'
 import { Settings } from '../pages/Settings'
@@ -39,7 +38,6 @@ export const App: React.FC = () => {
                   <Route path="/technicians" element={<Technicians />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/settings" element={<Settings />} />
-                  <Route path="/design-system" element={<DesignSystem />} />
                 </Route>
 
                 {/* Catch-all redirect */}

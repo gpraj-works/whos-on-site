@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   ActionIcon,
   Avatar,
@@ -16,55 +16,31 @@ import {
   Title
 } from '@mantine/core'
 import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
-import {
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Plus,
-  RefreshCw,
-  ShieldCheck,
-  Truck,
-  Users
-} from 'lucide-react'
+import { CheckCircle2, Clock, MapPin, Truck, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { useAppTheme } from '../app/theme/ThemeContext'
-import { useAuth } from '../components/auth/AuthContext'
-import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { ApiErrorAlert } from '../components/feedback/ApiErrorAlert'
-import { CreateJobModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
 import { useTechnicians } from '../components/technicians/queries'
 import { formatDateTime } from '../lib/date/format'
 
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation()
-  const { user, company } = useAuth()
   const { primaryColor } = useAppTheme()
-
-  const [createModalOpened, setCreateModalOpened] = useState(false)
-
-  const companyName = company?.name || 'WhosOnSite Operations'
 
   const {
     data: jobs = [],
     isLoading: isLoadingJobs,
-    error: jobsError,
-    refetch: refetchJobs
+    error: jobsError
   } = useJobs()
   const {
     data: technicians = [],
     isLoading: isLoadingTechs,
-    error: techsError,
-    refetch: refetchTechs
+    error: techsError
   } = useTechnicians()
-
-  const handleRefreshAll = () => {
-    refetchJobs()
-    refetchTechs()
-  }
 
   const activeJobs = jobs.filter(
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
@@ -115,58 +91,7 @@ export const Dashboard: React.FC = () => {
   return (
     <Container size="xl" py="lg">
       <Stack gap="lg">
-        {/* Welcome Header */}
-        <PageHeader
-          title={t('nav.dashboard', 'Dashboard')}
-          subtitle={`Real-time dispatch overview for ${companyName}`}
-          actions={
-            <Group gap="xs">
-              <Button
-                variant="default"
-                leftSection={<RefreshCw size={16} />}
-                onClick={handleRefreshAll}
-              >
-                {t('common.refresh', 'Refresh')}
-              </Button>
-              <Button
-                leftSection={<Plus size={16} />}
-                color={primaryColor}
-                onClick={() => setCreateModalOpened(true)}
-              >
-                {t('common.new', 'New')}
-              </Button>
-            </Group>
-          }
-        />
-
         <ApiErrorAlert error={jobsError || techsError} />
-
-        {/* User Role Banner */}
-        <Paper p="md" radius="md" bg="var(--mantine-color-body)" withBorder>
-          <Group justify="space-between" align="center" wrap="wrap" gap="md">
-            <Group gap="md" style={{ minWidth: 0 }}>
-              <Avatar color={primaryColor} radius="xl" size="md">
-                <ShieldCheck size={24} />
-              </Avatar>
-              <div style={{ minWidth: 0 }}>
-                <Group gap="xs">
-                  <Text fw={700} size="sm" truncate>
-                    {user?.email}
-                  </Text>
-                  <Badge size="xs" color={primaryColor} variant="filled" tt="uppercase">
-                    {user?.role}
-                  </Badge>
-                </Group>
-                <Text size="xs" c="dimmed" hiddenFrom="sm" truncate>
-                  Company: {company?.id?.slice(0, 8)}...
-                </Text>
-              </div>
-            </Group>
-            <Button size="xs" variant="light" color={primaryColor} component={Link} to="/settings">
-              Manage Security & Settings
-            </Button>
-          </Group>
-        </Paper>
 
         {/* KPI Metrics Grid */}
         <Grid>
@@ -390,8 +315,6 @@ export const Dashboard: React.FC = () => {
           </Grid.Col>
         </Grid>
       </Stack>
-
-      <CreateJobModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
     </Container>
   )
 }

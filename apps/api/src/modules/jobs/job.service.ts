@@ -1,14 +1,17 @@
 import {
   CreateJobInput,
+  JobCreatedEvent,
   JobDto,
   JobFilterQuery,
   JobStatus,
+  JobStatusChangedEvent,
   JobStatusHistoryDto,
   UpdateJobInput,
   UserRole
 } from '@whosonsite/shared'
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
+import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { findCustomerById } from '../customers/customer.repository'
 import { findCompanyTechnicians } from '../technicians/technician.repository'
 import * as jobRepo from './job.repository'
@@ -48,6 +51,17 @@ export async function createNewJob(
     toStatus: JobStatus.UNASSIGNED,
     changedBy: userId,
     note: 'Job created'
+  })
+
+  // Emit job:created event after persistence
+  emitToCompany<JobCreatedEvent>(companyId, 'job:created', {
+    companyId,
+    jobId: job.id,
+    customerId: job.customerId,
+    status: job.status,
+    assignedTechnicianId: job.assignedTechnicianId,
+    createdAt: job.createdAt,
+    job
   })
 
   return job
@@ -170,7 +184,7 @@ export async function changeJobStatus(
     )
   }
 
-  return withTransaction(async (tx) => {
+  const updatedJob = await withTransaction(async (tx) => {
     await jobRepo.updateJobStatus(jobId, companyId, targetStatus, tx)
     await jobRepo.createStatusHistory(
       {
@@ -190,6 +204,18 @@ export async function changeJobStatus(
     }
     return updated
   })
+
+  // Emit job:statusChanged event after transaction commit
+  emitToCompany<JobStatusChangedEvent>(companyId, 'job:statusChanged', {
+    companyId,
+    jobId: updatedJob.id,
+    status: updatedJob.status,
+    fromStatus: job.status,
+    changedBy: userId,
+    changedAt: new Date().toISOString()
+  })
+
+  return updatedJob
 }
 
 /** Get status history trail for a job */
