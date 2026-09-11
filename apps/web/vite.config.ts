@@ -38,9 +38,10 @@ export default defineConfig({
   server: {
     port: 3000,
     proxy: {
-      '^/(api|health|ready)': {
+      '^/(api|health|ready|socket.io)': {
         target: 'http://localhost:4000',
-        changeOrigin: true
+        changeOrigin: true,
+        ws: true
       }
     }
   }

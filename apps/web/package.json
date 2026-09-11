@@ -14,8 +14,8 @@
     "@mantine/hooks": "^7.17.0",
     "@mantine/notifications": "^7.17.0",
     "@reduxjs/toolkit": "^2.12.0",
-    "@whosonsite/shared": "workspace:*",
     "@tanstack/react-query": "^5.66.5",
+    "@whosonsite/shared": "workspace:*",
     "dayjs": "^1.11.23",
     "i18next": "^24.2.2",
     "i18next-browser-languagedetector": "^8.0.4",
@@ -25,6 +25,7 @@
     "react-i18next": "^15.4.1",
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.2.0",
+    "socket.io-client": "^4.8.3",
     "zod": "^3.24.2"
   },
   "devDependencies": {

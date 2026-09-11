@@ -8,6 +8,7 @@ import {
 } from '@whosonsite/shared'
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { setOnAuthFailure } from '../../lib/api'
+import { disconnectSocket, useSocketEvents } from '../../lib/socket'
 import { useAppDispatch, useAppSelector } from '../../store'
 import {
   bootstrapSessionThunk,
@@ -55,6 +56,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       dispatch(clearCredentials())
     })
   }, [dispatch])
+
+  // Register real-time Socket.io event listeners when authenticated
+  useSocketEvents(isAuthenticated)
+
+  // Disconnect socket when session terminates or logs out
+  useEffect(() => {
+    if (!isAuthenticated) {
+      disconnectSocket()
+    }
+  }, [isAuthenticated])
 
   // Session Bootstrap on App Mount
   useEffect(() => {
