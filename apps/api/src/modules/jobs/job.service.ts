@@ -1,9 +1,19 @@
 import { CreateJobInput, JobDto, JobFilterQuery, JobStatus, JobStatusHistoryDto, UpdateJobInput, UserRole } from '@routeboard/shared'
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
+import { findCustomerById } from '../customers/customer.repository'
 import { findCompanyTechnicians } from '../technicians/technician.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
+
+/** Resolve and verify the customer belongs to the company */
+async function resolveCustomer(customerId: string, companyId: string) {
+  const customer = await findCustomerById(customerId, companyId)
+  if (!customer) {
+    throw new NotFoundError('Customer not found or does not belong to your company')
+  }
+  return customer
+}
 
 /** Create a new job record */
 export async function createNewJob(
@@ -11,11 +21,11 @@ export async function createNewJob(
   companyId: string,
   userId: string
 ): Promise<JobDto> {
+  await resolveCustomer(input.customerId, companyId)
+
   const job = await jobRepo.createJob({
     companyId,
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    address: input.address,
+    customerId: input.customerId,
     location: input.location,
     scheduledAt: input.scheduledAt,
     notes: input.notes,
@@ -104,10 +114,12 @@ export async function updateJobDetails(
     throw new BadRequestError(`Cannot update details for a job that is '${existing.status}'`)
   }
 
+  if (input.customerId !== undefined) {
+    await resolveCustomer(input.customerId, companyId)
+  }
+
   const updated = await jobRepo.updateJob(jobId, companyId, {
-    customerName: input.customerName,
-    customerPhone: input.customerPhone,
-    address: input.address,
+    customerId: input.customerId,
     location: input.location,
     scheduledAt: input.scheduledAt === null ? undefined : input.scheduledAt,
     notes: input.notes === null ? undefined : input.notes,

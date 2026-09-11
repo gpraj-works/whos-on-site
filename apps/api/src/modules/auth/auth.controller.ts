@@ -1,39 +1,97 @@
 import { Request, RequestHandler, Response } from 'express'
 import * as authService from './auth.service'
-import { loginSchema, logoutSchema, refreshSchema, registerSchema } from './auth.schema'
+import { loginSchema, registerSchema } from './auth.schema'
 import { asyncHandler } from '../../middleware/error-handler'
 import { sendSuccess } from '../../common/response-handler'
 import { HttpStatus } from '../../common/http-status'
 import { UnauthorizedError } from '../../common/app-error'
+import { env } from '../../config/env'
+
+const REFRESH_COOKIE_NAME = 'routeboard_refresh_token'
+
+const getCookieOptions = () => ({
+  httpOnly: true,
+  secure: env.isProdEnv,
+  sameSite: 'lax' as const,
+  path: '/api/auth',
+  maxAge: 7 * 24 * 60 * 60 * 1000
+})
 
 export const register: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const parsed = registerSchema.parse(req.body)
   const result = await authService.register(parsed)
-  sendSuccess(res, result, 'Company and owner registered successfully.', HttpStatus.CREATED)
+
+  res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, getCookieOptions())
+
+  sendSuccess(
+    res,
+    {
+      accessToken: result.accessToken,
+      user: result.user,
+      company: result.company
+    },
+    'Company and owner registered successfully.',
+    HttpStatus.CREATED
+  )
 })
 
 export const login: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const parsed = loginSchema.parse(req.body)
   try {
     const result = await authService.login(parsed.email, parsed.password)
-    sendSuccess(res, result)
+
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, getCookieOptions())
+
+    sendSuccess(res, {
+      accessToken: result.accessToken,
+      user: result.user,
+      company: result.company
+    })
   } catch (err) {
     throw new UnauthorizedError(err instanceof Error ? err.message : undefined)
   }
 })
 
 export const refresh: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-  const parsed = refreshSchema.parse(req.body)
+  const tokenFromCookie = req.cookies[REFRESH_COOKIE_NAME]
+  const rawRefreshToken = tokenFromCookie || req.body?.refreshToken
+
+  if (!rawRefreshToken) {
+    throw new UnauthorizedError('Refresh token is required.')
+  }
+
   try {
-    const result = await authService.refreshToken(parsed.refreshToken)
-    sendSuccess(res, result)
+    const result = await authService.refreshToken(rawRefreshToken)
+
+    res.cookie(REFRESH_COOKIE_NAME, result.refreshToken, getCookieOptions())
+
+    sendSuccess(res, {
+      accessToken: result.accessToken,
+      user: result.user,
+      company: result.company
+    })
   } catch (err) {
+    res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/auth' })
     throw new UnauthorizedError(err instanceof Error ? err.message : undefined)
   }
 })
 
 export const logout: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
-  const parsed = logoutSchema.parse(req.body)
-  await authService.logout(parsed.refreshToken)
+  const tokenFromCookie = req.cookies[REFRESH_COOKIE_NAME]
+  const rawRefreshToken = tokenFromCookie || req.body?.refreshToken
+
+  if (rawRefreshToken) {
+    await authService.logout(rawRefreshToken)
+  }
+
+  res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/auth' })
   sendSuccess(res, undefined, 'Logged out successfully.')
+})
+
+export const me: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.auth?.userId) {
+    throw new UnauthorizedError('Authentication required.')
+  }
+  const data = await authService.getCurrentUser(req.auth.userId)
+  sendSuccess(res, data)
 })

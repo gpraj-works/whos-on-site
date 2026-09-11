@@ -1,8 +1,9 @@
 import dayjs from 'dayjs'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { JobDto, JobStatus, JobStatusHistoryDto } from '@routeboard/shared'
+import { CustomerDto, JobDto, JobStatus, JobStatusHistoryDto } from '@routeboard/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import {
+  customers,
   jobAssignments,
   jobs,
   jobStatusHistory,
@@ -19,12 +20,31 @@ import {
 
 /** Helper to format database job row into JobDto */
 function mapJobRow(row: any): JobDto {
+  const additionalInfo = row.customerAdditionalInfo
+    ? typeof row.customerAdditionalInfo === 'string'
+      ? JSON.parse(row.customerAdditionalInfo)
+      : row.customerAdditionalInfo
+    : null
+
+  const customer: CustomerDto | null = row.customerIdC
+    ? {
+        id: row.customerIdC,
+        companyId: row.customerCompanyId,
+        name: row.customerNameC,
+        email: row.customerEmail || null,
+        mobile: row.customerMobile,
+        address: row.customerAddress,
+        additionalInfo,
+        createdAt: dayjs(row.customerCreatedAt).toISOString(),
+        updatedAt: dayjs(row.customerUpdatedAt).toISOString()
+      }
+    : null
+
   return {
     id: row.id,
     companyId: row.companyId,
-    customerName: row.customerName,
-    customerPhone: row.customerPhone,
-    address: row.address,
+    customerId: row.customerId,
+    customer,
     location: row.location || null,
     status: row.status as JobStatus,
     scheduledAt: row.scheduledAt ? dayjs(row.scheduledAt).toISOString() : null,
@@ -49,9 +69,7 @@ export async function createJob(
     .insert(jobs)
     .values({
       companyId: data.companyId,
-      customerName: data.customerName,
-      customerPhone: data.customerPhone,
-      address: data.address,
+      customerId: data.customerId,
       location: locationSql,
       status: 'unassigned',
       scheduledAt: data.scheduledAt ? dayjs(data.scheduledAt).toDate() : null,
@@ -73,9 +91,7 @@ export async function findJobById(
     .select({
       id: jobs.id,
       companyId: jobs.companyId,
-      customerName: jobs.customerName,
-      customerPhone: jobs.customerPhone,
-      address: jobs.address,
+      customerId: jobs.customerId,
       location: jobs.location,
       status: jobs.status,
       scheduledAt: jobs.scheduledAt,
@@ -83,10 +99,20 @@ export async function findJobById(
       assignedTechnicianName: technicians.name,
       notes: jobs.notes,
       createdAt: jobs.createdAt,
-      updatedAt: jobs.updatedAt
+      updatedAt: jobs.updatedAt,
+      customerIdC: customers.id,
+      customerCompanyId: customers.companyId,
+      customerNameC: customers.name,
+      customerEmail: customers.email,
+      customerMobile: customers.mobile,
+      customerAddress: customers.address,
+      customerAdditionalInfo: customers.additionalInfo,
+      customerCreatedAt: customers.createdAt,
+      customerUpdatedAt: customers.updatedAt
     })
     .from(jobs)
     .leftJoin(technicians, eq(jobs.assignedTechnicianId, technicians.id))
+    .leftJoin(customers, eq(jobs.customerId, customers.id))
     .where(and(eq(jobs.id, id), eq(jobs.companyId, companyId)))
 
   if (!row) return null
@@ -122,9 +148,7 @@ export async function findJobs(
     .select({
       id: jobs.id,
       companyId: jobs.companyId,
-      customerName: jobs.customerName,
-      customerPhone: jobs.customerPhone,
-      address: jobs.address,
+      customerId: jobs.customerId,
       location: jobs.location,
       status: jobs.status,
       scheduledAt: jobs.scheduledAt,
@@ -132,10 +156,20 @@ export async function findJobs(
       assignedTechnicianName: technicians.name,
       notes: jobs.notes,
       createdAt: jobs.createdAt,
-      updatedAt: jobs.updatedAt
+      updatedAt: jobs.updatedAt,
+      customerIdC: customers.id,
+      customerCompanyId: customers.companyId,
+      customerNameC: customers.name,
+      customerEmail: customers.email,
+      customerMobile: customers.mobile,
+      customerAddress: customers.address,
+      customerAdditionalInfo: customers.additionalInfo,
+      customerCreatedAt: customers.createdAt,
+      customerUpdatedAt: customers.updatedAt
     })
     .from(jobs)
     .leftJoin(technicians, eq(jobs.assignedTechnicianId, technicians.id))
+    .leftJoin(customers, eq(jobs.customerId, customers.id))
     .where(and(...conditions))
     .orderBy(desc(jobs.createdAt))
     .limit(limit)
@@ -155,9 +189,7 @@ export async function updateJob(
     updatedAt: dayjs().toDate()
   }
 
-  if (data.customerName !== undefined) updatePayload.customerName = data.customerName
-  if (data.customerPhone !== undefined) updatePayload.customerPhone = data.customerPhone
-  if (data.address !== undefined) updatePayload.address = data.address
+  if (data.customerId !== undefined) updatePayload.customerId = data.customerId
   if (data.notes !== undefined) updatePayload.notes = data.notes
   if (data.updatedBy !== undefined) updatePayload.updatedBy = data.updatedBy
 

@@ -6,7 +6,7 @@ export const postgisGeometry = customType<{
   driverData: string
 }>({
   dataType() {
-    return 'geography(Point, 4326)'
+    return 'geography'
   },
   toDriver(value: Coordinates): string {
     return `ST_SetSRID(ST_MakePoint(${value.lng}, ${value.lat}), 4326)`

@@ -1,14 +1,17 @@
 import argon2 from 'argon2'
 import { sql } from 'drizzle-orm'
 import { db } from '../client'
-import { companies, users, technicians } from '../schema/index'
+import { companies, customers, jobs, users, technicians } from '../schema/index'
 import { logger } from '../../logging/logger'
 import { UserRole } from '@routeboard/shared'
 
 export async function seedDatabase() {
   logger.info('Starting multi-company database seed...')
 
-  const defaultPasswordHash = await argon2.hash('Password123!')
+  // Truncate existing data for clean re-seeding
+  await db.execute(sql`TRUNCATE companies CASCADE`)
+
+  const defaultPasswordHash = await argon2.hash('password123')
 
   // 1. Company A — Acme HVAC Services (Atlanta, GA)
   const [companyA] = await db.insert(companies).values({ name: 'Acme HVAC Services' }).returning()
@@ -20,6 +23,17 @@ export async function seedDatabase() {
       email: 'owner@acmehvac.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.OWNER
+    })
+    .returning()
+
+  const [adminA] = await db
+    .insert(users)
+    .values({
+      companyId: companyA.id,
+      email: 'admin@acmehvac.com',
+      passwordHash: defaultPasswordHash,
+      role: UserRole.ADMIN,
+      createdBy: ownerA.id
     })
     .returning()
 
@@ -67,6 +81,55 @@ export async function seedDatabase() {
     }
   ])
 
+  const [customerA1] = await db
+    .insert(customers)
+    .values({
+      companyId: companyA.id,
+      name: 'Carlos Martinez',
+      email: 'carlos.martinez@example.com',
+      mobile: '404-555-0191',
+      address: '245 Peachtree St NW, Atlanta, GA 30303',
+      additionalInfo: { customerType: 'residential', priority: 'standard' },
+      createdBy: dispatcherA.id
+    })
+    .returning()
+
+  const [customerA2] = await db
+    .insert(customers)
+    .values({
+      companyId: companyA.id,
+      name: 'Riverbend Apartments',
+      email: 'maintenance@riverbendapts.com',
+      mobile: '404-555-0192',
+      address: '880 Sidney Marcus Blvd NE, Atlanta, GA 30324',
+      additionalInfo: { customerType: 'commercial', priority: 'high' },
+      createdBy: dispatcherA.id
+    })
+    .returning()
+
+  await db.insert(jobs).values([
+    {
+      companyId: companyA.id,
+      customerId: customerA1.id,
+      location: sql`ST_SetSRID(ST_MakePoint(-84.3879, 33.7574), 4326)`,
+      status: 'unassigned',
+      notes: 'AC unit not cooling on the second floor',
+      createdBy: dispatcherA.id
+    },
+    {
+      companyId: companyA.id,
+      customerId: customerA2.id,
+      location: sql`ST_SetSRID(ST_MakePoint(-84.3529, 33.8250), 4326)`,
+      status: 'assigned',
+      assignedTechnicianId: (await db
+        .select({ id: technicians.id })
+        .from(technicians)
+        .where(sql`${technicians.name} = 'John Atlanta Tech'`))[0]?.id,
+      notes: 'Routine HVAC filter replacement for common areas',
+      createdBy: dispatcherA.id
+    }
+  ])
+
   // 2. Company B — Apex Plumbing Co. (New York, NY)
   const [companyB] = await db.insert(companies).values({ name: 'Apex Plumbing Co.' }).returning()
 
@@ -77,6 +140,17 @@ export async function seedDatabase() {
       email: 'owner@apexplumbing.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.OWNER
+    })
+    .returning()
+
+  const [adminB] = await db
+    .insert(users)
+    .values({
+      companyId: companyB.id,
+      email: 'admin@apexplumbing.com',
+      passwordHash: defaultPasswordHash,
+      role: UserRole.ADMIN,
+      createdBy: ownerB.id
     })
     .returning()
 
@@ -120,6 +194,55 @@ export async function seedDatabase() {
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-73.7949, 40.7282), 4326)`,
       lastLocationAt: new Date(),
+      createdBy: dispatcherB.id
+    }
+  ])
+
+  const [customerB1] = await db
+    .insert(customers)
+    .values({
+      companyId: companyB.id,
+      name: 'Sofia Reyes',
+      email: 'sofia.reyes@example.com',
+      mobile: '212-555-0291',
+      address: '310 Atlantic Ave, Brooklyn, NY 11201',
+      additionalInfo: { customerType: 'residential', priority: 'high' },
+      createdBy: dispatcherB.id
+    })
+    .returning()
+
+  const [customerB2] = await db
+    .insert(customers)
+    .values({
+      companyId: companyB.id,
+      name: 'Green Grocers Market',
+      email: 'ops@greengrocersnyc.com',
+      mobile: '212-555-0292',
+      address: '45-21 Queens Blvd, Queens, NY 11104',
+      additionalInfo: { customerType: 'commercial', priority: 'standard' },
+      createdBy: dispatcherB.id
+    })
+    .returning()
+
+  await db.insert(jobs).values([
+    {
+      companyId: companyB.id,
+      customerId: customerB1.id,
+      location: sql`ST_SetSRID(ST_MakePoint(-73.9781, 40.6840), 4326)`,
+      status: 'unassigned',
+      notes: 'Kitchen sink leaking under the cabinet',
+      createdBy: dispatcherB.id
+    },
+    {
+      companyId: companyB.id,
+      customerId: customerB2.id,
+      location: sql`ST_SetSRID(ST_MakePoint(-73.9105, 40.7427), 4326)`,
+      status: 'assigned',
+      assignedTechnicianId: (await db
+        .select({ id: technicians.id })
+        .from(technicians)
+        .where(sql`${technicians.name} = 'Mike Brooklyn Tech'`))[0]?.id,
+      notes: 'Replace broken water heater in back stock room',
       createdBy: dispatcherB.id
     }
   ])

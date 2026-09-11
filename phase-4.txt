@@ -1,0 +1,719 @@
+Sure. **Phase 4 is about making the backend reactive and asynchronous.**
+
+Up to Phase 3, RouteBoard is essentially:
+
+```text
+User
+ ↓
+HTTP API
+ ↓
+Service
+ ↓
+PostgreSQL
+```
+
+After Phase 4, it becomes:
+
+```text
+                         ┌───────────────┐
+                         │  PostgreSQL   │
+                         └───────┬───────┘
+                                 │
+                              Service
+                                 │
+                    ┌────────────┴────────────┐
+                    ↓                         ↓
+               Socket.io                   BullMQ
+                    ↓                         ↓
+                Browser                  Background
+                clients                    Worker
+```
+
+The important distinction is:
+
+* **Socket.io = real-time communication**
+* **BullMQ = background/asynchronous processing**
+* **PostgreSQL = source of truth**
+
+---
+
+# 1. Why do we need Phase 4?
+
+Imagine a dispatcher assigns a job to Technician A.
+
+Currently:
+
+```text
+Dispatcher
+   │
+   │ POST /api/jobs/123/assign
+   ↓
+API
+   │
+   ↓
+Database
+```
+
+The database is updated, but Technician A's browser doesn't automatically know anything changed.
+
+The technician would have to:
+
+```text
+refresh page
+     ↓
+GET /api/jobs
+     ↓
+see updated job
+```
+
+That's not acceptable for a dispatching application.
+
+With Phase 4:
+
+```text
+Dispatcher
+   │
+   │ Assign Job
+   ↓
+API
+   │
+   ├── PostgreSQL
+   │      ↓
+   │    commit
+   │
+   └── job.assigned event
+             ↓
+         Socket.io
+             ↓
+       Technician A
+             ↓
+       UI updates immediately
+```
+
+No page refresh.
+
+---
+
+# 2. Socket.io
+
+Socket.io gives us a persistent connection between browser and server.
+
+Normal HTTP:
+
+```text
+Browser ──request──> Server
+Browser <─response── Server
+```
+
+Socket:
+
+```text
+Browser ═════════════ Server
+          persistent
+          connection
+```
+
+The server can therefore push information to the browser.
+
+For example:
+
+```text
+job.assigned
+job.status_changed
+job.updated
+technician.location_updated
+```
+
+---
+
+# 3. Company rooms are extremely important
+
+Because RouteBoard is multi-tenant, we cannot simply broadcast events globally.
+
+Suppose:
+
+```text
+Company A
+├── Dispatcher A
+├── Technician A1
+└── Technician A2
+
+Company B
+├── Dispatcher B
+└── Technician B1
+```
+
+When Company A's job changes:
+
+```text
+job.assigned
+      ↓
+company:A room
+      ↓
+A1
+A2
+Dispatcher A
+```
+
+**Company B must never receive it.**
+
+So the Socket.io architecture should use company-specific rooms:
+
+```text
+company:{companyId}
+```
+
+For example:
+
+```text
+company:550e8400-e29b-41d4-a716-446655440000
+```
+
+This is an extension of the tenant isolation we already built in Phase 2.
+
+---
+
+# 4. Socket authentication
+
+We also can't allow anonymous users to join arbitrary company rooms.
+
+The connection should work approximately like:
+
+```text
+Browser
+   │
+   │ access token
+   ↓
+Socket.io
+   │
+   ↓
+Verify JWT
+   │
+   ├── userId
+   ├── companyId
+   └── role
+   │
+   ↓
+Join company room
+```
+
+The critical rule is:
+
+> The client does not tell us which company room it wants to join.
+
+❌ Bad:
+
+```ts
+socket.join(`company:${socket.handshake.auth.companyId}`);
+```
+
+Because the client could lie.
+
+Instead:
+
+```text
+JWT
+ ↓
+verified companyId
+ ↓
+company room
+```
+
+This preserves the same security model as our HTTP API.
+
+---
+
+# 5. What events do we need?
+
+Initially I'd define:
+
+```text
+Job events
+├── job.created
+├── job.updated
+├── job.assigned
+├── job.status_changed
+└── job.cancelled
+
+Technician events
+└── technician.location_updated
+```
+
+For example:
+
+```ts
+{
+  type: 'job.assigned',
+  jobId: '...',
+  technicianId: '...',
+  companyId: '...'
+}
+```
+
+The frontend receives this and updates the relevant React Query cache/UI.
+
+---
+
+# 6. Important: Socket.io isn't our source of truth
+
+This is one of the most important architectural decisions.
+
+We should **not** do:
+
+```text
+HTTP request
+ ↓
+Socket event
+ ↓
+Database
+```
+
+Instead:
+
+```text
+HTTP request
+ ↓
+Controller
+ ↓
+Service
+ ↓
+Database transaction
+ ↓
+COMMIT
+ ↓
+Publish event
+ ↓
+Socket.io
+```
+
+Why?
+
+Suppose:
+
+```text
+Database update fails
+```
+
+but Socket.io already sent:
+
+```text
+"Job assigned!"
+```
+
+The UI would show something that never actually happened.
+
+Therefore:
+
+> **Persist first. Notify second.**
+
+---
+
+# 7. Where should events originate?
+
+This is where our Phase 3 architecture becomes useful.
+
+We already have:
+
+```text
+Controller
+ ↓
+Service
+ ↓
+Repository
+```
+
+For example:
+
+```text
+assignJob()
+```
+
+does:
+
+```text
+1. Validate job
+2. Validate technician
+3. Begin transaction
+4. Update job
+5. Insert assignment history
+6. Insert status history
+7. Commit
+8. Emit job.assigned
+```
+
+So Socket.io is not responsible for business logic.
+
+It only communicates the result.
+
+---
+
+# 8. BullMQ
+
+Socket.io handles **immediate communication**.
+
+BullMQ handles **work that doesn't need to block the HTTP request**.
+
+For example:
+
+```text
+User creates job
+       ↓
+API
+       ↓
+Save job
+       ↓
+Return response immediately
+       │
+       └────→ Queue
+                 ↓
+              Worker
+                 ↓
+        Send notification
+```
+
+The user shouldn't have to wait for:
+
+```text
+email
+SMS
+push notification
+geocoding
+heavy processing
+```
+
+to finish before receiving the API response.
+
+---
+
+# 9. Why Redis?
+
+BullMQ uses Redis as its queue backend.
+
+We already installed Redis in Phase 1:
+
+```text
+Redis
+  ↓
+BullMQ
+```
+
+The architecture becomes:
+
+```text
+API
+ │
+ │ add job
+ ↓
+Redis
+ │
+ ↓
+BullMQ Queue
+ │
+ ↓
+Worker
+ │
+ └── process
+```
+
+---
+
+# 10. Example: notification
+
+Suppose a dispatcher assigns a job.
+
+We could have:
+
+```text
+assignJob()
+    │
+    ├── PostgreSQL
+    │
+    ├── Socket.io
+    │
+    └── BullMQ
+           ↓
+      notification worker
+           ↓
+      Send notification
+```
+
+The worker could eventually handle:
+
+```text
+email
+SMS
+push notification
+```
+
+without slowing down the main API request.
+
+---
+
+# 11. Retry is where BullMQ becomes valuable
+
+Imagine an external notification provider temporarily fails.
+
+Without a queue:
+
+```text
+API
+ ↓
+Send notification
+ ↓
+Provider fails
+ ↓
+Request fails 😕
+```
+
+With BullMQ:
+
+```text
+API
+ ↓
+Queue notification
+ ↓
+HTTP response ✅
+ ↓
+Worker
+ ↓
+Provider fails
+ ↓
+Retry
+ ↓
+Retry
+ ↓
+Success
+```
+
+We can configure:
+
+```text
+attempts
+backoff
+retry delay
+```
+
+This is much more reliable.
+
+---
+
+# 12. Dead-letter / failed jobs
+
+Eventually we'll also want to see jobs that repeatedly fail:
+
+```text
+Queue
+ │
+ ├── waiting
+ ├── active
+ ├── completed
+ └── failed
+```
+
+This gives us operational visibility.
+
+For example:
+
+```text
+notification job
+   ↓
+attempt 1 ❌
+   ↓
+attempt 2 ❌
+   ↓
+attempt 3 ❌
+   ↓
+failed
+```
+
+Later we can build an admin/monitoring view around this.
+
+---
+
+# 13. What should NOT go into BullMQ?
+
+Not everything should become a background job.
+
+For example:
+
+```text
+POST /api/jobs/123/status
+```
+
+The status change itself must happen synchronously:
+
+```text
+request
+ ↓
+validate
+ ↓
+transaction
+ ↓
+commit
+ ↓
+response
+```
+
+We don't want:
+
+```text
+request
+ ↓
+queue status change
+ ↓
+"maybe updated later"
+```
+
+The actual business state must be immediately persisted.
+
+BullMQ is for **side effects and asynchronous work**, not core transactional state.
+
+---
+
+# 14. Technician location
+
+This is particularly interesting for RouteBoard.
+
+Technician:
+
+```text
+GPS
+ ↓
+PATCH /api/technicians/:id/location
+ ↓
+PostGIS
+```
+
+Then:
+
+```text
+location updated
+ ↓
+Socket.io
+ ↓
+Dispatcher map
+```
+
+The dispatcher can see the technician moving without refreshing.
+
+Eventually it becomes:
+
+```text
+Technician phone
+       │
+       │ location
+       ↓
+     API
+       │
+       ├── PostGIS
+       │
+       └── Socket.io
+              ↓
+       Dispatcher map
+```
+
+We should be careful not to broadcast GPS updates unnecessarily at extremely high frequency. We'll design throttling/debouncing later.
+
+---
+
+# 15. Recommended Phase 4 structure
+
+I'd use:
+
+```text
+apps/api/src/
+│
+├── infrastructure/
+│   ├── redis/
+│   │   ├── client.ts
+│   │   └── connection.ts
+│   │
+│   ├── socket/
+│   │   ├── socket.server.ts
+│   │   ├── socket.auth.ts
+│   │   ├── socket.rooms.ts
+│   │   └── socket.events.ts
+│   │
+│   └── queue/
+│       ├── bullmq.ts
+│       ├── queues/
+│       │   └── notification.queue.ts
+│       └── workers/
+│           └── notification.worker.ts
+│
+└── modules/
+    ├── jobs/
+    │   └── ...
+    └── technicians/
+        └── ...
+```
+
+And shared event contracts:
+
+```text
+packages/shared/src/
+├── enums/
+├── schemas/
+├── types/
+└── events/
+    ├── job.events.ts
+    └── technician.events.ts
+```
+
+This is useful because both:
+
+```text
+API
+Web
+```
+
+can understand the same event payload types.
+
+---
+
+# 16. The complete architecture after Phase 4
+
+```text
+                         ┌─────────────────┐
+                         │    PostgreSQL   │
+                         │    + PostGIS    │
+                         └────────┬────────┘
+                                  │
+                              API Service
+                                  │
+                    ┌─────────────┴─────────────┐
+                    │                           │
+                    ↓                           ↓
+              Transaction                  Domain Event
+                    │                           │
+                    │                 ┌─────────┴─────────┐
+                    │                 ↓                   ↓
+                    │            Socket.io            BullMQ
+                    │                 │                   │
+                    │                 ↓                   ↓
+                    │             Browsers             Redis
+                    │                                     │
+                    │                                     ↓
+                    │                                   Worker
+                    │                                     │
+                    │                                     ↓
+                    │                              External services
+                    │
+                    ↓
+                Response
+```
+
+### The key principle
+
+Think of the four technologies like this:
+
+| Technology             | Responsibility        |
+| ---------------------- | --------------------- |
+| **PostgreSQL/PostGIS** | Source of truth       |
+| **Express**            | HTTP/API              |
+| **Socket.io**          | Real-time delivery    |
+| **Redis/BullMQ**       | Async/background work |
+
+That's the real purpose of Phase 4.
+
+**Phase 3 made the business state correct. Phase 4 makes changes to that state observable in real time and allows non-critical work to happen reliably in the background.**

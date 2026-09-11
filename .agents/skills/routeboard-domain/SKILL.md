@@ -63,3 +63,14 @@ Every job status transition MUST record an audit log in `job_status_history` (`j
   - `job:assigned` — Emitted to assigned technician device & dispatcher board.
   - `job:statusChanged` — Emitted simultaneously to dispatcher board & public customer status view.
   - `location:ping` — Technician live location broadcast while `en_route` or `on_site`.
+
+---
+
+## 4. Theme & Brand System (Logo & Dynamic Favicon)
+
+- **Primary Brand Logo**: `apps/web/src/components/common/Logo.tsx` renders the SVG vector path from `apps/web/src/images/logo.svg`.
+  - Supports `size` and `color` props, defaulting to `currentColor` for native theme integration.
+- **Dynamic Theme Favicon**: `apps/web/src/app/theme/useFavicon.ts`
+  - Integrated into `ThemeProvider` (`ThemeContext.tsx`).
+  - Dynamically updates `<link id="dynamic-favicon">` SVG data URI when `colorScheme` (light/dark) or tenant `primaryColor` (teal, indigo, blue, violet, orange, green) changes.
+

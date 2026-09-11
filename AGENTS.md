@@ -21,6 +21,10 @@ RouteBoard is a `pnpm` monorepo organized into three primary packages:
 * **Type Safety & Shared Schemas**:
   * Define API request/response validation schemas in `@routeboard/shared`.
   * Validate all request payloads in controller layer using shared Zod schemas.
+* **Form Validation — Zod Only**:
+  * NEVER use HTML5 validation attributes (`required`, `pattern`, `min`, `max`, `type="email"`, etc.) on form inputs.
+  * ALL form validation MUST be handled via shared Zod schemas in `@routeboard/shared`, validated with `schema.safeParse()` on submit.
+  * Form fields should use controlled state (`value` + `onChange`) with Zod error messages displayed via component state.
 
 ---
 

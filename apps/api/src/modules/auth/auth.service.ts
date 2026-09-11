@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import argon2 from 'argon2'
 import dayjs from 'dayjs'
 import jwt from 'jsonwebtoken'
-import { AuthResponse, AuthUser, JwtPayload, RegisterRequest, UserRole } from '@routeboard/shared'
+import { AuthResponse, AuthUser, CompanyDto, JwtPayload, RegisterRequest, UserRole } from '@routeboard/shared'
 import { env } from '../../config/env'
 import { withTransaction } from '../../infrastructure/database/client'
 import * as authRepo from './auth.repository'
@@ -37,6 +37,22 @@ function formatAuthUser(user: {
     email: user.email,
     role: user.role,
     createdAt: dayjs(user.createdAt).toISOString()
+  }
+}
+
+function formatCompany(company: {
+  id: string
+  name: string
+  primaryColor?: string | null
+  createdAt: Date
+  updatedAt: Date
+}): CompanyDto {
+  return {
+    id: company.id,
+    name: company.name,
+    primaryColor: company.primaryColor || 'teal',
+    createdAt: dayjs(company.createdAt).toISOString(),
+    updatedAt: dayjs(company.updatedAt).toISOString()
   }
 }
 
@@ -86,7 +102,8 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
       user: formatAuthUser({
         ...user,
         role: user.role as UserRole
-      })
+      }),
+      company: formatCompany(company)
     }
   })
 }
@@ -101,6 +118,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
   if (!validPassword) {
     throw new Error('Invalid email or password.')
   }
+
+  const company = await authRepo.findCompanyById(user.companyId)
 
   const accessToken = generateAccessToken({
     id: user.id,
@@ -124,7 +143,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
     user: formatAuthUser({
       ...user,
       role: user.role as UserRole
-    })
+    }),
+    company: company ? formatCompany(company) : undefined
   }
 }
 
@@ -149,6 +169,8 @@ export async function refreshToken(rawRefreshToken: string): Promise<AuthRespons
     throw new Error('User associated with token no longer exists.')
   }
 
+  const company = await authRepo.findCompanyById(user.companyId)
+
   const newAccessToken = generateAccessToken({
     id: user.id,
     companyId: user.companyId,
@@ -171,7 +193,8 @@ export async function refreshToken(rawRefreshToken: string): Promise<AuthRespons
     user: formatAuthUser({
       ...user,
       role: user.role as UserRole
-    })
+    }),
+    company: company ? formatCompany(company) : undefined
   }
 }
 
@@ -180,5 +203,18 @@ export async function logout(rawRefreshToken: string): Promise<void> {
   const tokenRecord = await authRepo.findActiveRefreshTokenByHash(tokenHash)
   if (tokenRecord) {
     await authRepo.revokeRefreshToken(tokenRecord.id)
+  }
+}
+
+export async function getCurrentUser(userId: string): Promise<{ user: AuthUser; company?: CompanyDto }> {
+  const user = await authRepo.findUserById(userId)
+  if (!user) {
+    throw new Error('User not found.')
+  }
+  const company = await authRepo.findCompanyById(user.companyId)
+
+  return {
+    user: formatAuthUser({ ...user, role: user.role as UserRole }),
+    company: company ? formatCompany(company) : undefined
   }
 }

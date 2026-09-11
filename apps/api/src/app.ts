@@ -1,18 +1,37 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import { pinoHttp } from 'pino-http'
+import { env } from './config/env'
 import { logger } from './infrastructure/logging/logger'
 import { queryClient } from './infrastructure/database/client'
 import { redis } from './infrastructure/redis/client'
 import { HealthResponse, ReadinessResponse } from '@routeboard/shared'
 import { apiRouter } from './routes/index'
-
 import { errorHandler } from './middleware/error-handler'
 
 const app: express.Express = express()
 
-app.use(cors())
+const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim())
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g. mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true)
+      if (
+        allowedOrigins.includes(origin) ||
+        (env.isDevEnv && /^http:\/\/(localhost|127\.0\.0\.1):(3000|5173|4173)$/.test(origin))
+      ) {
+        return callback(null, true)
+      }
+      return callback(new Error(`CORS error: Origin ${origin} not allowed.`))
+    },
+    credentials: true
+  })
+)
 app.use(express.json())
+app.use(cookieParser())
 app.use(pinoHttp({ logger }))
 
 // Mount Central API Router

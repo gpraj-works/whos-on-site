@@ -25,3 +25,14 @@ export enum NotificationType {
   TECH_ASSIGNED = 'tech_assigned',
   DAILY_SUMMARY = 'daily_summary'
 }
+
+export enum ThemeColor {
+  TEAL = 'teal',
+  INDIGO = 'indigo',
+  BLUE = 'blue',
+  VIOLET = 'violet',
+  ORANGE = 'orange',
+  GREEN = 'green'
+}
+
+export const THEME_COLORS = ['teal', 'indigo', 'blue', 'violet', 'orange', 'green'] as const

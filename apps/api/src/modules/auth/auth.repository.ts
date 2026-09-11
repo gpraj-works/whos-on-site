@@ -8,6 +8,11 @@ export async function createCompany(data: CreateCompanyData, client: DatabaseCli
   return company
 }
 
+export async function findCompanyById(id: string, client: DatabaseClient = db) {
+  const [company] = await client.select().from(companies).where(eq(companies.id, id))
+  return company || null
+}
+
 export async function createUser(data: CreateUserData, client: DatabaseClient = db) {
   const [user] = await client.insert(users).values(data).returning()
   return user

@@ -1,5 +1,6 @@
 import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { technicians } from './technicians'
+import { customers } from './customers'
 import { postgisGeometry } from '../custom-types/postgis'
 import { timestamps } from './common'
 import { companyId } from './company'
@@ -19,9 +20,9 @@ export const jobs = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     companyId: companyId(),
-    customerName: text('customer_name').notNull(),
-    customerPhone: text('customer_phone').notNull(),
-    address: text('address').notNull(),
+    customerId: uuid('customer_id')
+      .references(() => customers.id, { onDelete: 'no action' })
+      .notNull(),
     location: postgisGeometry('location'),
     status: jobStatusEnum('status').default('unassigned').notNull(),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }),
@@ -34,6 +35,7 @@ export const jobs = pgTable(
   },
   (table) => [
     index('jobs_company_status_idx').on(table.companyId, table.status),
-    index('jobs_assigned_technician_id_idx').on(table.assignedTechnicianId)
+    index('jobs_assigned_technician_id_idx').on(table.assignedTechnicianId),
+    index('jobs_customer_id_idx').on(table.customerId)
   ]
 )
