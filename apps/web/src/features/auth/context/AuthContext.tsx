@@ -1,9 +1,15 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
 import { AuthUser, CompanyDto, LoginRequest, RegisterRequest, ThemeColorType } from '@routeboard/shared'
 import { useAppTheme } from '../../../app/theme/ThemeContext'
-import { setAccessToken, setOnAuthFailure } from '../../../lib/api'
-import * as authApi from '../api/authApi'
-import { queryClient } from '../../../app/query/client'
+import { setOnAuthFailure } from '../../../lib/api'
+import { useAppDispatch, useAppSelector } from '../../../store'
+import {
+  bootstrapSessionThunk,
+  clearCredentials,
+  loginThunk,
+  logoutThunk,
+  registerThunk
+} from '../../../store/slices/authSlice'
 
 interface AuthContextType {
   user: AuthUser | null
@@ -18,93 +24,72 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [company, setCompany] = useState<CompanyDto | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const dispatch = useAppDispatch()
+  const { user, company, isAuthenticated, isLoading } = useAppSelector((state) => state.auth)
   const { setPrimaryColor } = useAppTheme()
+  const hasBootstrappedRef = useRef<boolean>(false)
 
-  const handleAuthSuccess = (res: { user: AuthUser; company?: CompanyDto; accessToken: string }) => {
-    setAccessToken(res.accessToken)
-    setUser(res.user)
-    if (res.company) {
-      setCompany(res.company)
-      if (res.company.primaryColor) {
-        setPrimaryColor(res.company.primaryColor as ThemeColorType)
+  // Update tenant primary color on company load if no user custom selection exists
+  useEffect(() => {
+    try {
+      const savedColor = localStorage.getItem('routeboard_primary_color')
+      if (!savedColor && company?.primaryColor) {
+        setPrimaryColor(company.primaryColor as ThemeColorType)
+      }
+    } catch {
+      if (company?.primaryColor) {
+        setPrimaryColor(company.primaryColor as ThemeColorType)
       }
     }
-  }
-
-  const logout = useCallback(async () => {
-    try {
-      await authApi.logoutApi()
-    } catch {
-      // Ignore logout network errors
-    } finally {
-      setAccessToken(null)
-      setUser(null)
-      setCompany(null)
-      queryClient.clear()
-    }
-  }, [])
+  }, [company?.primaryColor, setPrimaryColor])
 
   // Register auth failure callback with API client
   useEffect(() => {
     setOnAuthFailure(() => {
-      setAccessToken(null)
-      setUser(null)
-      setCompany(null)
-      queryClient.clear()
+      dispatch(clearCredentials())
     })
-  }, [])
+  }, [dispatch])
 
   // Session Bootstrap on App Mount
   useEffect(() => {
-    let isMounted = true
+    if (hasBootstrappedRef.current) {
+      return
+    }
+    hasBootstrappedRef.current = true
 
-    async function bootstrapSession() {
-      try {
-        // Step 1: Silent refresh using HttpOnly cookie
-        const refreshRes = await authApi.refreshApi()
-        if (isMounted && refreshRes.accessToken) {
-          handleAuthSuccess(refreshRes)
-        }
-      } catch {
-        // No active session or cookie expired
-        if (isMounted) {
-          setAccessToken(null)
-          setUser(null)
-          setCompany(null)
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false)
-        }
+    dispatch(bootstrapSessionThunk())
+  }, [dispatch])
+
+  const login = useCallback(
+    async (data: LoginRequest) => {
+      const resultAction = await dispatch(loginThunk(data))
+      if (loginThunk.rejected.match(resultAction)) {
+        throw new Error((resultAction.payload as string) || 'Login failed')
       }
-    }
+    },
+    [dispatch]
+  )
 
-    bootstrapSession()
+  const register = useCallback(
+    async (data: RegisterRequest) => {
+      const resultAction = await dispatch(registerThunk(data))
+      if (registerThunk.rejected.match(resultAction)) {
+        throw new Error((resultAction.payload as string) || 'Registration failed')
+      }
+    },
+    [dispatch]
+  )
 
-    return () => {
-      isMounted = false
-    }
-  }, [setPrimaryColor])
-
-  const login = async (data: LoginRequest) => {
-    const res = await authApi.loginApi(data)
-    handleAuthSuccess(res)
-  }
-
-  const register = async (data: RegisterRequest) => {
-    const res = await authApi.registerApi(data)
-    handleAuthSuccess(res)
-  }
+  const logout = useCallback(async () => {
+    await dispatch(logoutThunk())
+  }, [dispatch])
 
   return (
     <AuthContext.Provider
       value={{
         user,
         company,
-        isAuthenticated: !!user,
+        isAuthenticated,
         isLoading,
         login,
         register,

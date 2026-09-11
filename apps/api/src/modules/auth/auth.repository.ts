@@ -44,6 +44,14 @@ export async function findActiveRefreshTokenByHash(tokenHash: string, client: Da
   return token || null
 }
 
+export async function findRefreshTokenByHash(tokenHash: string, client: DatabaseClient = db) {
+  const [token] = await client
+    .select()
+    .from(refreshTokens)
+    .where(eq(refreshTokens.tokenHash, tokenHash))
+  return token || null
+}
+
 export async function revokeRefreshToken(id: string, client: DatabaseClient = db) {
   const [token] = await client
     .update(refreshTokens)

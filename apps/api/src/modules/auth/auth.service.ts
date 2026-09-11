@@ -151,20 +151,33 @@ export async function login(email: string, password: string): Promise<AuthRespon
 export async function refreshToken(rawRefreshToken: string): Promise<AuthResponse> {
   const tokenHash = hashToken(rawRefreshToken)
 
-  const activeToken = await authRepo.findActiveRefreshTokenByHash(tokenHash)
-  if (!activeToken) {
-    throw new Error('Invalid or revoked refresh token.')
+  let tokenRecord = await authRepo.findActiveRefreshTokenByHash(tokenHash)
+
+  if (!tokenRecord) {
+    // Grace period check for concurrent network requests (within 10 seconds of revocation)
+    const existingToken = await authRepo.findRefreshTokenByHash(tokenHash)
+    if (
+      existingToken &&
+      existingToken.revokedAt &&
+      dayjs().diff(dayjs(existingToken.revokedAt), 'second') <= 10
+    ) {
+      tokenRecord = existingToken
+    } else {
+      throw new Error('Invalid or revoked refresh token.')
+    }
   }
 
-  if (dayjs().isAfter(activeToken.expiresAt)) {
-    await authRepo.revokeRefreshToken(activeToken.id)
+  if (dayjs().isAfter(tokenRecord.expiresAt)) {
+    await authRepo.revokeRefreshToken(tokenRecord.id)
     throw new Error('Refresh token expired. Please log in again.')
   }
 
-  // Rotation-on-use: Revoke old refresh token
-  await authRepo.revokeRefreshToken(activeToken.id)
+  // Rotation-on-use: Revoke old refresh token if not already revoked
+  if (!tokenRecord.revokedAt) {
+    await authRepo.revokeRefreshToken(tokenRecord.id)
+  }
 
-  const user = await authRepo.findUserById(activeToken.userId)
+  const user = await authRepo.findUserById(tokenRecord.userId)
   if (!user) {
     throw new Error('User associated with token no longer exists.')
   }

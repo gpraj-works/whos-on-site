@@ -29,11 +29,21 @@ export async function logoutApi(): Promise<void> {
   })
 }
 
+let inFlightRefreshPromise: Promise<AuthResponse> | null = null
+
 export async function refreshApi(): Promise<AuthResponse> {
-  return apiClient<AuthResponse>('/auth/refresh', {
+  if (inFlightRefreshPromise) {
+    return inFlightRefreshPromise
+  }
+
+  inFlightRefreshPromise = apiClient<AuthResponse>('/auth/refresh', {
     method: 'POST',
     skipAuth: true
+  }).finally(() => {
+    inFlightRefreshPromise = null
   })
+
+  return inFlightRefreshPromise
 }
 
 export async function getMeApi(): Promise<{ user: AuthUser; company?: CompanyDto }> {

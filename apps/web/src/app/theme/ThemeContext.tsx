@@ -19,16 +19,17 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const LOCAL_STORAGE_KEY = 'routeboard_color_scheme'
+const LOCAL_STORAGE_SCHEME_KEY = 'routeboard_color_scheme'
+const LOCAL_STORAGE_PRIMARY_COLOR_KEY = 'routeboard_primary_color'
 
 export const ThemeProvider: React.FC<{
   initialCompanyColor?: ThemeColorType
   children: React.ReactNode
 }> = ({ initialCompanyColor = 'teal', children }) => {
-  // 1. User Theme Preference (Light / Dark) -> Persisted in localStorage
+  // User Theme Preference (Light / Dark) -> Persisted in localStorage
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(() => {
     try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY)
+      const saved = localStorage.getItem(LOCAL_STORAGE_SCHEME_KEY)
       if (saved === 'dark' || saved === 'light') {
         return saved
       }
@@ -48,23 +49,43 @@ export const ThemeProvider: React.FC<{
 
   useEffect(() => {
     try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, colorScheme)
+      localStorage.setItem(LOCAL_STORAGE_SCHEME_KEY, colorScheme)
     } catch {
       // Ignore storage errors
     }
+    document.documentElement.setAttribute('data-mantine-color-scheme', colorScheme)
+    document.documentElement.style.colorScheme = colorScheme
   }, [colorScheme])
 
-  // 2. Company Primary Color Swatch (Server-owned per tenant, default teal)
-  const [primaryColor, setPrimaryColor] = useState<ThemeColorType>(initialCompanyColor)
+  // Company & User Primary Accent Color Swatch -> Persisted in localStorage
+  const [primaryColor, setPrimaryColorState] = useState<ThemeColorType>(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_PRIMARY_COLOR_KEY) as ThemeColorType
+      if (saved && THEME_COLORS.includes(saved)) {
+        return saved
+      }
+    } catch {
+      // Ignore storage errors
+    }
+    return initialCompanyColor
+  })
+
+  const setPrimaryColor = (color: ThemeColorType) => {
+    setPrimaryColorState(color)
+  }
 
   useEffect(() => {
-    setPrimaryColor(initialCompanyColor)
-  }, [initialCompanyColor])
+    try {
+      localStorage.setItem(LOCAL_STORAGE_PRIMARY_COLOR_KEY, primaryColor)
+    } catch {
+      // Ignore storage errors
+    }
+  }, [primaryColor])
 
-  // 3. Update dynamic SVG favicon based on theme & accent color
+  // Update dynamic SVG favicon based on theme & accent color
   useFavicon(primaryColor, colorScheme)
 
-  // 4. Memoized Mantine Theme Object
+  // Memoized Mantine Theme Object
   const theme = useMemo(() => getAppTheme(primaryColor), [primaryColor])
 
   const contextValue = useMemo(

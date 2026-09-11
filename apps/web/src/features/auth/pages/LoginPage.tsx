@@ -76,7 +76,7 @@ export const LoginPage: React.FC = () => {
           </Text>
         </Stack>
 
-        <Card radius="md" p="xl" withBorder shadow="sm">
+        <Card radius="md" p={{ base: 'lg', sm: 'xl' }} withBorder shadow="sm">
           <Title order={4} mb="md">
             Sign In to your Company
           </Title>

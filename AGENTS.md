@@ -25,6 +25,9 @@ RouteBoard is a `pnpm` monorepo organized into three primary packages:
   * NEVER use HTML5 validation attributes (`required`, `pattern`, `min`, `max`, `type="email"`, etc.) on form inputs.
   * ALL form validation MUST be handled via shared Zod schemas in `@routeboard/shared`, validated with `schema.safeParse()` on submit.
   * Form fields should use controlled state (`value` + `onChange`) with Zod error messages displayed via component state.
+* **Comment Formatting**:
+  * NEVER use numbered step mark comments (e.g., `// 1.`, `// 2.`, `// Step 1:`, `// Step 2:`).
+  * Always write clean, descriptive code comments without numeric step prefixes.
 
 ---
 

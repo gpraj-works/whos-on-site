@@ -20,7 +20,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   const actionNode = action || actions
 
   return (
-    <Group justify="space-between" align="flex-start" mb="lg">
+    <Group justify="space-between" align="flex-start" wrap="wrap" gap="md" mb="lg">
       <Stack gap={4}>
         <Title order={2} lh={1.2}>
           {title}

@@ -150,22 +150,22 @@ export const DashboardPage: React.FC = () => {
 
         {/* User Role Banner */}
         <Paper p="md" radius="md" bg="var(--mantine-color-body)" withBorder>
-          <Group justify="space-between" align="center">
-            <Group gap="md">
+          <Group justify="space-between" align="center" wrap="wrap" gap="md">
+            <Group gap="md" style={{ minWidth: 0 }}>
               <Avatar color={primaryColor} radius="xl" size="md">
                 <ShieldCheck size={24} />
               </Avatar>
-              <div>
+              <div style={{ minWidth: 0 }}>
                 <Group gap="xs">
-                  <Text fw={700} size="sm">
+                  <Text fw={700} size="sm" truncate>
                     {user?.email}
                   </Text>
                   <Badge size="xs" color={primaryColor} variant="filled" tt="uppercase">
                     {user?.role}
                   </Badge>
                 </Group>
-                <Text size="xs" c="dimmed">
-                  Authenticated session active • Company ID: {company?.id?.slice(0, 8)}...
+                <Text size="xs" c="dimmed" hiddenFrom="sm" truncate>
+                  Company: {company?.id?.slice(0, 8)}...
                 </Text>
               </div>
             </Group>
@@ -227,8 +227,8 @@ export const DashboardPage: React.FC = () => {
                     <Table.Th>Job ID</Table.Th>
                     <Table.Th>Customer & Address</Table.Th>
                     <Table.Th>Status</Table.Th>
-                    <Table.Th>Technician</Table.Th>
-                    <Table.Th>Time</Table.Th>
+                    <Table.Th hiddenFrom="sm">Technician</Table.Th>
+                    <Table.Th hiddenFrom="sm">Time</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
@@ -245,11 +245,11 @@ export const DashboardPage: React.FC = () => {
                         )}
                       </Table.Td>
                       <Table.Td>
-                        <Text size="xs" fw={600}>
+                        <Text size="xs" fw={600} truncate maw={160}>
                           {job.customer}
                         </Text>
                         <Group gap={4}>
-                          <MapPin size={12} style={{ opacity: 0.6 }} />
+                          <MapPin size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
                           <Text size="xs" c="dimmed" truncate max-width={200}>
                             {job.address}
                           </Text>
@@ -258,12 +258,12 @@ export const DashboardPage: React.FC = () => {
                       <Table.Td>
                         <StatusBadge status={job.status} />
                       </Table.Td>
-                      <Table.Td>
+                      <Table.Td hiddenFrom="sm">
                         <Text size="xs" fw={500}>
                           {job.technician}
                         </Text>
                       </Table.Td>
-                      <Table.Td>
+                      <Table.Td hiddenFrom="sm">
                         <Text size="xs" c="dimmed">
                           {job.scheduledAt}
                         </Text>

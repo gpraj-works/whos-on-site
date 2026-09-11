@@ -9,11 +9,15 @@ import { env } from '../../config/env'
 
 const REFRESH_COOKIE_NAME = 'routeboard_refresh_token'
 
-const getCookieOptions = () => ({
+const getClearCookieOptions = () => ({
   httpOnly: true,
   secure: env.isProdEnv,
   sameSite: 'lax' as const,
-  path: '/api/auth',
+  path: '/api/auth'
+})
+
+const getCookieOptions = () => ({
+  ...getClearCookieOptions(),
   maxAge: 7 * 24 * 60 * 60 * 1000
 })
 
@@ -71,7 +75,7 @@ export const refresh: RequestHandler = asyncHandler(async (req: Request, res: Re
       company: result.company
     })
   } catch (err) {
-    res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/auth' })
+    res.clearCookie(REFRESH_COOKIE_NAME, getClearCookieOptions())
     throw new UnauthorizedError(err instanceof Error ? err.message : undefined)
   }
 })
@@ -84,7 +88,7 @@ export const logout: RequestHandler = asyncHandler(async (req: Request, res: Res
     await authService.logout(rawRefreshToken)
   }
 
-  res.clearCookie(REFRESH_COOKIE_NAME, { path: '/api/auth' })
+  res.clearCookie(REFRESH_COOKIE_NAME, getClearCookieOptions())
   sendSuccess(res, undefined, 'Logged out successfully.')
 })
 

@@ -12,25 +12,25 @@ export async function assignTechnicianToJob(
   companyId: string,
   userId: string
 ): Promise<JobDto> {
-  // 1. Verify job belongs to company
+  // Verify job belongs to company
   const job = await jobRepo.findJobById(jobId, companyId)
   if (!job) {
     throw new NotFoundError('Job not found')
   }
 
-  // 2. Verify technician belongs to company
+  // Verify technician belongs to company
   const tech = await findTechnicianById(technicianId, companyId)
   if (!tech) {
     throw new NotFoundError('Technician not found or does not belong to company')
   }
 
-  // 3. Check if job is in a valid state to assign
+  // Check if job is in a valid state to assign
   if (job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
     throw new BadRequestError(`Cannot assign technician to a job that is '${job.status}'`)
   }
 
   return withTransaction(async (tx) => {
-    // 4. Record assignment history entry
+    // Record assignment history entry
     await jobRepo.createAssignmentRecord(
       {
         companyId,
@@ -41,10 +41,10 @@ export async function assignTechnicianToJob(
       tx
     )
 
-    // 5. Update job assignment column
+    // Update job assignment column
     await jobRepo.updateJobAssignment(jobId, companyId, technicianId, tx)
 
-    // 6. Transition status to ASSIGNED if currently UNASSIGNED
+    // Transition status to ASSIGNED if currently UNASSIGNED
     if (job.status === JobStatus.UNASSIGNED) {
       if (canTransition(JobStatus.UNASSIGNED, JobStatus.ASSIGNED)) {
         await jobRepo.updateJobStatus(jobId, companyId, JobStatus.ASSIGNED, tx)

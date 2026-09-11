@@ -19,7 +19,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         breakpoint: 'sm',
         collapsed: { mobile: !mobileOpened }
       }}
-      padding="md"
+      padding={{ base: 'xs', sm: 'md' }}
     >
       <AppShell.Header>
         <AppHeader mobileOpened={mobileOpened} toggleMobile={toggleMobile} />
@@ -30,7 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Container fluid p="xs">
+        <Container fluid p={{ base: 'xs', sm: 0 }}>
           {children}
         </Container>
       </AppShell.Main>

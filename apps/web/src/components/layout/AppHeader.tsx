@@ -3,6 +3,7 @@ import {
   ActionIcon,
   Avatar,
   Badge,
+  Box,
   Burger,
   ColorSwatch,
   Group,
@@ -47,27 +48,44 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
   const companyName = company?.name || 'RouteBoard'
 
   return (
-    <Group h="100%" px="md" justify="space-between" align="center">
+    <Group
+      h="100%"
+      px={{ base: 'xs', sm: 'md' }}
+      justify="space-between"
+      align="center"
+      gap="md"
+    >
       {/* Brand & Mobile Burger */}
-      <Group gap="sm">
+      <Group gap="sm" wrap="nowrap" style={{ minWidth: 0 }}>
         <Burger opened={mobileOpened} onClick={toggleMobile} hiddenFrom="sm" size="sm" />
-        <Group gap="xs">
+        <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
           <ActionIcon color={primaryColor} size="lg" radius="md" variant="filled">
             <Logo size={22} color="currentColor" />
           </ActionIcon>
-          <div>
-            <Title order={4} lh={1.1}>
+          <Box visibleFrom="xs" style={{ minWidth: 0 }}>
+            <Title
+              order={4}
+              lh={1.1}
+              maw={140}
+              style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+            >
               {t('app.name')}
             </Title>
-            <Text size="xs" c="dimmed" lh={1.1}>
+            <Text
+              size="xs"
+              c="dimmed"
+              lh={1.1}
+              truncate
+              maw={140}
+            >
               {companyName}
             </Text>
-          </div>
+          </Box>
         </Group>
       </Group>
 
       {/* Header Controls: Accent Swatches, Light/Dark Mode, Language Selector, User Menu */}
-      <Group gap="xs">
+      <Group gap="xs" wrap="nowrap">
         {/* Company Primary Accent Color Swatches */}
         <Tooltip label={t('theme.primaryColor')}>
           <Group gap={6} visibleFrom="xs">

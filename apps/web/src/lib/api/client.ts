@@ -148,11 +148,17 @@ export async function apiClient<T = unknown>(
   }
 
   if (!response.ok || !json.success) {
+    const rawError = json.error as any
+    const errorMessage =
+      (typeof rawError === 'string' ? rawError : rawError?.message) ||
+      json.message ||
+      'An error occurred during request execution.'
+
     throw new ApiError(
-      json.error?.message || 'An error occurred during request execution.',
+      errorMessage,
       response.status,
-      json.error?.code,
-      json.error?.details
+      typeof rawError === 'object' ? rawError?.code : undefined,
+      typeof rawError === 'object' ? rawError?.details : undefined
     )
   }
 
