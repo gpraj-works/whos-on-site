@@ -39,8 +39,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
     },
     {
       icon: Truck,
-      label: t('nav.jobs', 'Jobs'),
-      path: '/jobs',
+      label: t('nav.myJobs', 'My Jobs Queue'),
+      path: '/my-jobs',
       roles: [UserRole.TECHNICIAN]
     },
     {
