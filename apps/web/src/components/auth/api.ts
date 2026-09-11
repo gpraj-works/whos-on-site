@@ -5,7 +5,7 @@ import {
   LoginRequest,
   RegisterRequest
 } from '@whosonsite/shared'
-import { apiClient } from '../../../lib/api'
+import { apiClient } from '../../lib/api'
 
 export async function loginApi(data: LoginRequest): Promise<AuthResponse> {
   return apiClient<AuthResponse>('/auth/login', {

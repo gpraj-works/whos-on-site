@@ -32,6 +32,7 @@ The Job domain strictly enforces the following status transitions:
 ```
 
 ### Transition Rules:
+
 - `UNASSIGNED` → `ASSIGNED`, `CANCELLED`
 - `ASSIGNED` → `EN_ROUTE`, `UNASSIGNED`, `CANCELLED`
 - `EN_ROUTE` → `ON_SITE`, `CANCELLED`
@@ -40,6 +41,7 @@ The Job domain strictly enforces the following status transitions:
 - `CANCELLED` → Terminal state (no further transitions allowed)
 
 ### Mandatory Audit Logging:
+
 Every job status transition MUST record an audit log in `job_status_history` (`job_id`, `company_id`, `from_status`, `to_status`, `changed_by`, `changed_at`, `note`) wrapped in an atomic `withTransaction`.
 
 ---
@@ -73,4 +75,3 @@ Every job status transition MUST record an audit log in `job_status_history` (`j
 - **Dynamic Theme Favicon**: `apps/web/src/app/theme/useFavicon.ts`
   - Integrated into `ThemeProvider` (`ThemeContext.tsx`).
   - Dynamically updates `<link id="dynamic-favicon">` SVG data URI when `colorScheme` (light/dark) or tenant `primaryColor` (teal, indigo, blue, violet, orange, green) changes.
-

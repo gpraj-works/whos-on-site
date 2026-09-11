@@ -78,7 +78,12 @@ export async function apiClient<T = unknown>(
   })
 
   // Handle 401 Unauthorized
-  if (response.status === 401 && !skipAuth && !endpoint.includes('/auth/refresh') && !endpoint.includes('/auth/login')) {
+  if (
+    response.status === 401 &&
+    !skipAuth &&
+    !endpoint.includes('/auth/refresh') &&
+    !endpoint.includes('/auth/login')
+  ) {
     if (isRefreshing) {
       // Queue pending request while single-flight refresh completes
       return new Promise<string>((resolve, reject) => {
@@ -148,7 +153,8 @@ export async function apiClient<T = unknown>(
   }
 
   if (!response.ok || !json.success) {
-    const rawError = json.error as { message?: string; code?: string; details?: unknown } | string | undefined
+    const rawError = json.error as
+      { message?: string; code?: string; details?: unknown } | string | undefined
     const errorMessage =
       (typeof rawError === 'string' ? rawError : rawError?.message) ||
       json.message ||

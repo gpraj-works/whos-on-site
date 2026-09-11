@@ -17,11 +17,11 @@ import { KeyRound, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Logo } from '../../../components/common/Logo'
-import { ApiErrorAlert } from '../../../components/feedback/ApiErrorAlert'
-import { useAuth } from '../context/AuthContext'
+import { Logo } from '../common/Logo'
+import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import { useAuth } from './AuthContext'
 
-export const LoginPage: React.FC = () => {
+export const LoginForm: React.FC = () => {
   const { t } = useTranslation()
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -49,7 +49,8 @@ export const LoginPage: React.FC = () => {
       await login({ email, password })
       navigate(from, { replace: true })
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed. Please check your credentials.'
+      const errorMessage =
+        err instanceof Error ? err.message : 'Login failed. Please check your credentials.'
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -108,27 +109,50 @@ export const LoginPage: React.FC = () => {
           </form>
 
           {/* Quick Demo Account Selector */}
-          <Stack gap={6} mt="lg" pt="md" style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}>
+          <Stack
+            gap={6}
+            mt="lg"
+            pt="md"
+            style={{ borderTop: '1px solid var(--mantine-color-default-border)' }}
+          >
             <Text size="xs" c="dimmed" fw={600} tt="uppercase">
               Quick Demo Logins (Password: password123)
             </Text>
             <Group gap="xs">
-              <Button size="xs" variant="light" color="teal" onClick={() => fillDemoCredentials('owner@acmehvac.com')}>
+              <Button
+                size="xs"
+                variant="light"
+                color="teal"
+                onClick={() => fillDemoCredentials('owner@acmehvac.com')}
+              >
                 Owner
               </Button>
-              <Button size="xs" variant="light" color="indigo" onClick={() => fillDemoCredentials('admin@acmehvac.com')}>
+              <Button
+                size="xs"
+                variant="light"
+                color="indigo"
+                onClick={() => fillDemoCredentials('admin@acmehvac.com')}
+              >
                 Admin
               </Button>
-              <Button size="xs" variant="light" color="blue" onClick={() => fillDemoCredentials('dispatcher@acmehvac.com')}>
+              <Button
+                size="xs"
+                variant="light"
+                color="blue"
+                onClick={() => fillDemoCredentials('dispatcher@acmehvac.com')}
+              >
                 Dispatcher
               </Button>
-              <Button size="xs" variant="light" color="orange" onClick={() => fillDemoCredentials('tech1@acmehvac.com')}>
+              <Button
+                size="xs"
+                variant="light"
+                color="orange"
+                onClick={() => fillDemoCredentials('tech1@acmehvac.com')}
+              >
                 Technician
               </Button>
             </Group>
           </Stack>
-
-
         </Card>
       </Container>
     </Center>

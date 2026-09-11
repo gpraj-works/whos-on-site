@@ -1,15 +1,21 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
-import { AuthUser, CompanyDto, LoginRequest, RegisterRequest, ThemeColorType } from '@whosonsite/shared'
-import { useAppTheme } from '../../../app/theme/ThemeContext'
-import { setOnAuthFailure } from '../../../lib/api'
-import { useAppDispatch, useAppSelector } from '../../../store'
+import {
+  AuthUser,
+  CompanyDto,
+  LoginRequest,
+  RegisterRequest,
+  ThemeColorType
+} from '@whosonsite/shared'
+import { useAppTheme } from '../../app/theme/ThemeContext'
+import { setOnAuthFailure } from '../../lib/api'
+import { useAppDispatch, useAppSelector } from '../../store'
 import {
   bootstrapSessionThunk,
   clearCredentials,
   loginThunk,
   logoutThunk,
   registerThunk
-} from '../../../store/slices/authSlice'
+} from '../../store/slices/authSlice'
 
 interface AuthContextType {
   user: AuthUser | null

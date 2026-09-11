@@ -1,4 +1,4 @@
-import { JobStatus, UserRole } from '../enums/index'
+import { JobStatus, TechnicianStatus, UserRole } from '../enums/index'
 import { Coordinates } from '../schemas/index'
 
 export interface HealthResponse {
@@ -97,4 +97,16 @@ export interface JobStatusHistoryDto {
   changedByName?: string | null
   changedAt: string
   note: string | null
+}
+
+export interface TechnicianDto {
+  id: string
+  companyId: string
+  userId: string
+  name: string
+  phone: string
+  status: TechnicianStatus
+  location: Coordinates | null
+  lastLocationAt: string | null
+  distanceMeters?: number
 }

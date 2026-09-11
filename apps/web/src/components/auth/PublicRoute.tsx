@@ -1,8 +1,8 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
-import { LoadingState } from '../../../components/common/LoadingState'
-import { useAuth } from '../context/AuthContext'
+import { LoadingState } from '../common/LoadingState'
+import { useAuth } from './AuthContext'
 
 export const PublicRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth()

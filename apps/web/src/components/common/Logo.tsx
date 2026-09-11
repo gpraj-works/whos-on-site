@@ -16,7 +16,12 @@ export function getLogoSvgString(fillColor: string = '#12b886'): string {
  * WhosOnSite primary brand Logo component derived from web/src/images/logo.svg.
  * Responds to color prop or parent color="currentColor".
  */
-export const Logo: React.FC<LogoProps> = ({ size = 28, color = 'currentColor', style, ...props }) => {
+export const Logo: React.FC<LogoProps> = ({
+  size = 28,
+  color = 'currentColor',
+  style,
+  ...props
+}) => {
   return (
     <svg
       width={size}

@@ -18,14 +18,18 @@ Review ONLY changes introduced by the CURRENT checked-out branch compared with t
 First execute:
 
 # 1. Show current branch & status
+
 git branch --show-current
 git status --short
 
 # 2. Dynamically detect default remote base branch (origin/main or origin/develop)
+
 # If target branch is provided as parameter, use it; otherwise auto-detect default remote HEAD
+
 git fetch origin
 
 # 3. Inspect diff against dynamically determined target base branch (TARGET_BRANCH)
+
 git diff --name-status <TARGET_BRANCH>...HEAD
 git diff --stat <TARGET_BRANCH>...HEAD
 git diff <TARGET_BRANCH>...HEAD
@@ -55,6 +59,7 @@ If Git information cannot be obtained, STOP.
 The diff determines what is being reviewed.
 
 You MAY inspect unchanged surrounding code only when necessary to understand:
+
 - Callers
 - Dependencies
 - Existing contracts
@@ -69,6 +74,7 @@ Never report a pre-existing issue merely because you encountered it while tracin
 Every finding MUST reference a changed file and changed code.
 
 Do NOT:
+
 - Review the entire repository
 - Review unrelated existing issues
 - Review commits outside the current diff
@@ -135,6 +141,7 @@ If an issue cannot be confirmed, do not report it.
 ### CRITICAL
 
 Only for:
+
 - Multi-company data leak / tenant isolation bypass
 - Serious security vulnerability
 - Authentication/authorization bypass

@@ -19,3 +19,11 @@ export const technicianKeys = {
   nearby: (coords: { lat: number; lng: number; radiusMeters?: number }) =>
     [...technicianKeys.all, 'nearby', coords] as const
 }
+
+export const customerKeys = {
+  all: ['customers'] as const,
+  lists: () => [...customerKeys.all, 'list'] as const,
+  list: (filters?: Record<string, unknown>) => [...customerKeys.lists(), filters] as const,
+  details: () => [...customerKeys.all, 'detail'] as const,
+  detail: (id: string) => [...customerKeys.details(), id] as const
+}

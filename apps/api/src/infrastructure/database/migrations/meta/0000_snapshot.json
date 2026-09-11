@@ -137,12 +137,8 @@
           "name": "users_company_id_companies_id_fk",
           "tableFrom": "users",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -150,12 +146,8 @@
           "name": "users_created_by_users_id_fk",
           "tableFrom": "users",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -163,12 +155,8 @@
           "name": "users_updated_by_users_id_fk",
           "tableFrom": "users",
           "tableTo": "users",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -178,9 +166,7 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -327,12 +313,8 @@
           "name": "technicians_company_id_companies_id_fk",
           "tableFrom": "technicians",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -340,12 +322,8 @@
           "name": "technicians_user_id_users_id_fk",
           "tableFrom": "technicians",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -353,12 +331,8 @@
           "name": "technicians_created_by_users_id_fk",
           "tableFrom": "technicians",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -366,12 +340,8 @@
           "name": "technicians_updated_by_users_id_fk",
           "tableFrom": "technicians",
           "tableTo": "users",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -519,12 +489,8 @@
           "name": "jobs_company_id_companies_id_fk",
           "tableFrom": "jobs",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -532,12 +498,8 @@
           "name": "jobs_assigned_technician_id_technicians_id_fk",
           "tableFrom": "jobs",
           "tableTo": "technicians",
-          "columnsFrom": [
-            "assigned_technician_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_technician_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -545,12 +507,8 @@
           "name": "jobs_created_by_users_id_fk",
           "tableFrom": "jobs",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -558,12 +516,8 @@
           "name": "jobs_updated_by_users_id_fk",
           "tableFrom": "jobs",
           "tableTo": "users",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["updated_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -674,12 +628,8 @@
           "name": "job_status_history_company_id_companies_id_fk",
           "tableFrom": "job_status_history",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -687,12 +637,8 @@
           "name": "job_status_history_job_id_jobs_id_fk",
           "tableFrom": "job_status_history",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -700,12 +646,8 @@
           "name": "job_status_history_changed_by_users_id_fk",
           "tableFrom": "job_status_history",
           "tableTo": "users",
-          "columnsFrom": [
-            "changed_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["changed_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -796,12 +738,8 @@
           "name": "job_assignments_company_id_companies_id_fk",
           "tableFrom": "job_assignments",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -809,12 +747,8 @@
           "name": "job_assignments_job_id_jobs_id_fk",
           "tableFrom": "job_assignments",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -822,12 +756,8 @@
           "name": "job_assignments_technician_id_technicians_id_fk",
           "tableFrom": "job_assignments",
           "tableTo": "technicians",
-          "columnsFrom": [
-            "technician_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["technician_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -835,12 +765,8 @@
           "name": "job_assignments_assigned_by_users_id_fk",
           "tableFrom": "job_assignments",
           "tableTo": "users",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["assigned_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -930,12 +856,8 @@
           "name": "notifications_company_id_companies_id_fk",
           "tableFrom": "notifications",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -943,12 +865,8 @@
           "name": "notifications_job_id_jobs_id_fk",
           "tableFrom": "notifications",
           "tableTo": "jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -956,12 +874,8 @@
           "name": "notifications_created_by_users_id_fk",
           "tableFrom": "notifications",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1097,12 +1011,8 @@
           "name": "refresh_tokens_company_id_companies_id_fk",
           "tableFrom": "refresh_tokens",
           "tableTo": "companies",
-          "columnsFrom": [
-            "company_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["company_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1110,12 +1020,8 @@
           "name": "refresh_tokens_user_id_users_id_fk",
           "tableFrom": "refresh_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1123,12 +1029,8 @@
           "name": "refresh_tokens_created_by_users_id_fk",
           "tableFrom": "refresh_tokens",
           "tableTo": "users",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1144,42 +1046,22 @@
     "public.user_role": {
       "name": "user_role",
       "schema": "public",
-      "values": [
-        "owner",
-        "admin",
-        "dispatcher",
-        "technician"
-      ]
+      "values": ["owner", "admin", "dispatcher", "technician"]
     },
     "public.technician_status": {
       "name": "technician_status",
       "schema": "public",
-      "values": [
-        "available",
-        "busy",
-        "offline"
-      ]
+      "values": ["available", "busy", "offline"]
     },
     "public.job_status": {
       "name": "job_status",
       "schema": "public",
-      "values": [
-        "unassigned",
-        "assigned",
-        "en_route",
-        "on_site",
-        "complete",
-        "cancelled"
-      ]
+      "values": ["unassigned", "assigned", "en_route", "on_site", "complete", "cancelled"]
     },
     "public.notification_type": {
       "name": "notification_type",
       "schema": "public",
-      "values": [
-        "job_delayed",
-        "tech_assigned",
-        "daily_summary"
-      ]
+      "values": ["job_delayed", "tech_assigned", "daily_summary"]
     }
   },
   "schemas": {},

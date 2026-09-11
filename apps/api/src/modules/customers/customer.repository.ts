@@ -3,11 +3,7 @@ import { and, asc, eq, or, sql } from 'drizzle-orm'
 import { CustomerDto } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import { customers } from '../../infrastructure/database/schema/index'
-import {
-  CreateCustomerData,
-  CustomerFilterParams,
-  UpdateCustomerData
-} from './customer.types'
+import { CreateCustomerData, CustomerFilterParams, UpdateCustomerData } from './customer.types'
 
 /** Helper to format database customer row into CustomerDto */
 function mapCustomerRow(row: typeof customers.$inferSelect): CustomerDto {

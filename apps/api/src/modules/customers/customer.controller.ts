@@ -3,7 +3,11 @@ import { UnauthorizedError } from '../../common/app-error'
 import { HttpStatus } from '../../common/http-status'
 import { sendSuccess } from '../../common/response-handler'
 import { asyncHandler } from '../../middleware/error-handler'
-import { createCustomerSchema, customerFilterQuerySchema, updateCustomerSchema } from './customer.schema'
+import {
+  createCustomerSchema,
+  customerFilterQuerySchema,
+  updateCustomerSchema
+} from './customer.schema'
 import * as customerService from './customer.service'
 
 export const listCustomers: RequestHandler = asyncHandler(async (req: Request, res: Response) => {

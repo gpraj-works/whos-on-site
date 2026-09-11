@@ -8,16 +8,16 @@ interface FormFieldProps {
   children: React.ReactNode
 }
 
-export const FormField: React.FC<FormFieldProps> = ({
-  label,
-  required,
-  error,
-  children
-}) => {
+export const FormField: React.FC<FormFieldProps> = ({ label, required, error, children }) => {
   return (
     <Stack gap={4}>
       <Text size="sm" fw={500}>
-        {label} {required && <Text span c="red">*</Text>}
+        {label}{' '}
+        {required && (
+          <Text span c="red">
+            *
+          </Text>
+        )}
       </Text>
       {children}
       {error && (

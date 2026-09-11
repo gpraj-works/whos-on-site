@@ -1,8 +1,14 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AuthResponse, AuthUser, CompanyDto, LoginRequest, RegisterRequest } from '@whosonsite/shared'
+import {
+  AuthResponse,
+  AuthUser,
+  CompanyDto,
+  LoginRequest,
+  RegisterRequest
+} from '@whosonsite/shared'
 import { getAccessToken, setAccessToken } from '../../lib/api'
 import { queryClient } from '../../app/query/client'
-import * as authApi from '../../features/auth/api/authApi'
+import * as authApi from '../../components/auth/api'
 
 export interface AuthState {
   user: AuthUser | null
@@ -68,28 +74,22 @@ export const registerThunk = createAsyncThunk<AuthResponse, RegisterRequest>(
   }
 )
 
-export const logoutThunk = createAsyncThunk<void>(
-  'auth/logout',
-  async () => {
-    try {
-      await authApi.logoutApi()
-    } catch {
-      // Ignore network errors on logout
-    } finally {
-      setAccessToken(null)
-      queryClient.clear()
-    }
+export const logoutThunk = createAsyncThunk<void>('auth/logout', async () => {
+  try {
+    await authApi.logoutApi()
+  } catch {
+    // Ignore network errors on logout
+  } finally {
+    setAccessToken(null)
+    queryClient.clear()
   }
-)
+})
 
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (
-      state,
-      action: PayloadAction<{ user: AuthUser; company?: CompanyDto }>
-    ) => {
+    setCredentials: (state, action: PayloadAction<{ user: AuthUser; company?: CompanyDto }>) => {
       state.user = action.payload.user
       state.company = action.payload.company || null
       state.isAuthenticated = true

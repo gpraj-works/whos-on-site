@@ -102,7 +102,11 @@ export const ThemeProvider: React.FC<{
 
   return (
     <ThemeContext.Provider value={contextValue}>
-      <MantineProvider theme={theme} defaultColorScheme={colorScheme} forceColorScheme={colorScheme}>
+      <MantineProvider
+        theme={theme}
+        defaultColorScheme={colorScheme}
+        forceColorScheme={colorScheme}
+      >
         <Notifications position="top-right" zIndex={1000} />
         {children}
       </MantineProvider>

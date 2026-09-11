@@ -6,10 +6,11 @@ export const en = {
     },
     nav: {
       dashboard: 'Dashboard',
-      jobs: 'Dispatch Board',
+      jobs: 'Dispatch',
       technicians: 'Technicians',
+      customers: 'Customers',
       analytics: 'Analytics',
-      settings: 'Company Settings'
+      settings: 'Settings'
     },
     theme: {
       title: 'Appearance',
@@ -37,6 +38,9 @@ export const en = {
     },
     common: {
       actions: 'Actions',
+      add: 'Add',
+      update: 'Update',
+      new: 'New',
       save: 'Save Changes',
       cancel: 'Cancel',
       confirm: 'Confirm',
@@ -48,6 +52,81 @@ export const en = {
       loading: 'Loading data...',
       noData: 'No records found',
       error: 'An unexpected error occurred'
+    },
+    dashboard: {
+      activeJobs: 'Active Jobs',
+      techniciansOnline: 'Technicians Online',
+      completedToday: 'Completed Dispatches',
+      totalTechnicians: 'Total Staff'
+    },
+    jobs: {
+      title: 'Dispatch Board',
+      subtitle: 'Manage job assignments, status state machine, and customer dispatches',
+      newJob: 'New',
+      createTitle: 'Create Dispatch Job',
+      jobId: 'Job ID',
+      customer: 'Customer',
+      customerAddress: 'Customer & Address',
+      selectCustomer: 'Select a customer',
+      addCustomer: 'New Customer',
+      createCustomerTitle: 'Create New Customer',
+      customerName: 'Customer Name',
+      customerMobile: 'Phone Number',
+      customerAddressField: 'Address',
+      customerEmail: 'Email (Optional)',
+      saveCustomer: 'Add',
+      scheduledAt: 'Schedule',
+      scheduledFor: 'Scheduled For',
+      createdAt: 'Created',
+      notes: 'Description',
+      notesPlaceholder: 'Enter job service details or instructions',
+      createSubmit: 'Add',
+      assignTitle: 'Assign Technician',
+      selectTechnician: 'Select Field Technician',
+      chooseTechnician: 'Choose an available technician',
+      assignConfirm: 'Update',
+      unassignButton: 'Unassign Current Technician',
+      noCustomer: 'Unassigned Customer',
+      status: 'Status',
+      technician: 'Technician',
+      assignTechnician: 'Assign Technician',
+      reassignTechnician: 'Reassign Tech',
+      markEnRoute: 'Start En Route',
+      markOnSite: 'Arrive On Site',
+      markComplete: 'Complete Job',
+      cancelJob: 'Cancel Job',
+      cancelTitle: 'Cancel Job',
+      cancelConfirmMessage:
+        'Are you sure you want to cancel this job? This will update status to Cancelled.',
+      terminalStateNotice: 'This job is in a terminal state.',
+      availableActions: 'Available Status Actions',
+      addStatusNote: 'Add optional note for status change:',
+      notePlaceholder: 'e.g. Delayed due to traffic',
+      statusHistory: 'Status Audit Trail',
+      noHistory: 'No status changes recorded yet.',
+      filterAll: 'All Statuses'
+    },
+    technicians: {
+      title: 'Field Technicians',
+      subtitle:
+        'Real-time technician availability, status tracking, and location dispatch readiness',
+      name: 'Technician',
+      status: 'Status',
+      phone: 'Phone Number',
+      location: 'Last Known Location',
+      lastUpdated: 'Last Updated'
+    },
+    customers: {
+      title: 'Customers',
+      subtitle: 'Manage company customer accounts and service locations',
+      addCustomer: 'New',
+      createTitle: 'Add New Customer',
+      name: 'Customer Name',
+      phone: 'Phone Number',
+      address: 'Address',
+      email: 'Email',
+      createdAt: 'Created At',
+      saveSubmit: 'Add'
     }
   }
 }

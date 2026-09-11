@@ -1,22 +1,13 @@
 import { CustomerDto } from '@whosonsite/shared'
 import { ConflictError, NotFoundError } from '../../common/app-error'
 import * as customerRepo from './customer.repository'
-import {
-  CreateCustomerData,
-  CustomerFilterParams,
-  UpdateCustomerData
-} from './customer.types'
+import { CreateCustomerData, CustomerFilterParams, UpdateCustomerData } from './customer.types'
 
-export async function getCompanyCustomers(
-  params: CustomerFilterParams
-): Promise<CustomerDto[]> {
+export async function getCompanyCustomers(params: CustomerFilterParams): Promise<CustomerDto[]> {
   return customerRepo.findCompanyCustomers(params)
 }
 
-export async function getCustomerDetail(
-  id: string,
-  companyId: string
-): Promise<CustomerDto> {
+export async function getCustomerDetail(id: string, companyId: string): Promise<CustomerDto> {
   const customer = await customerRepo.findCustomerById(id, companyId)
   if (!customer) {
     throw new NotFoundError('Customer not found')
@@ -24,9 +15,7 @@ export async function getCustomerDetail(
   return customer
 }
 
-export async function createCustomer(
-  data: CreateCustomerData
-): Promise<CustomerDto> {
+export async function createCustomer(data: CreateCustomerData): Promise<CustomerDto> {
   return customerRepo.createCustomer(data)
 }
 
@@ -47,10 +36,7 @@ export async function updateCustomerDetails(
   return updated
 }
 
-export async function deleteCustomer(
-  id: string,
-  companyId: string
-): Promise<void> {
+export async function deleteCustomer(id: string, companyId: string): Promise<void> {
   const existing = await customerRepo.findCustomerById(id, companyId)
   if (!existing) {
     throw new NotFoundError('Customer not found')
