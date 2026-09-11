@@ -4,7 +4,6 @@ import { UserRole } from '@whosonsite/shared'
 import {
   BarChart3,
   LayoutDashboard,
-  Settings,
   Truck,
   UserCheck,
   Users
@@ -55,12 +54,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       label: t('nav.analytics'),
       path: '/analytics',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
-    },
-    {
-      icon: Settings,
-      label: t('nav.settings'),
-      path: '/settings',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
     }
   ]
 
