@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { JwtPayload } from '@routeboard/shared'
+import { JwtPayload } from '@whosonsite/shared'
 import { env } from '../config/env'
 import { sendError } from '../common/response-handler'
 import { HttpStatus } from '../common/http-status'

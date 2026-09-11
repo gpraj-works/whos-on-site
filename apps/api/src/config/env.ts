@@ -17,7 +17,8 @@ const envSchema = z.object({
   REDIS_URL: z.string(),
   JWT_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
-  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
+  CORS_ORIGIN: z.string().default('http://localhost:5173')
 })
 
 const parsedEnv = envSchema.parse(process.env)

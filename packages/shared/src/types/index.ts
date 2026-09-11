@@ -22,6 +22,26 @@ export interface JwtPayload {
   role: UserRole
 }
 
+export interface CompanyDto {
+  id: string
+  name: string
+  primaryColor: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CustomerDto {
+  id: string
+  companyId: string
+  name: string
+  email: string | null
+  mobile: string
+  address: string
+  additionalInfo: Record<string, unknown> | null
+  createdAt: string
+  updatedAt: string
+}
+
 export interface AuthUser {
   id: string
   companyId: string
@@ -34,6 +54,7 @@ export interface AuthResponse {
   accessToken: string
   refreshToken: string
   user: AuthUser
+  company?: CompanyDto
 }
 
 export interface RegisterRequest {
@@ -54,9 +75,8 @@ export interface TokenRefreshRequest {
 export interface JobDto {
   id: string
   companyId: string
-  customerName: string
-  customerPhone: string
-  address: string
+  customerId: string
+  customer: CustomerDto | null
   location: Coordinates | null
   status: JobStatus
   scheduledAt: string | null

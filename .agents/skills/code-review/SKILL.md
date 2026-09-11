@@ -1,13 +1,13 @@
 ---
 name: code-review
 description: >-
-  Production-grade PR and code review runbook for RouteBoard.
+  Production-grade PR and code review runbook for WhosOnSite.
   Use when asked to perform a code review, PR review, or audit changes on a branch.
 ---
 
-# RouteBoard Production PR Review Skill
+# WhosOnSite Production PR Review Skill
 
-This skill provides the principal engineer & engineering manager review protocol for evaluating code changes in RouteBoard before merging into a target base branch.
+This skill provides the principal engineer & engineering manager review protocol for evaluating code changes in WhosOnSite before merging into a target base branch.
 
 ---
 
@@ -27,16 +27,16 @@ When performing a code review, follow the exact protocol defined in [docs/REVIEW
    - `git diff --stat "$TARGET_BRANCH...HEAD"`
    - `git diff "$TARGET_BRANCH...HEAD"`
 
-3. **Evaluate RouteBoard Specific Guidelines**:
+3. **Evaluate WhosOnSite Specific Guidelines**:
    - **Company Scoping**: Ensure every query filters by `companyId`.
    - **State Machine**: Ensure status transitions obey allowed state machine paths.
    - **Transactions**: Ensure multi-table writes are wrapped in `withTransaction`.
    - **Response Envelope**: Ensure controllers use `sendSuccess` / `sendError`.
-   - **Type Safety**: Ensure shared schemas are used from `@routeboard/shared`.
+   - **Type Safety**: Ensure shared schemas are used from `@whosonsite/shared`.
 
 4. **Run Validation Commands**:
    - `pnpm typecheck`
-   - `pnpm --filter @routeboard/api test:phase2`
+   - `pnpm --filter @whosonsite/api test:phase2`
 
 5. **Output Final Decision**:
    - Output `READY TO MERGE` or `NOT READY TO MERGE` with formatted findings against `$TARGET_BRANCH`.

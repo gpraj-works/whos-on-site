@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import argon2 from 'argon2'
 import dayjs from 'dayjs'
 import jwt from 'jsonwebtoken'
-import { AuthResponse, AuthUser, JwtPayload, RegisterRequest, UserRole } from '@routeboard/shared'
+import { AuthResponse, AuthUser, CompanyDto, JwtPayload, RegisterRequest, UserRole } from '@whosonsite/shared'
 import { env } from '../../config/env'
 import { withTransaction } from '../../infrastructure/database/client'
 import * as authRepo from './auth.repository'
@@ -37,6 +37,22 @@ function formatAuthUser(user: {
     email: user.email,
     role: user.role,
     createdAt: dayjs(user.createdAt).toISOString()
+  }
+}
+
+function formatCompany(company: {
+  id: string
+  name: string
+  primaryColor?: string | null
+  createdAt: Date
+  updatedAt: Date
+}): CompanyDto {
+  return {
+    id: company.id,
+    name: company.name,
+    primaryColor: company.primaryColor || 'teal',
+    createdAt: dayjs(company.createdAt).toISOString(),
+    updatedAt: dayjs(company.updatedAt).toISOString()
   }
 }
 
@@ -86,7 +102,8 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
       user: formatAuthUser({
         ...user,
         role: user.role as UserRole
-      })
+      }),
+      company: formatCompany(company)
     }
   })
 }
@@ -101,6 +118,8 @@ export async function login(email: string, password: string): Promise<AuthRespon
   if (!validPassword) {
     throw new Error('Invalid email or password.')
   }
+
+  const company = await authRepo.findCompanyById(user.companyId)
 
   const accessToken = generateAccessToken({
     id: user.id,
@@ -124,30 +143,46 @@ export async function login(email: string, password: string): Promise<AuthRespon
     user: formatAuthUser({
       ...user,
       role: user.role as UserRole
-    })
+    }),
+    company: company ? formatCompany(company) : undefined
   }
 }
 
 export async function refreshToken(rawRefreshToken: string): Promise<AuthResponse> {
   const tokenHash = hashToken(rawRefreshToken)
 
-  const activeToken = await authRepo.findActiveRefreshTokenByHash(tokenHash)
-  if (!activeToken) {
-    throw new Error('Invalid or revoked refresh token.')
+  let tokenRecord = await authRepo.findActiveRefreshTokenByHash(tokenHash)
+
+  if (!tokenRecord) {
+    // Grace period check for concurrent network requests (within 10 seconds of revocation)
+    const existingToken = await authRepo.findRefreshTokenByHash(tokenHash)
+    if (
+      existingToken &&
+      existingToken.revokedAt &&
+      dayjs().diff(dayjs(existingToken.revokedAt), 'second') <= 10
+    ) {
+      tokenRecord = existingToken
+    } else {
+      throw new Error('Invalid or revoked refresh token.')
+    }
   }
 
-  if (dayjs().isAfter(activeToken.expiresAt)) {
-    await authRepo.revokeRefreshToken(activeToken.id)
+  if (dayjs().isAfter(tokenRecord.expiresAt)) {
+    await authRepo.revokeRefreshToken(tokenRecord.id)
     throw new Error('Refresh token expired. Please log in again.')
   }
 
-  // Rotation-on-use: Revoke old refresh token
-  await authRepo.revokeRefreshToken(activeToken.id)
+  // Rotation-on-use: Revoke old refresh token if not already revoked
+  if (!tokenRecord.revokedAt) {
+    await authRepo.revokeRefreshToken(tokenRecord.id)
+  }
 
-  const user = await authRepo.findUserById(activeToken.userId)
+  const user = await authRepo.findUserById(tokenRecord.userId)
   if (!user) {
     throw new Error('User associated with token no longer exists.')
   }
+
+  const company = await authRepo.findCompanyById(user.companyId)
 
   const newAccessToken = generateAccessToken({
     id: user.id,
@@ -171,7 +206,8 @@ export async function refreshToken(rawRefreshToken: string): Promise<AuthRespons
     user: formatAuthUser({
       ...user,
       role: user.role as UserRole
-    })
+    }),
+    company: company ? formatCompany(company) : undefined
   }
 }
 
@@ -180,5 +216,18 @@ export async function logout(rawRefreshToken: string): Promise<void> {
   const tokenRecord = await authRepo.findActiveRefreshTokenByHash(tokenHash)
   if (tokenRecord) {
     await authRepo.revokeRefreshToken(tokenRecord.id)
+  }
+}
+
+export async function getCurrentUser(userId: string): Promise<{ user: AuthUser; company?: CompanyDto }> {
+  const user = await authRepo.findUserById(userId)
+  if (!user) {
+    throw new Error('User not found.')
+  }
+  const company = await authRepo.findCompanyById(user.companyId)
+
+  return {
+    user: formatAuthUser({ ...user, role: user.role as UserRole }),
+    company: company ? formatCompany(company) : undefined
   }
 }

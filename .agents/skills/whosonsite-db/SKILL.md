@@ -1,13 +1,13 @@
 ---
-name: routeboard-db
+name: whosonsite-db
 description: >-
-  Database management runbook for Drizzle ORM, PostGIS migrations, seed scripts, transactions, and raw native queries in RouteBoard.
+  Database management runbook for Drizzle ORM, PostGIS migrations, seed scripts, transactions, and raw native queries in WhosOnSite.
   Use when modifying database schemas, running migrations, writing transactions, or executing spatial queries.
 ---
 
-# RouteBoard Database Runbook
+# WhosOnSite Database Runbook
 
-This skill provides step-by-step procedures for database schema changes, Drizzle ORM operations, transactions, and PostGIS spatial queries in RouteBoard.
+This skill provides step-by-step procedures for database schema changes, Drizzle ORM operations, transactions, and PostGIS spatial queries in WhosOnSite.
 
 ---
 

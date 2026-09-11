@@ -1,23 +1,23 @@
 {
-  "name": "route-board",
+  "name": "whosonsite",
   "private": true,
   "type": "module",
   "version": "0.1.0",
   "description": "Field-service dispatch & real-time job tracking platform",
   "scripts": {
     "dev": "pnpm --parallel --recursive dev",
-    "dev:api": "pnpm --filter @routeboard/api dev",
-    "dev:web": "pnpm --filter @routeboard/web dev",
+    "dev:api": "pnpm --filter @whosonsite/api dev",
+    "dev:web": "pnpm --filter @whosonsite/web dev",
     "build": "pnpm --recursive build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm --recursive typecheck",
-    "db:generate": "pnpm --filter @routeboard/api db:generate",
-    "db:migrate": "pnpm --filter @routeboard/api db:migrate",
-    "db:push": "pnpm --filter @routeboard/api db:push",
-    "db:seed": "pnpm --filter @routeboard/api db:seed"
+    "db:generate": "pnpm --filter @whosonsite/api db:generate",
+    "db:migrate": "pnpm --filter @whosonsite/api db:migrate",
+    "db:push": "pnpm --filter @whosonsite/api db:push",
+    "db:seed": "pnpm --filter @whosonsite/api db:seed"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

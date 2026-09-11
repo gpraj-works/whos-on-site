@@ -5,6 +5,9 @@ export const userRoleSchema = z.nativeEnum(UserRole)
 export const technicianStatusSchema = z.nativeEnum(TechnicianStatus)
 export const jobStatusSchema = z.nativeEnum(JobStatus)
 
+export const themeColorSchema = z.enum(['teal', 'indigo', 'blue', 'violet', 'orange', 'green'])
+export type ThemeColorType = z.infer<typeof themeColorSchema>
+
 export const coordinatesSchema = z.object({
   lat: z.number().min(-90).max(90),
   lng: z.number().min(-180).max(180)
@@ -32,9 +35,7 @@ export const logoutSchema = z.object({
 })
 
 export const createJobSchema = z.object({
-  customerName: z.string().min(2, 'Customer name must be at least 2 characters'),
-  customerPhone: z.string().min(7, 'Customer phone number is required'),
-  address: z.string().min(5, 'Address is required'),
+  customerId: z.string().uuid('Invalid customer ID'),
   location: coordinatesSchema.optional(),
   scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).optional(),
   notes: z.string().optional()
@@ -43,9 +44,7 @@ export const createJobSchema = z.object({
 export type CreateJobInput = z.infer<typeof createJobSchema>
 
 export const updateJobSchema = z.object({
-  customerName: z.string().min(2).optional(),
-  customerPhone: z.string().min(7).optional(),
-  address: z.string().min(5).optional(),
+  customerId: z.string().uuid('Invalid customer ID').optional(),
   location: coordinatesSchema.optional(),
   scheduledAt: z.string().datetime({ offset: true }).or(z.string().datetime()).nullable().optional(),
   notes: z.string().nullable().optional()
@@ -75,3 +74,27 @@ export const jobFilterQuerySchema = z.object({
 })
 
 export type JobFilterQuery = z.infer<typeof jobFilterQuerySchema>
+
+export const createCustomerSchema = z.object({
+  name: z.string().min(2, 'Customer name must be at least 2 characters'),
+  email: z
+    .union([z.string().email('Invalid email address'), z.literal('')])
+    .optional(),
+  mobile: z.string().min(7, 'Customer phone number is required'),
+  address: z.string().min(5, 'Address is required'),
+  additionalInfo: z.record(z.string(), z.unknown()).optional()
+})
+
+export type CreateCustomerInput = z.infer<typeof createCustomerSchema>
+
+export const updateCustomerSchema = createCustomerSchema.partial()
+
+export type UpdateCustomerInput = z.infer<typeof updateCustomerSchema>
+
+export const customerFilterQuerySchema = z.object({
+  search: z.string().optional(),
+  limit: z.coerce.number().min(1).max(100).default(50).optional(),
+  offset: z.coerce.number().min(0).default(0).optional()
+})
+
+export type CustomerFilterQuery = z.infer<typeof customerFilterQuerySchema>

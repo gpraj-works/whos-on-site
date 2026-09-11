@@ -1,1 +1,1 @@
-export { loginSchema, logoutSchema, refreshSchema, registerSchema } from '@routeboard/shared'
+export { loginSchema, logoutSchema, refreshSchema, registerSchema } from '@whosonsite/shared'

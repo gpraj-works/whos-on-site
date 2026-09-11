@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { coordinatesSchema, technicianStatusSchema } from '@routeboard/shared'
+import { coordinatesSchema, technicianStatusSchema } from '@whosonsite/shared'
 
 export const createTechnicianSchema = z.object({
   userId: z.string().uuid().optional(),

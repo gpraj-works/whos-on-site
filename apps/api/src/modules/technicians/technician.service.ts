@@ -1,4 +1,4 @@
-import { Coordinates } from '@routeboard/shared'
+import { Coordinates } from '@whosonsite/shared'
 import * as technicianRepo from './technician.repository'
 import {
   CreateTechnicianData,

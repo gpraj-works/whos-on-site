@@ -8,6 +8,11 @@ export async function createCompany(data: CreateCompanyData, client: DatabaseCli
   return company
 }
 
+export async function findCompanyById(id: string, client: DatabaseClient = db) {
+  const [company] = await client.select().from(companies).where(eq(companies.id, id))
+  return company || null
+}
+
 export async function createUser(data: CreateUserData, client: DatabaseClient = db) {
   const [user] = await client.insert(users).values(data).returning()
   return user
@@ -36,6 +41,14 @@ export async function findActiveRefreshTokenByHash(tokenHash: string, client: Da
     .select()
     .from(refreshTokens)
     .where(and(eq(refreshTokens.tokenHash, tokenHash), isNull(refreshTokens.revokedAt)))
+  return token || null
+}
+
+export async function findRefreshTokenByHash(tokenHash: string, client: DatabaseClient = db) {
+  const [token] = await client
+    .select()
+    .from(refreshTokens)
+    .where(eq(refreshTokens.tokenHash, tokenHash))
   return token || null
 }
 

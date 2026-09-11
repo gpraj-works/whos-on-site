@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { UserRole } from '@routeboard/shared'
+import { UserRole } from '@whosonsite/shared'
 import { authenticate } from '../../middleware/authenticate'
 import { authorize } from '../../middleware/authorize'
 import { companyContext } from '../../middleware/company'

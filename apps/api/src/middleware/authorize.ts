@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { UserRole } from '@routeboard/shared'
+import { UserRole } from '@whosonsite/shared'
 import { sendError } from '../common/response-handler'
 import { HttpStatus } from '../common/http-status'
 import { ErrorMessages } from '../common/error-messages'

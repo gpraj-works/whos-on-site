@@ -1,6 +1,6 @@
-import { JobStatus } from '@routeboard/shared'
+import { JobStatus } from '@whosonsite/shared'
 
-/** State Machine transition rules for RouteBoard job lifecycle */
+/** State Machine transition rules for WhosOnSite job lifecycle */
 const ALLOWED_TRANSITIONS: Record<JobStatus, JobStatus[]> = {
   [JobStatus.UNASSIGNED]: [JobStatus.ASSIGNED, JobStatus.CANCELLED],
   [JobStatus.ASSIGNED]: [JobStatus.EN_ROUTE, JobStatus.UNASSIGNED, JobStatus.CANCELLED],
