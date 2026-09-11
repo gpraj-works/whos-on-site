@@ -7,6 +7,8 @@ import { AuthProvider } from '../features/auth/context/AuthContext'
 import { LoginPage } from '../features/auth/pages/LoginPage'
 import { ProtectedRoute } from '../features/auth/routes/ProtectedRoute'
 import { PublicRoute } from '../features/auth/routes/PublicRoute'
+import { JobsPage } from '../features/jobs/pages/JobsPage'
+import { TechniciansPage } from '../features/technicians/pages/TechniciansPage'
 import { DashboardPage } from '../pages/DashboardPage'
 import { DesignSystemPage } from '../pages/DesignSystemPage'
 import { SettingsPage } from '../pages/SettingsPage'
@@ -31,7 +33,8 @@ export const App: React.FC = () => {
                 <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/jobs" element={<DashboardPage />} />
+                  <Route path="/jobs" element={<JobsPage />} />
+                  <Route path="/technicians" element={<TechniciansPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/design-system" element={<DesignSystemPage />} />
                 </Route>

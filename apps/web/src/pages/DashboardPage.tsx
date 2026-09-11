@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ActionIcon,
   Avatar,
@@ -32,121 +32,105 @@ import { Link } from 'react-router-dom'
 import { useAppTheme } from '../app/theme/ThemeContext'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
+import { ApiErrorAlert } from '../components/feedback/ApiErrorAlert'
 import { useAuth } from '../features/auth/context/AuthContext'
+import { useJobs } from '../features/jobs/api/jobQueries'
+import { CreateJobModal } from '../features/jobs/components/CreateJobModal'
+import { useTechnicians } from '../features/technicians/api/technicianQueries'
+import { formatDateTime } from '../lib/date/format'
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation()
   const { user, company } = useAuth()
   const { primaryColor } = useAppTheme()
 
+  const [createModalOpened, setCreateModalOpened] = useState(false)
+
   const companyName = company?.name || 'WhosOnSite Operations'
 
-  // Demo dispatch metrics data
+  const { data: jobs = [], isLoading: isLoadingJobs, error: jobsError, refetch: refetchJobs } = useJobs()
+  const { data: technicians = [], isLoading: isLoadingTechs, error: techsError, refetch: refetchTechs } = useTechnicians()
+
+  const handleRefreshAll = () => {
+    refetchJobs()
+    refetchTechs()
+  }
+
+  // Real KPI calculations derived from API data
+  const activeJobs = jobs.filter(
+    (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
+  )
+  const unassignedCount = jobs.filter((j) => j.status === JobStatus.UNASSIGNED).length
+  const enRouteCount = jobs.filter((j) => j.status === JobStatus.EN_ROUTE).length
+  const onSiteCount = jobs.filter((j) => j.status === JobStatus.ON_SITE).length
+
+  const onlineTechs = technicians.filter((t) => t.status !== TechnicianStatus.OFFLINE)
+  const availableTechs = technicians.filter((t) => t.status === TechnicianStatus.AVAILABLE)
+  const busyTechs = technicians.filter((t) => t.status === TechnicianStatus.BUSY)
+
+  const completedToday = jobs.filter((j) => j.status === JobStatus.COMPLETE).length
+
   const stats = [
     {
-      title: 'Active Jobs',
-      value: '14',
-      diff: 12,
+      title: t('dashboard.activeJobs', 'Active Jobs'),
+      value: String(activeJobs.length),
       icon: Truck,
       color: primaryColor,
-      description: '4 en route, 6 on site, 4 unassigned'
+      description: `${enRouteCount} en route, ${onSiteCount} on site, ${unassignedCount} unassigned`
     },
     {
-      title: 'Technicians Online',
-      value: '8 / 10',
-      diff: 80,
+      title: t('dashboard.techniciansOnline', 'Technicians Online'),
+      value: `${onlineTechs.length} / ${technicians.length}`,
       icon: Users,
       color: 'blue',
-      description: '6 available, 2 busy'
+      description: `${availableTechs.length} available, ${busyTechs.length} busy`
     },
     {
-      title: 'Completed Today',
-      value: '28',
-      diff: 18,
+      title: t('dashboard.completedToday', 'Completed Dispatches'),
+      value: String(completedToday),
       icon: CheckCircle2,
       color: 'green',
-      description: '98% SLA compliance rate'
+      description: `${jobs.length} total dispatches recorded`
     },
     {
-      title: 'Avg. Dispatch Time',
-      value: '14.2 min',
-      diff: -8,
+      title: t('dashboard.totalTechnicians', 'Total Staff'),
+      value: String(technicians.length),
       icon: Clock,
       color: 'violet',
-      description: '2.5 min faster than target'
+      description: `${onlineTechs.length} currently online in field`
     }
   ]
 
-  // Demo recent dispatch jobs list
-  const recentJobs = [
-    {
-      id: 'JOB-1092',
-      customer: 'Acme Logistics Center',
-      address: '1420 Peachtree St NE, Atlanta, GA',
-      status: JobStatus.EN_ROUTE,
-      technician: 'Marcus Vance',
-      scheduledAt: '10:30 AM',
-      priority: 'High'
-    },
-    {
-      id: 'JOB-1091',
-      customer: 'Piedmont Health Facility',
-      address: '1968 Peachtree Rd NW, Atlanta, GA',
-      status: JobStatus.ON_SITE,
-      technician: 'Sarah Jenkins',
-      scheduledAt: '09:15 AM',
-      priority: 'Urgent'
-    },
-    {
-      id: 'JOB-1090',
-      customer: 'Midtown Tech Hub',
-      address: '75 5th St NW, Atlanta, GA',
-      status: JobStatus.UNASSIGNED,
-      technician: 'Unassigned',
-      scheduledAt: '11:00 AM',
-      priority: 'Normal'
-    },
-    {
-      id: 'JOB-1089',
-      customer: 'Buckhead Plaza Office',
-      address: '3344 Peachtree Rd, Atlanta, GA',
-      status: JobStatus.COMPLETE,
-      technician: 'Alex Rivera',
-      scheduledAt: '08:00 AM',
-      priority: 'Normal'
-    }
-  ]
-
-  // Demo online technicians summary
-  const activeTechs = [
-    { name: 'Sarah Jenkins', status: TechnicianStatus.BUSY, jobsToday: 4, battery: '88%' },
-    { name: 'Marcus Vance', status: TechnicianStatus.AVAILABLE, jobsToday: 5, battery: '94%' },
-    { name: 'Alex Rivera', status: TechnicianStatus.AVAILABLE, jobsToday: 3, battery: '76%' },
-    { name: 'David Chen', status: TechnicianStatus.OFFLINE, jobsToday: 2, battery: '--' }
-  ]
+  const recentJobs = jobs.slice(0, 5)
 
   return (
     <Container size="xl" py="lg">
       <Stack gap="lg">
         {/* Welcome Header */}
         <PageHeader
-          title={t('nav.dashboard')}
+          title={t('nav.dashboard', 'Dashboard')}
           subtitle={`Real-time dispatch overview for ${companyName}`}
           actions={
             <Group gap="xs">
               <Button
                 variant="default"
                 leftSection={<RefreshCw size={16} />}
-                onClick={() => window.location.reload()}
+                onClick={handleRefreshAll}
               >
-                Refresh
+                {t('common.refresh', 'Refresh')}
               </Button>
-              <Button leftSection={<Plus size={16} />} color={primaryColor}>
-                New Dispatch Job
+              <Button
+                leftSection={<Plus size={16} />}
+                color={primaryColor}
+                onClick={() => setCreateModalOpened(true)}
+              >
+                {t('jobs.newJob', 'New Dispatch Job')}
               </Button>
             </Group>
           }
         />
+
+        <ApiErrorAlert error={jobsError || techsError} />
 
         {/* User Role Banner */}
         <Paper p="md" radius="md" bg="var(--mantine-color-body)" withBorder>
@@ -191,9 +175,6 @@ export const DashboardPage: React.FC = () => {
 
                 <Group align="flex-end" gap="xs" mb={4}>
                   <Title order={2}>{stat.value}</Title>
-                  <Badge size="xs" color={stat.diff >= 0 ? 'green' : 'orange'} variant="light">
-                    {stat.diff >= 0 ? `+${stat.diff}%` : `${stat.diff}%`}
-                  </Badge>
                 </Group>
 
                 <Text size="xs" c="dimmed">
@@ -204,7 +185,7 @@ export const DashboardPage: React.FC = () => {
           ))}
         </Grid>
 
-        {/* Main Content: Recent Dispatch Activity & Tech Status Overview */}
+        {/* Main Content: Live Dispatch Jobs & Tech Status Overview */}
         <Grid>
           {/* Left Column: Recent Dispatch Jobs */}
           <Grid.Col span={{ base: 12, lg: 8 }}>
@@ -228,62 +209,81 @@ export const DashboardPage: React.FC = () => {
                     <Table.Th>Customer & Address</Table.Th>
                     <Table.Th>Status</Table.Th>
                     <Table.Th hiddenFrom="sm">Technician</Table.Th>
-                    <Table.Th hiddenFrom="sm">Time</Table.Th>
+                    <Table.Th hiddenFrom="sm">Scheduled At</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {recentJobs.map((job) => (
-                    <Table.Tr key={job.id}>
-                      <Table.Td>
-                        <Text size="xs" fw={700}>
-                          {job.id}
-                        </Text>
-                        {job.priority === 'Urgent' && (
-                          <Badge size="xs" color="red" variant="dot">
-                            Urgent
-                          </Badge>
-                        )}
-                      </Table.Td>
-                      <Table.Td>
-                        <Text size="xs" fw={600} truncate maw={160}>
-                          {job.customer}
-                        </Text>
-                        <Group gap={4}>
-                          <MapPin size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
-                          <Text size="xs" c="dimmed" truncate max-width={200}>
-                            {job.address}
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <StatusBadge status={job.status} />
-                      </Table.Td>
-                      <Table.Td hiddenFrom="sm">
-                        <Text size="xs" fw={500}>
-                          {job.technician}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td hiddenFrom="sm">
+                  {isLoadingJobs ? (
+                    <Table.Tr>
+                      <Table.Td colSpan={5} ta="center" py="lg">
                         <Text size="xs" c="dimmed">
-                          {job.scheduledAt}
+                          {t('common.loading', 'Loading jobs...')}
                         </Text>
                       </Table.Td>
                     </Table.Tr>
-                  ))}
+                  ) : recentJobs.length === 0 ? (
+                    <Table.Tr>
+                      <Table.Td colSpan={5} ta="center" py="lg">
+                        <Text size="xs" c="dimmed">
+                          {t('common.noData', 'No jobs created yet.')}
+                        </Text>
+                      </Table.Td>
+                    </Table.Tr>
+                  ) : (
+                    recentJobs.map((job) => (
+                      <Table.Tr key={job.id}>
+                        <Table.Td>
+                          <Text size="xs" fw={700}>
+                            {job.id.slice(0, 8)}...
+                          </Text>
+                        </Table.Td>
+                        <Table.Td>
+                          <Text size="xs" fw={600} truncate maw={180}>
+                            {job.customer?.name || t('jobs.noCustomer', 'Unassigned Customer')}
+                          </Text>
+                          {job.customer?.address && (
+                            <Group gap={4}>
+                              <MapPin size={12} style={{ opacity: 0.6, flexShrink: 0 }} />
+                              <Text size="xs" c="dimmed" truncate maw={200}>
+                                {job.customer.address}
+                              </Text>
+                            </Group>
+                          )}
+                        </Table.Td>
+                        <Table.Td>
+                          <StatusBadge status={job.status} />
+                        </Table.Td>
+                        <Table.Td hiddenFrom="sm">
+                          <Text size="xs" fw={500}>
+                            {job.assignedTechnicianName || (
+                              <Text span c="dimmed" fs="italic">
+                                Unassigned
+                              </Text>
+                            )}
+                          </Text>
+                        </Table.Td>
+                        <Table.Td hiddenFrom="sm">
+                          <Text size="xs" c="dimmed">
+                            {formatDateTime(job.scheduledAt)}
+                          </Text>
+                        </Table.Td>
+                      </Table.Tr>
+                    ))
+                  )}
                 </Table.Tbody>
               </Table>
             </Card>
           </Grid.Col>
 
-          {/* Right Column: Technician Readiness & Daily Target Ring */}
+          {/* Right Column: Technician Readiness & Progress */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Stack gap="md">
               {/* Daily Completion Progress Card */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="xs">
-                  <Title order={5}>Daily Completion Goal</Title>
+                  <Title order={5}>Dispatch Completion</Title>
                   <Text size="xs" c="dimmed" fw={600}>
-                    28 / 35 Jobs
+                    {completedToday} / {jobs.length} Jobs
                   </Text>
                 </Group>
                 <Group justify="center" my="xs">
@@ -291,63 +291,92 @@ export const DashboardPage: React.FC = () => {
                     size={130}
                     thickness={12}
                     roundCaps
-                    sections={[{ value: 80, color: primaryColor }]}
+                    sections={[
+                      {
+                        value: jobs.length > 0 ? Math.round((completedToday / jobs.length) * 100) : 0,
+                        color: primaryColor
+                      }
+                    ]}
                     label={
                       <Text ta="center" fw={700} size="lg">
-                        80%
+                        {jobs.length > 0 ? `${Math.round((completedToday / jobs.length) * 100)}%` : '0%'}
                       </Text>
                     }
                   />
                 </Group>
                 <Text size="xs" c="dimmed" ta="center">
-                  On track to meet target for {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+                  Live metrics for company operations
                 </Text>
               </Card>
 
               {/* Technician Status List */}
               <Card radius="md" withBorder shadow="xs" p="md">
-                <Title order={5} mb="sm">
-                  Field Technicians
-                </Title>
+                <Group justify="space-between" mb="sm">
+                  <Title order={5}>Field Technicians</Title>
+                  <Button
+                    size="xs"
+                    variant="subtle"
+                    color={primaryColor}
+                    component={Link}
+                    to="/technicians"
+                  >
+                    View All
+                  </Button>
+                </Group>
                 <Stack gap="xs">
-                  {activeTechs.map((tech) => (
-                    <Paper key={tech.name} p="xs" radius="sm" withBorder bg="var(--mantine-color-body)">
-                      <Group justify="space-between">
-                        <Group gap="xs">
-                          <Avatar size="sm" radius="xl" color={primaryColor}>
-                            {tech.name.charAt(0)}
-                          </Avatar>
-                          <div>
-                            <Text size="xs" fw={600}>
-                              {tech.name}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              {tech.jobsToday} jobs completed
-                            </Text>
-                          </div>
+                  {isLoadingTechs ? (
+                    <Text size="xs" c="dimmed">
+                      {t('common.loading', 'Loading technicians...')}
+                    </Text>
+                  ) : technicians.length === 0 ? (
+                    <Text size="xs" c="dimmed">
+                      No technicians available.
+                    </Text>
+                  ) : (
+                    technicians.slice(0, 4).map((tech) => (
+                      <Paper key={tech.id} p="xs" radius="sm" withBorder bg="var(--mantine-color-body)">
+                        <Group justify="space-between">
+                          <Group gap="xs">
+                            <Avatar size="sm" radius="xl" color={primaryColor}>
+                              {tech.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                            <div>
+                              <Text size="xs" fw={600}>
+                                {tech.name}
+                              </Text>
+                              <Text size="xs" c="dimmed">
+                                {tech.phone || 'No phone'}
+                              </Text>
+                            </div>
+                          </Group>
+                          <Badge
+                            size="xs"
+                            variant="light"
+                            color={
+                              tech.status === TechnicianStatus.AVAILABLE
+                                ? 'green'
+                                : tech.status === TechnicianStatus.BUSY
+                                  ? 'orange'
+                                  : 'gray'
+                            }
+                          >
+                            {tech.status}
+                          </Badge>
                         </Group>
-                        <Badge
-                          size="xs"
-                          variant="light"
-                          color={
-                            tech.status === TechnicianStatus.AVAILABLE
-                              ? 'green'
-                              : tech.status === TechnicianStatus.BUSY
-                                ? 'orange'
-                                : 'gray'
-                          }
-                        >
-                          {tech.status}
-                        </Badge>
-                      </Group>
-                    </Paper>
-                  ))}
+                      </Paper>
+                    ))
+                  )}
                 </Stack>
               </Card>
             </Stack>
           </Grid.Col>
         </Grid>
       </Stack>
+
+      <CreateJobModal
+        opened={createModalOpened}
+        onClose={() => setCreateModalOpened(false)}
+      />
     </Container>
   )
 }

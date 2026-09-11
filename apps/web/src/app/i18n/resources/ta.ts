@@ -1,7 +1,7 @@
 export const ta = {
   translation: {
     app: {
-      name: 'வூஸ்-ஆன்-சைட்',
+      name: 'ஆட்களம்',
       tagline: 'வேலையில் யார் இருக்கிறார் — நேரலையில் பாருங்கள்'
     },
     nav: {
@@ -48,6 +48,68 @@ export const ta = {
       loading: 'ஏற்றுகிறது...',
       noData: 'தரவு எதுவும் இல்லை',
       error: 'பிழை ஏற்பட்டது'
+    },
+    dashboard: {
+      activeJobs: 'செயலில் உள்ள வேலைகள்',
+      techniciansOnline: 'ஆன்லைன் தொழில்நுட்ப வல்லுநர்கள்',
+      completedToday: 'நிறைவடைந்த வேலைகள்',
+      totalTechnicians: 'மொத்த பணியாளர்கள்'
+    },
+    jobs: {
+      title: 'வேலை பலகை',
+      subtitle: 'வேலை ஒதுக்கீடுகள் மற்றும் நிலைகளை நிர்வகிக்கவும்',
+      newJob: 'புதிய வேலை',
+      createTitle: 'புதிய வேலை உருவாக்கவும்',
+      jobId: 'வேலை எண்',
+      customer: 'வாடிக்கையாளர்',
+      customerAddress: 'வாடிக்கையாளர் & முகவரி',
+      selectCustomer: 'வாடிக்கையாளரைத் தேர்ந்தெடுக்கவும்',
+      addCustomer: 'புதிய வாடிக்கையாளர்',
+      createCustomerTitle: 'புதிய வாடிக்கையாளரை உருவாக்கவும்',
+      customerName: 'வாடிக்கையாளர் பெயர்',
+      customerMobile: 'தொலைபேசி எண்',
+      customerAddressField: 'முகவரி',
+      customerEmail: 'மின்னஞ்சல்',
+      saveCustomer: 'வாடிக்கையாளரை சேமிக்கவும்',
+      scheduledAt: 'திட்டமிடப்பட்ட நேரம்',
+      scheduledFor: 'திட்டமிடப்பட்டது',
+      createdAt: 'உருவாக்கப்பட்டது',
+      notes: 'குறிப்புகள்',
+      notesPlaceholder: 'வேலை பற்றிய குறிப்புகள் உள்ளிடவும்',
+      createSubmit: 'வேலையை உருவாக்கவும்',
+      assignTitle: 'தொழில்நுட்ப வல்லுநரை ஒதுக்கவும்',
+      selectTechnician: 'தொழில்நுட்ப வல்லுநரைத் தேர்ந்தெடுக்கவும்',
+      chooseTechnician: 'வல்லுநரைத் தேர்ந்தெடுக்கவும்',
+      assignConfirm: 'ஒதுக்கவும்',
+      unassignButton: 'ஒதுக்கீட்டை நீக்கு',
+      noCustomer: 'வாடிக்கையாளர் இல்லை',
+      status: 'நிலை',
+      technician: 'தொழில்நுட்ப வல்லுநர்',
+      assignTechnician: 'வல்லுநரை ஒதுக்கவும்',
+      reassignTechnician: 'மீண்டும் ஒதுக்கவும்',
+      markEnRoute: 'பயணத்தை தொடங்கு',
+      markOnSite: 'இடத்தை அடைந்தார்',
+      markComplete: 'வேலையை முடி',
+      cancelJob: 'வேலையை ரத்துசெய்',
+      cancelTitle: 'வேலையை ரத்துசெய்',
+      cancelConfirmMessage: 'இந்த வேலையை நிச்சயமாக ரத்து செய்ய விரும்புகிறீர்களா?',
+      terminalStateNotice: 'இந்த வேலை முடிவடைந்தது.',
+      availableActions: 'கிடைக்கும் செயல்கள்',
+      addStatusNote: 'குறிப்பு சேர்க்கவும்:',
+      notePlaceholder: 'எ.கா. போக்குவரத்தால் தாமதம்',
+      statusHistory: 'நிலை வரலாற்றுப் பதிவு',
+      noHistory: 'வரலாறு எதுவும் இல்லை',
+      filterAll: 'எல்லா நிலைகளும்'
+    },
+    technicians: {
+      title: 'தொழில்நுட்ப வல்லுநர்கள்',
+      subtitle: 'நேரலை வல்லுநர் நிலைகள் மற்றும் இருப்பிட கண்காணிப்பு',
+      name: 'வல்லுநர்',
+      status: 'நிலை',
+      phone: 'தொலைபேசி எண்',
+      location: 'கடைசி இருப்பிடம்',
+      lastUpdated: 'கடைசி புதுப்பிப்பு'
     }
   }
 }
+
