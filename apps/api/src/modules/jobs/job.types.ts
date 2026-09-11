@@ -1,4 +1,4 @@
-import { Coordinates, JobStatus } from '@routeboard/shared'
+import { Coordinates, JobStatus } from '@whosonsite/shared'
 
 export interface CreateJobData {
   companyId: string

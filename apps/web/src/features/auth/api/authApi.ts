@@ -4,7 +4,7 @@ import {
   CompanyDto,
   LoginRequest,
   RegisterRequest
-} from '@routeboard/shared'
+} from '@whosonsite/shared'
 import { apiClient } from '../../../lib/api'
 
 export async function loginApi(data: LoginRequest): Promise<AuthResponse> {

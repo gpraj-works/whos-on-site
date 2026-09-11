@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AuthResponse, AuthUser, CompanyDto, LoginRequest, RegisterRequest } from '@routeboard/shared'
+import { AuthResponse, AuthUser, CompanyDto, LoginRequest, RegisterRequest } from '@whosonsite/shared'
 import { getAccessToken, setAccessToken } from '../../lib/api'
 import { queryClient } from '../../app/query/client'
 import * as authApi from '../../features/auth/api/authApi'

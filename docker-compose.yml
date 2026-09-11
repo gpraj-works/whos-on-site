@@ -1,25 +1,25 @@
 services:
   postgres:
     image: postgis/postgis:16-3.4
-    container_name: routeboard_postgres
+    container_name: whosonsite_postgres
     restart: always
     environment:
-      POSTGRES_DB: routeboard
-      POSTGRES_USER: routeboard
-      POSTGRES_PASSWORD: routeboard_secret_password
+      POSTGRES_DB: whosonsite
+      POSTGRES_USER: whosonsite
+      POSTGRES_PASSWORD: whosonsite_secret_password
     ports:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U routeboard -d routeboard']
+      test: ['CMD-SHELL', 'pg_isready -U whosonsite -d whosonsite']
       interval: 10s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: routeboard_redis
+    container_name: whosonsite_redis
     restart: always
     ports:
       - '6379:6379'

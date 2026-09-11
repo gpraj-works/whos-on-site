@@ -1,6 +1,6 @@
 import React from 'react'
 import { Badge, MantineColor } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@routeboard/shared'
+import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
 type StatusType = JobStatus | TechnicianStatus | string

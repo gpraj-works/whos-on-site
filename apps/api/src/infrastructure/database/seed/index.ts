@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm'
 import { db } from '../client'
 import { companies, customers, jobs, users, technicians } from '../schema/index'
 import { logger } from '../../logging/logger'
-import { UserRole } from '@routeboard/shared'
+import { UserRole } from '@whosonsite/shared'
 
 export async function seedDatabase() {
   logger.info('Starting multi-company database seed...')

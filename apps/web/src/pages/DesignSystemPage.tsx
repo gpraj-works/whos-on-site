@@ -12,7 +12,7 @@ import {
   TextInput,
   Title
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus, ThemeColorType } from '@routeboard/shared'
+import { JobStatus, TechnicianStatus, ThemeColorType } from '@whosonsite/shared'
 import { Check, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

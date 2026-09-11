@@ -13,7 +13,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { ThemeColorType } from '@routeboard/shared'
+import { ThemeColorType } from '@whosonsite/shared'
 import { Building2, Check, Moon, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 

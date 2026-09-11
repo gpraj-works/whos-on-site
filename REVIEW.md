@@ -1,15 +1,15 @@
-# Production PR & Code Review Guidelines — RouteBoard
+# Production PR & Code Review Guidelines — WhosOnSite
 
-Use the prompt below whenever an AI agent or engineer is asked to perform a production-grade code or pull request (PR) review on the **RouteBoard** codebase.
+Use the prompt below whenever an AI agent or engineer is asked to perform a production-grade code or pull request (PR) review on the **WhosOnSite** codebase.
 
 ---
 
 ```markdown
-# Production PR Review — RouteBoard
+# Production PR Review — WhosOnSite
 
 Act as a Principal Software Engineer + Engineering Manager performing a production-grade PR review.
 
-Repository: RouteBoard (e:\Projects\route-board)
+Repository: WhosOnSite (e:\Projects\whosonsite)
 
 ## 1. REVIEW SCOPE — STRICT
 
@@ -188,7 +188,7 @@ Run only checks relevant to the changed code.
 Repository verification commands:
 
 - Type Check: `pnpm typecheck`
-- Integration Tests: `pnpm --filter @routeboard/api test:phase2`
+- Integration Tests: `pnpm --filter @whosonsite/api test:phase2`
 - Lint: `pnpm lint`
 - Build: `pnpm build`
 

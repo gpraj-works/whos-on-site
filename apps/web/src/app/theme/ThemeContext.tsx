@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
-import { THEME_COLORS, ThemeColorType } from '@routeboard/shared'
+import { THEME_COLORS, ThemeColorType } from '@whosonsite/shared'
 
 import { getAppTheme } from './index'
 import { useFavicon } from './useFavicon'
@@ -19,8 +19,8 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const LOCAL_STORAGE_SCHEME_KEY = 'routeboard_color_scheme'
-const LOCAL_STORAGE_PRIMARY_COLOR_KEY = 'routeboard_primary_color'
+const LOCAL_STORAGE_SCHEME_KEY = 'whosonsite_color_scheme'
+const LOCAL_STORAGE_PRIMARY_COLOR_KEY = 'whosonsite_primary_color'
 
 export const ThemeProvider: React.FC<{
   initialCompanyColor?: ThemeColorType

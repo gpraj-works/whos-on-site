@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { and, desc, eq, sql } from 'drizzle-orm'
-import { Coordinates, CustomerDto, JobDto, JobStatus, JobStatusHistoryDto } from '@routeboard/shared'
+import { Coordinates, CustomerDto, JobDto, JobStatus, JobStatusHistoryDto } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import {
   customers,

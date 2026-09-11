@@ -1,4 +1,4 @@
-import { JobDto, JobStatus } from '@routeboard/shared'
+import { JobDto, JobStatus } from '@whosonsite/shared'
 import { BadRequestError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { findTechnicianById } from '../technicians/technician.repository'

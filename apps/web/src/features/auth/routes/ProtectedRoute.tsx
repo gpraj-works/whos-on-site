@@ -1,6 +1,6 @@
 import React from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
-import { UserRole } from '@routeboard/shared'
+import { UserRole } from '@whosonsite/shared'
 
 import { LoadingState } from '../../../components/common/LoadingState'
 import { AppLayout } from '../../../components/layout/AppLayout'

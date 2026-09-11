@@ -12,7 +12,7 @@ import {
   TextInput,
   Title
 } from '@mantine/core'
-import { loginSchema } from '@routeboard/shared'
+import { loginSchema } from '@whosonsite/shared'
 import { KeyRound, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'

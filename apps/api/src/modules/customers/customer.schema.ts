@@ -2,4 +2,4 @@ export {
   createCustomerSchema,
   updateCustomerSchema,
   customerFilterQuerySchema
-} from '@routeboard/shared'
+} from '@whosonsite/shared'

@@ -1,4 +1,4 @@
-import { CustomerDto } from '@routeboard/shared'
+import { CustomerDto } from '@whosonsite/shared'
 import { ConflictError, NotFoundError } from '../../common/app-error'
 import * as customerRepo from './customer.repository'
 import {

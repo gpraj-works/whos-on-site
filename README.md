@@ -1,4 +1,4 @@
-# RouteBoard
+# WhosOnSite
 
 > **Field-service dispatch & real-time job tracking platform**
 >
@@ -18,7 +18,7 @@
 ## 📁 Repository Structure
 
 ```text
-routeboard/
+whosonsite/
 ├── apps/
 │   ├── api/             # Express API server with Drizzle ORM & Pino logger
 │   └── web/             # React 19 + Mantine UI frontend SPA

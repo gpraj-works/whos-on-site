@@ -13,7 +13,7 @@ import {
   Tooltip,
   UnstyledButton
 } from '@mantine/core'
-import { ThemeColorType } from '@routeboard/shared'
+import { ThemeColorType } from '@whosonsite/shared'
 import { Globe, LogOut, Moon, Settings, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -45,7 +45,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
     i18n.changeLanguage(lng)
   }
 
-  const companyName = company?.name || 'RouteBoard'
+  const companyName = company?.name || 'WhosOnSite'
 
   return (
     <Group

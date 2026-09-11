@@ -1,12 +1,12 @@
-# RouteBoard — Workspace Agent Instructions & Coding Standards
+# WhosOnSite — Workspace Agent Instructions & Coding Standards
 
-Welcome to RouteBoard! This document defines the MANDATORY architectural principles, coding standards, and security guidelines for any agent working on this codebase.
+Welcome to WhosOnSite! This document defines the MANDATORY architectural principles, coding standards, and security guidelines for any agent working on this codebase.
 
 ---
 
 ## 1. Monorepo Architecture
 
-RouteBoard is a `pnpm` monorepo organized into three primary packages:
+WhosOnSite is a `pnpm` monorepo organized into three primary packages:
 
 * **`apps/api`**: Express.js + TypeScript backend with Drizzle ORM over PostgreSQL/PostGIS, Redis, BullMQ, and Socket.io.
 * **`apps/web`**: React + TypeScript frontend built with Vite, Mantine UI, TanStack Query, Leaflet maps, and Socket.io client.
@@ -19,11 +19,11 @@ RouteBoard is a `pnpm` monorepo organized into three primary packages:
 * **Function-Based Pattern**: Keep backend architecture strictly function-based (`route → controller function → service function → repository function`). Avoid introducing classes unless specifically requested.
 * **TypeScript Imports**: Use extensionless relative imports (or `.ts`) across all TypeScript files. Never use `.js` extensions in imports.
 * **Type Safety & Shared Schemas**:
-  * Define API request/response validation schemas in `@routeboard/shared`.
+  * Define API request/response validation schemas in `@whosonsite/shared`.
   * Validate all request payloads in controller layer using shared Zod schemas.
 * **Form Validation — Zod Only**:
   * NEVER use HTML5 validation attributes (`required`, `pattern`, `min`, `max`, `type="email"`, etc.) on form inputs.
-  * ALL form validation MUST be handled via shared Zod schemas in `@routeboard/shared`, validated with `schema.safeParse()` on submit.
+  * ALL form validation MUST be handled via shared Zod schemas in `@whosonsite/shared`, validated with `schema.safeParse()` on submit.
   * Form fields should use controlled state (`value` + `onChange`) with Zod error messages displayed via component state.
 * **Comment Formatting**:
   * NEVER use numbered step mark comments (e.g., `// 1.`, `// 2.`, `// Step 1:`, `// Step 2:`).
@@ -73,4 +73,4 @@ RouteBoard is a `pnpm` monorepo organized into three primary packages:
 
 Before completing any task, execute:
 1. `pnpm typecheck` — Must pass with 0 errors across all 3 workspace packages (`shared`, `api`, `web`).
-2. `pnpm --filter @routeboard/api test:phase2` — Verify security & spatial integration tests.
+2. `pnpm --filter @whosonsite/api test:phase2` — Verify security & spatial integration tests.

@@ -1,4 +1,4 @@
-# RouteBoard — Implementation Document
+# WhosOnSite — Implementation Document
 
 **Field-service dispatch & real-time job tracking platform**
 
@@ -30,7 +30,7 @@
 
 |                                     |                                                                                      |
 | ----------------------------------- | ------------------------------------------------------------------------------------ |
-| **Name**                            | RouteBoard                                                                           |
+| **Name**                            | WhosOnSite                                                                           |
 | **Type**                            | Multi-tenant B2B SaaS — dispatch & field-tracking                                    |
 | **Primary vertical (demo framing)** | Home services (HVAC / plumbing / electrical repair)                                  |
 | **Also fits**                       | Courier/delivery, cleaning crews, roadside assistance, security patrol, inspections  |
@@ -56,7 +56,7 @@ Small field-service businesses (10–50 field workers) coordinate their entire d
 
 ### The solution
 
-| Problem                                    | RouteBoard resolution                                                                         |
+| Problem                                    | WhosOnSite resolution                                                                         |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------- |
 | No visibility into technician availability | Live dispatch board showing every job + every technician's current status                     |
 | Manual status check-ins                    | One-tap status updates from the technician's phone (assigned → en route → on site → complete) |
@@ -135,7 +135,7 @@ API reference for this project is maintained as a hand-written Markdown document
 
 ## 4. System architecture
 
-![RouteBoard system architecture diagram showing client layer, API layer, data layer, and observability layer](diagrams/01-system-architecture.png)
+![WhosOnSite system architecture diagram showing client layer, API layer, data layer, and observability layer](diagrams/01-system-architecture.png)
 
 The client layer (React dispatcher board + technician mobile-web view) talks to the Express API over REST and WebSocket. The API layer writes to PostgreSQL+PostGIS and enqueues background work in Redis+BullMQ, which a separate worker process consumes to send notifications. Pino and Sentry sit alongside as the observability layer, watching both the API and the worker.
 
@@ -380,7 +380,7 @@ With Drizzle, these are written using `sql\`...\`` template queries against type
 
 All authenticated routes pass through: JWT verification → tenant-scoping middleware (injects `company_id` filter) → RBAC check → rate limiter (auth routes only).
 
-**Versioning:** no `/v1/` prefix for this project — single consumer (own frontend), no external API contract to preserve yet. If RouteBoard ever exposes a public API, routes move under `/api/v1/` at that point; deferring the prefix now is a deliberate scope decision, not an oversight.
+**Versioning:** no `/v1/` prefix for this project — single consumer (own frontend), no external API contract to preserve yet. If WhosOnSite ever exposes a public API, routes move under `/api/v1/` at that point; deferring the prefix now is a deliberate scope decision, not an oversight.
 
 **Documentation:** the table above is the source of truth and is mirrored into `docs/api-reference.md` (request/response shapes, status codes, and example payloads per route) as a static, hand-maintained Markdown file kept current alongside route changes — no generated OpenAPI spec or Swagger UI is served by the API.
 
@@ -407,7 +407,7 @@ Rooms are namespaced per company: clients join `company:<company_id>` on connect
 The project uses a **domain/feature-oriented monorepo structure**. Business logic is grouped by module instead of placing all routes, controllers, and services into global folders. This keeps each domain cohesive and makes the codebase easier to navigate and scale.
 
 ```
-routeboard/
+whosonsite/
 ├── apps/
 │   ├── web/                              # React frontend
 │   │   ├── src/
@@ -882,7 +882,7 @@ The 8-week/~180-hour build is organized into 8 sequential phases, one per week (
 
 **Deliverables:**
 
-- Deployed, publicly reachable RouteBoard instance (API + worker + frontend + managed Postgres/Redis).
+- Deployed, publicly reachable WhosOnSite instance (API + worker + frontend + managed Postgres/Redis).
 - Green CI pipeline on the `main` branch.
 - Sentry and structured logging visibly capturing real events in the deployed environment.
 - Completed `docs/api-reference.md` and final case-study write-up.
@@ -941,7 +941,7 @@ A push to `main` triggers GitHub Actions: lint → typecheck → test → build.
 ```
 # API
 NODE_ENV=development
-DATABASE_URL=postgresql://user:pass@localhost:5432/routeboard
+DATABASE_URL=postgresql://user:pass@localhost:5432/whosonsite
 REDIS_URL=redis://localhost:6379
 JWT_ACCESS_SECRET=
 JWT_REFRESH_SECRET=

@@ -4,4 +4,4 @@ export {
   assignJobSchema,
   updateJobStatusSchema,
   jobFilterQuerySchema
-} from '@routeboard/shared'
+} from '@whosonsite/shared'

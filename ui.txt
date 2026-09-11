@@ -18,7 +18,7 @@ Now let's shift toward the actual product.
 
 # Phase 4 — Frontend Foundation & Authentication
 
-**Goal:** Build the real RouteBoard web application shell and connect it to the existing API.
+**Goal:** Build the real WhosOnSite web application shell and connect it to the existing API.
 
 ```text
 Phase 4

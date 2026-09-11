@@ -1,8 +1,8 @@
 export const en = {
   translation: {
     app: {
-      name: 'RouteBoard',
-      tagline: 'Field Service Dispatch & Live Job Tracking'
+      name: 'WhosOnSite',
+      tagline: "See who's on the job — live."
     },
     nav: {
       dashboard: 'Dashboard',

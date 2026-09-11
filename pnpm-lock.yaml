@@ -32,7 +32,7 @@ importers:
 
   apps/api:
     dependencies:
-      '@routeboard/shared':
+      '@whosonsite/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       argon2:
@@ -120,7 +120,7 @@ importers:
       '@reduxjs/toolkit':
         specifier: ^2.12.0
         version: 2.12.0(react-redux@9.3.0(@types/react@19.2.18)(react@19.2.8)(redux@5.0.1))(react@19.2.8)
-      '@routeboard/shared':
+      '@whosonsite/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       '@tanstack/react-query':

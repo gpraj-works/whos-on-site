@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 import { and, eq, sql } from 'drizzle-orm'
-import { Coordinates, TechnicianStatus } from '@routeboard/shared'
+import { Coordinates, TechnicianStatus } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import { technicians } from '../../infrastructure/database/schema/index'
 import {

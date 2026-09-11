@@ -6,7 +6,7 @@ import { env } from './config/env'
 import { logger } from './infrastructure/logging/logger'
 import { queryClient } from './infrastructure/database/client'
 import { redis } from './infrastructure/redis/client'
-import { HealthResponse, ReadinessResponse } from '@routeboard/shared'
+import { HealthResponse, ReadinessResponse } from '@whosonsite/shared'
 import { apiRouter } from './routes/index'
 import { errorHandler } from './middleware/error-handler'
 

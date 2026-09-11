@@ -15,7 +15,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@routeboard/shared'
+import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
 import {
   CheckCircle2,
   Clock,
@@ -39,7 +39,7 @@ export const DashboardPage: React.FC = () => {
   const { user, company } = useAuth()
   const { primaryColor } = useAppTheme()
 
-  const companyName = company?.name || 'RouteBoard Operations'
+  const companyName = company?.name || 'WhosOnSite Operations'
 
   // Demo dispatch metrics data
   const stats = [

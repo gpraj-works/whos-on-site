@@ -7,7 +7,7 @@ import { HttpStatus } from '../../common/http-status'
 import { UnauthorizedError } from '../../common/app-error'
 import { env } from '../../config/env'
 
-const REFRESH_COOKIE_NAME = 'routeboard_refresh_token'
+const REFRESH_COOKIE_NAME = 'whosonsite_refresh_token'
 
 const getClearCookieOptions = () => ({
   httpOnly: true,

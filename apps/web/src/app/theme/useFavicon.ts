@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { ThemeColorType } from '@routeboard/shared'
+import { ThemeColorType } from '@whosonsite/shared'
 import { getLogoSvgString } from '../../components/common/Logo'
 
 export const SWATCH_HEX_MAP: Record<ThemeColorType, string> = {

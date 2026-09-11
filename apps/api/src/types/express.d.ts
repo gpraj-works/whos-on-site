@@ -1,4 +1,4 @@
-import { UserRole } from '@routeboard/shared'
+import { UserRole } from '@whosonsite/shared'
 
 export interface AuthenticatedContext {
   userId: string

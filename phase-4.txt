@@ -1,6 +1,6 @@
 Sure. **Phase 4 is about making the backend reactive and asynchronous.**
 
-Up to Phase 3, RouteBoard is essentially:
+Up to Phase 3, WhosOnSite is essentially:
 
 ```text
 User
@@ -128,7 +128,7 @@ technician.location_updated
 
 # 3. Company rooms are extremely important
 
-Because RouteBoard is multi-tenant, we cannot simply broadcast events globally.
+Because WhosOnSite is multi-tenant, we cannot simply broadcast events globally.
 
 Suppose:
 
@@ -572,7 +572,7 @@ BullMQ is for **side effects and asynchronous work**, not core transactional sta
 
 # 14. Technician location
 
-This is particularly interesting for RouteBoard.
+This is particularly interesting for WhosOnSite.
 
 Technician:
 

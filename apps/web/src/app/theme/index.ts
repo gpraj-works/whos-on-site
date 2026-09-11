@@ -1,5 +1,5 @@
 import { createTheme, MantineThemeOverride } from '@mantine/core'
-import { ThemeColorType } from '@routeboard/shared'
+import { ThemeColorType } from '@whosonsite/shared'
 import { darkThemeTokens } from './dark'
 import { lightThemeTokens } from './light'
 

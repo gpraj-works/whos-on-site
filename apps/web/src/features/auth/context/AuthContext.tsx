@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react'
-import { AuthUser, CompanyDto, LoginRequest, RegisterRequest, ThemeColorType } from '@routeboard/shared'
+import { AuthUser, CompanyDto, LoginRequest, RegisterRequest, ThemeColorType } from '@whosonsite/shared'
 import { useAppTheme } from '../../../app/theme/ThemeContext'
 import { setOnAuthFailure } from '../../../lib/api'
 import { useAppDispatch, useAppSelector } from '../../../store'
@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Update tenant primary color on company load if no user custom selection exists
   useEffect(() => {
     try {
-      const savedColor = localStorage.getItem('routeboard_primary_color')
+      const savedColor = localStorage.getItem('whosonsite_primary_color')
       if (!savedColor && company?.primaryColor) {
         setPrimaryColor(company.primaryColor as ThemeColorType)
       }

@@ -1,5 +1,5 @@
 import { customType } from 'drizzle-orm/pg-core'
-import { Coordinates } from '@routeboard/shared'
+import { Coordinates } from '@whosonsite/shared'
 
 export const postgisGeometry = customType<{
   data: Coordinates
