@@ -110,3 +110,18 @@ export interface TechnicianDto {
   lastLocationAt: string | null
   distanceMeters?: number
 }
+
+export interface DailyJobCount {
+  date: string
+  count: number
+}
+
+export interface AnalyticsSummaryDto {
+  jobsByStatus: Record<JobStatus, number>
+  jobsCreatedLast14Days: DailyJobCount[]
+  technicianAvailability: Record<TechnicianStatus, number>
+  avgCompletionTimeMinutes: number
+  totalJobsCount: number
+  totalTechniciansCount: number
+}
+

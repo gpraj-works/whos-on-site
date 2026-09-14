@@ -1,6 +1,8 @@
-import { JobDto, JobStatus } from '@whosonsite/shared'
+import { JobAssignedEvent, JobDto, JobStatus } from '@whosonsite/shared'
 import { BadRequestError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
+import { emitToCompany } from '../../infrastructure/socket/socket.events'
+import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
 import { findTechnicianById } from '../technicians/technician.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
@@ -29,7 +31,7 @@ export async function assignTechnicianToJob(
     throw new BadRequestError(`Cannot assign technician to a job that is '${job.status}'`)
   }
 
-  return withTransaction(async (tx) => {
+  const updatedJob = await withTransaction(async (tx) => {
     // Record assignment history entry
     await jobRepo.createAssignmentRecord(
       {
@@ -68,6 +70,28 @@ export async function assignTechnicianToJob(
     }
     return updatedJob
   })
+
+  // Emit job:assigned event after transaction commit
+  emitToCompany<JobAssignedEvent>(companyId, 'job:assigned', {
+    companyId,
+    jobId: updatedJob.id,
+    technicianId,
+    assignedAt: new Date().toISOString()
+  })
+
+  // Enqueue notification job
+  enqueueNotificationJob({
+    companyId,
+    jobId: updatedJob.id,
+    type: 'tech_assigned',
+    payload: {
+      jobId: updatedJob.id,
+      technicianId,
+      assignedBy: userId
+    }
+  })
+
+  return updatedJob
 }
 
 /** Unassign a technician from a job within an atomic transaction */

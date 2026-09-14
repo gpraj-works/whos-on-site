@@ -4,8 +4,6 @@ import { UserRole } from '@whosonsite/shared'
 import {
   BarChart3,
   LayoutDashboard,
-  Palette,
-  Settings,
   Truck,
   UserCheck,
   Users
@@ -35,9 +33,15 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
     },
     {
       icon: Truck,
-      label: t('nav.jobs'),
+      label: t('nav.dispatch', 'Dispatch Board'),
       path: '/dispatch',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
+      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+    },
+    {
+      icon: Truck,
+      label: t('nav.myJobs', 'My Jobs Queue'),
+      path: '/my-jobs',
+      roles: [UserRole.TECHNICIAN]
     },
     {
       icon: Users,
@@ -56,18 +60,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       label: t('nav.analytics'),
       path: '/analytics',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
-    },
-    {
-      icon: Settings,
-      label: t('nav.settings'),
-      path: '/settings',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
-    },
-    {
-      icon: Palette,
-      label: 'Design System',
-      path: '/design-system',
-      roles: [UserRole.OWNER, UserRole.ADMIN]
     }
   ]
 

@@ -5,8 +5,10 @@ import { companyId } from './company'
 import { createdBy } from './audit'
 
 export const notificationTypeEnum = pgEnum('notification_type', [
+  'job_created',
   'job_delayed',
   'tech_assigned',
+  'job_status_changed',
   'daily_summary'
 ])
 

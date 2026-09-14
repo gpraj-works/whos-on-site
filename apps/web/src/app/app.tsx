@@ -4,14 +4,18 @@ import { Provider } from 'react-redux'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from '../components/auth/AuthContext'
+import { DispatcherOnly } from '../components/auth/DispatcherOnly'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
+import { TechnicianOnly } from '../components/auth/TechnicianOnly'
+import { Analytics } from '../pages/Analytics'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
-import { DesignSystem } from '../pages/DesignSystem'
+import { Dispatch } from '../pages/Dispatch'
 import { Jobs } from '../pages/Jobs'
 import { Login } from '../pages/Login'
 import { Settings } from '../pages/Settings'
+import { TechnicianJobs } from '../pages/TechnicianJobs'
 import { Technicians } from '../pages/Technicians'
 import { store } from '../store'
 import { queryClient } from './query/client'
@@ -35,11 +39,33 @@ export const App: React.FC = () => {
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/jobs" element={<Jobs />} />
-                  <Route path="/dispatch" element={<Jobs />} />
+                  <Route
+                    path="/my-jobs"
+                    element={
+                      <TechnicianOnly>
+                        <TechnicianJobs />
+                      </TechnicianOnly>
+                    }
+                  />
+                  <Route
+                    path="/dispatch"
+                    element={
+                      <DispatcherOnly>
+                        <Dispatch />
+                      </DispatcherOnly>
+                    }
+                  />
+                  <Route
+                    path="/analytics"
+                    element={
+                      <DispatcherOnly>
+                        <Analytics />
+                      </DispatcherOnly>
+                    }
+                  />
                   <Route path="/technicians" element={<Technicians />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/settings" element={<Settings />} />
-                  <Route path="/design-system" element={<DesignSystem />} />
                 </Route>
 
                 {/* Catch-all redirect */}
