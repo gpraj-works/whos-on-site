@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Badge,
-  Button,
   Card,
   Container,
   Grid,
@@ -13,37 +12,27 @@ import {
   Title,
   Tooltip
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus } from '@whosonsite/shared'
 import {
   BarChart2,
   Briefcase,
   CheckCircle2,
   Clock,
-  RefreshCw,
   Timer,
   UserCheck,
   Users
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppTheme } from '../app/theme/ThemeContext'
+import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { useAnalyticsSummary } from '../components/analytics/queries'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 
-const JOB_STATUS_COLORS: Record<JobStatus, string> = {
-  [JobStatus.UNASSIGNED]: 'orange',
-  [JobStatus.ASSIGNED]: 'blue',
-  [JobStatus.EN_ROUTE]: 'yellow',
-  [JobStatus.ON_SITE]: 'teal',
-  [JobStatus.COMPLETE]: 'green',
-  [JobStatus.CANCELLED]: 'red'
-}
-
 export const Analytics: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
-  const { data: summary, isLoading, refetch, isRefetching } = useAnalyticsSummary()
+  const { data: summary, isLoading } = useAnalyticsSummary()
 
   const activeJobsCount =
     (summary?.jobsByStatus.assigned || 0) +
@@ -57,28 +46,18 @@ export const Analytics: React.FC = () => {
   )
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('analytics.title', 'Operations Analytics')}
           subtitle={t(
             'analytics.subtitle',
-            'Real-time company metrics, job status breakdown, completion performance, and technician tracking'
+            'Real-time company metrics, job status breakdown, completion performance, and agent tracking'
           )}
-          actions={
-            <Button
-              variant="default"
-              leftSection={<RefreshCw size={16} className={isRefetching ? 'spin' : ''} />}
-              onClick={() => refetch()}
-              loading={isLoading}
-            >
-              {t('common.refresh', 'Refresh')}
-            </Button>
-          }
         />
 
         {/* Stat Cards Row */}
-        <Grid gutter="md">
+        <Grid gutter="sm">
           <Grid.Col span={{ base: 12, sm: 6, md: 2.4 }}>
             <Card withBorder radius="md" p="md">
               <Group justify="space-between">
@@ -156,16 +135,16 @@ export const Analytics: React.FC = () => {
                 <Users size={20} style={{ color: 'var(--mantine-color-teal-6)' }} />
               </Group>
               <Text fw={700} size="xl" mt="xs" c="teal">
-                {isLoading ? '...' : summary?.totalTechniciansCount || 0}
+                {isLoading ? '...' : summary?.totalAgentsCount || 0}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
-                Registered technicians
+                Registered agents
               </Text>
             </Card>
           </Grid.Col>
         </Grid>
 
-        <Grid gutter="md">
+        <Grid gutter="sm">
           {/* Jobs by Status Distribution */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper radius="md" p="md" withBorder style={{ height: '100%' }}>
@@ -214,12 +193,12 @@ export const Analytics: React.FC = () => {
             </Paper>
           </Grid.Col>
 
-          {/* Technician Availability Overview */}
+          {/* Agent Availability Overview */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper radius="md" p="md" withBorder style={{ height: '100%' }}>
               <Stack gap="md">
                 <Group justify="space-between">
-                  <Title order={5}>Field Technician Availability</Title>
+                  <Title order={5}>Field Agent Availability</Title>
                   <UserCheck size={18} style={{ color: 'gray' }} />
                 </Group>
 
@@ -236,7 +215,7 @@ export const Analytics: React.FC = () => {
                             AVAILABLE
                           </Badge>
                           <Text fw={700} size="lg" c="green">
-                            {summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0}
+                            {summary?.agentAvailability[AgentStatus.AVAILABLE] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -247,7 +226,7 @@ export const Analytics: React.FC = () => {
                             BUSY
                           </Badge>
                           <Text fw={700} size="lg" c="orange">
-                            {summary?.technicianAvailability[TechnicianStatus.BUSY] || 0}
+                            {summary?.agentAvailability[AgentStatus.BUSY] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -258,7 +237,7 @@ export const Analytics: React.FC = () => {
                             OFFLINE
                           </Badge>
                           <Text fw={700} size="lg" c="gray">
-                            {summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0}
+                            {summary?.agentAvailability[AgentStatus.OFFLINE] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -269,11 +248,11 @@ export const Analytics: React.FC = () => {
                         Overall Capacity Split
                       </Text>
                       <Progress.Root size="xl" radius="xl">
-                        <Tooltip label={`Available: ${summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0}`}>
+                        <Tooltip label={`Available: ${summary?.agentAvailability[AgentStatus.AVAILABLE] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.agentAvailability[AgentStatus.AVAILABLE] || 0) /
+                                (summary?.totalAgentsCount || 1)) *
                               100
                             }
                             color="green"
@@ -281,11 +260,11 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Available</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Busy: ${summary?.technicianAvailability[TechnicianStatus.BUSY] || 0}`}>
+                        <Tooltip label={`Busy: ${summary?.agentAvailability[AgentStatus.BUSY] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.BUSY] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.agentAvailability[AgentStatus.BUSY] || 0) /
+                                (summary?.totalAgentsCount || 1)) *
                               100
                             }
                             color="orange"
@@ -293,11 +272,11 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Busy</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Offline: ${summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0}`}>
+                        <Tooltip label={`Offline: ${summary?.agentAvailability[AgentStatus.OFFLINE] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.agentAvailability[AgentStatus.OFFLINE] || 0) /
+                                (summary?.totalAgentsCount || 1)) *
                               100
                             }
                             color="gray"

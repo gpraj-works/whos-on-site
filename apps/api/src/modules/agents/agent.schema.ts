@@ -1,11 +1,11 @@
 import { z } from 'zod'
-import { coordinatesSchema, technicianStatusSchema } from '@whosonsite/shared'
+import { coordinatesSchema, agentStatusSchema } from '@whosonsite/shared'
 
-export const createTechnicianSchema = z.object({
+export const createAgentSchema = z.object({
   userId: z.string().uuid().optional(),
   name: z.string().min(2, 'Name must be at least 2 characters'),
   phone: z.string().min(7, 'Invalid phone number'),
-  status: technicianStatusSchema.optional(),
+  status: agentStatusSchema.optional(),
   location: coordinatesSchema.optional()
 })
 

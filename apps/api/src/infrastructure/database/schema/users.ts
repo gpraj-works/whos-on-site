@@ -3,7 +3,7 @@ import { timestamps } from './common'
 import { companyId } from './company'
 import { auditUserFields } from './audit'
 
-export const userRoleEnum = pgEnum('user_role', ['owner', 'admin', 'dispatcher', 'technician'])
+export const userRoleEnum = pgEnum('user_role', ['owner', 'admin', 'dispatcher', 'agent'])
 
 export const users = pgTable(
   'users',

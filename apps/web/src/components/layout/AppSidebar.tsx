@@ -4,7 +4,7 @@ import { UserRole } from '@whosonsite/shared'
 import {
   BarChart3,
   LayoutDashboard,
-  Truck,
+  Briefcase,
   UserCheck,
   Users
 } from 'lucide-react'
@@ -29,24 +29,24 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       icon: LayoutDashboard,
       label: t('nav.dashboard'),
       path: '/dashboard',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
+      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT]
     },
     {
-      icon: Truck,
-      label: t('nav.dispatch', 'Dispatch Board'),
-      path: '/dispatch',
+      icon: Briefcase,
+      label: t('nav.jobs', 'Jobs'),
+      path: '/jobs',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
     },
     {
-      icon: Truck,
-      label: t('nav.myJobs', 'My Jobs Queue'),
+      icon: Briefcase,
+      label: t('nav.myJobs', 'My Jobs'),
       path: '/my-jobs',
-      roles: [UserRole.TECHNICIAN]
+      roles: [UserRole.AGENT]
     },
     {
       icon: Users,
-      label: t('nav.technicians'),
-      path: '/technicians',
+      label: t('nav.agents'),
+      path: '/agents',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
     },
     {

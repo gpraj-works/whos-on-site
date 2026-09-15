@@ -24,14 +24,19 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const [mobile, setMobile] = useState('')
   const [address, setAddress] = useState('')
   const [email, setEmail] = useState('')
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string
+    mobile?: string
+    address?: string
+    email?: string
+  }>({})
 
   const handleReset = () => {
     setName('')
     setMobile('')
     setAddress('')
     setEmail('')
-    setValidationError(null)
+    setFieldErrors({})
   }
 
   const handleClose = () => {
@@ -41,7 +46,7 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setValidationError(null)
+    setFieldErrors({})
 
     const payload = {
       name: name.trim(),
@@ -52,7 +57,14 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
 
     const parseResult = createCustomerSchema.safeParse(payload)
     if (!parseResult.success) {
-      setValidationError(parseResult.error.errors[0]?.message || 'Invalid customer details')
+      const formatted: { name?: string; mobile?: string; address?: string; email?: string } = {}
+      parseResult.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
+        const field = err.path[0] as 'name' | 'mobile' | 'address' | 'email'
+        if (field && !formatted[field]) {
+          formatted[field] = err.message
+        }
+      })
+      setFieldErrors(formatted)
       return
     }
 
@@ -71,41 +83,59 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={t('customers.createTitle', 'Add New Customer')}
+      title={t('customers.createTitle', 'New Customer')}
       centered
       radius="md"
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <Stack gap="md">
           <ApiErrorAlert error={createCustomerMutation.error} />
-          {validationError && <ApiErrorAlert error={validationError} title="Validation Error" />}
 
           <TextInput
             label={t('customers.name', 'Customer Name')}
             placeholder="Acme Corp"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }))
+            }}
+            withAsterisk
+            error={fieldErrors.name}
           />
 
           <TextInput
             label={t('customers.phone', 'Phone Number')}
             placeholder="+1 555-0192"
             value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
+            onChange={(e) => {
+              setMobile(e.target.value)
+              if (fieldErrors.mobile) setFieldErrors((prev) => ({ ...prev, mobile: undefined }))
+            }}
+            withAsterisk
+            error={fieldErrors.mobile}
           />
 
           <TextInput
             label={t('customers.address', 'Service Address')}
             placeholder="100 Main St, Suite 400"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={(e) => {
+              setAddress(e.target.value)
+              if (fieldErrors.address) setFieldErrors((prev) => ({ ...prev, address: undefined }))
+            }}
+            withAsterisk
+            error={fieldErrors.address}
           />
 
           <TextInput
             label={t('customers.email', 'Email Address (Optional)')}
             placeholder="contact@acme.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
+            }}
+            error={fieldErrors.email}
           />
 
           <Group justify="flex-end" gap="xs" mt="sm">

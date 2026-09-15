@@ -5,11 +5,11 @@ import { UserRole } from '@whosonsite/shared'
 import { LoadingState } from '../common/LoadingState'
 import { useAuth } from './AuthContext'
 
-export interface TechnicianOnlyProps {
+export interface AgentOnlyProps {
   children: React.ReactNode
 }
 
-export const TechnicianOnly: React.FC<TechnicianOnlyProps> = ({ children }) => {
+export const AgentOnly: React.FC<AgentOnlyProps> = ({ children }) => {
   const { isAuthenticated, isLoading, user } = useAuth()
 
   if (isLoading) {
@@ -20,7 +20,7 @@ export const TechnicianOnly: React.FC<TechnicianOnlyProps> = ({ children }) => {
     return <Navigate to="/login" replace />
   }
 
-  const allowedRoles = [UserRole.TECHNICIAN, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+  const allowedRoles = [UserRole.AGENT, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
   if (!user || !allowedRoles.includes(user.role as UserRole)) {
     return <Navigate to="/dashboard" replace />
   }

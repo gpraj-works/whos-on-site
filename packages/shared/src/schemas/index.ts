@@ -1,8 +1,8 @@
 import { z } from 'zod'
-import { JobStatus, TechnicianStatus, UserRole } from '../enums/index'
+import { AgentStatus, JobStatus, UserRole } from '../enums/index'
 
 export const userRoleSchema = z.nativeEnum(UserRole)
-export const technicianStatusSchema = z.nativeEnum(TechnicianStatus)
+export const agentStatusSchema = z.nativeEnum(AgentStatus)
 export const jobStatusSchema = z.nativeEnum(JobStatus)
 
 export const themeColorSchema = z.enum(['teal', 'indigo', 'blue', 'violet', 'orange', 'green'])
@@ -58,7 +58,7 @@ export const updateJobSchema = z.object({
 export type UpdateJobInput = z.infer<typeof updateJobSchema>
 
 export const assignJobSchema = z.object({
-  technicianId: z.string().uuid('Invalid technician ID')
+  agentId: z.string().uuid('Invalid agent ID')
 })
 
 export type AssignJobInput = z.infer<typeof assignJobSchema>
@@ -72,7 +72,7 @@ export type UpdateJobStatusInput = z.infer<typeof updateJobStatusSchema>
 
 export const jobFilterQuerySchema = z.object({
   status: jobStatusSchema.optional(),
-  assignedTechnicianId: z.string().uuid().optional(),
+  assignedAgentId: z.string().uuid().optional(),
   date: z.string().optional(),
   limit: z.coerce.number().min(1).max(100).default(50).optional(),
   offset: z.coerce.number().min(0).default(0).optional()
@@ -101,3 +101,11 @@ export const customerFilterQuerySchema = z.object({
 })
 
 export type CustomerFilterQuery = z.infer<typeof customerFilterQuerySchema>
+
+export const createAgentSchema = z.object({
+  name: z.string().min(2, 'Agent name must be at least 2 characters'),
+  phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
+  status: agentStatusSchema.optional()
+})
+
+export type CreateAgentInput = z.infer<typeof createAgentSchema>

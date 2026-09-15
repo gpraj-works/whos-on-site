@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { updateTechnicianLocation } from '../../components/technicians/api'
+import { updateAgentLocation } from '../../components/agents/api'
 import { getSocket } from '../socket/client'
 
 const MIN_PING_INTERVAL_MS = 10000 // 10 seconds minimum throttle
 
-export function useLocationTracking(technicianId: string | null, enabled: boolean): void {
+export function useLocationTracking(agentId: string | null, enabled: boolean): void {
   const lastPingTimeRef = useRef<number>(0)
 
   useEffect(() => {
-    if (!enabled || !technicianId || !('geolocation' in navigator)) {
+    if (!enabled || !agentId || !('geolocation' in navigator)) {
       return
     }
 
@@ -28,7 +28,7 @@ export function useLocationTracking(technicianId: string | null, enabled: boolea
       }
 
       // 2. Persist location to backend REST endpoint
-      updateTechnicianLocation(technicianId, { lat, lng }).catch((err) => {
+      updateAgentLocation(agentId, { lat, lng }).catch((err) => {
         console.warn('[LocationTracking] Failed to update location via REST:', err)
       })
     }
@@ -46,5 +46,5 @@ export function useLocationTracking(technicianId: string | null, enabled: boolea
     return () => {
       navigator.geolocation.clearWatch(watchId)
     }
-  }, [technicianId, enabled])
+  }, [agentId, enabled])
 }

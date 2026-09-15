@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ActionIcon,
   Badge,
@@ -10,7 +10,8 @@ import {
   Title,
   Tooltip
 } from '@mantine/core'
-import { LogOut, Moon, Settings, Sun, User } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { LogOut, Moon, RefreshCw, Settings, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
@@ -27,8 +28,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
   const { t } = useTranslation()
   const { colorScheme, toggleColorScheme, primaryColor } = useAppTheme()
   const { user, logout } = useAuth()
+  const queryClient = useQueryClient()
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const companyName = useAuth().company?.name || 'WhosOnSite'
+
+  const handleGlobalRefresh = async () => {
+    setIsRefreshing(true)
+    try {
+      await queryClient.invalidateQueries()
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600)
+    }
+  }
 
   return (
     <Group h="100%" px={{ base: 'xs', sm: 'md' }} justify="space-between" align="center" gap="md">
@@ -57,6 +69,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
 
       {/* Header Controls */}
       <Group gap="xs" wrap="nowrap">
+        {/* Global Page Refresh Button */}
+        <Tooltip label={t('common.refresh', 'Refresh Current Page')}>
+          <ActionIcon
+            variant="default"
+            size="lg"
+            radius="md"
+            onClick={handleGlobalRefresh}
+            aria-label={t('common.refresh', 'Refresh')}
+          >
+            <RefreshCw size={18} />
+          </ActionIcon>
+        </Tooltip>
+
         {/* Light / Dark Mode Toggle */}
         <Tooltip label={colorScheme === 'light' ? t('theme.darkMode') : t('theme.lightMode')}>
           <ActionIcon variant="default" size="lg" radius="md" onClick={toggleColorScheme}>

@@ -28,6 +28,11 @@ WhosOnSite is a `pnpm` monorepo organized into three primary packages:
 - **Comment Formatting**:
   - NEVER use numbered step mark comments (e.g., `// 1.`, `// 2.`, `// Step 1:`, `// Step 2:`).
   - Always write clean, descriptive code comments without numeric step prefixes.
+- **UI Layout & Spacing Standards**:
+  - **Fluid Page Containers**: All page components MUST use `<Container fluid p={0}>` to prevent fixed max-width bottlenecks and large empty side margins.
+  - **Consistent Outer Stack Gaps**: Main page layouts MUST use `<Stack gap="xs">` as default between `PageHeader`, notification banners, search/filter controls, and data cards.
+  - **Control Bar & Card Padding**: Filter/search paper blocks MUST use `p="sm"` as default without bottom margin overrides (`mb="md"` or `mb="lg"`). Let outer `<Stack gap="xs">` control inter-block gaps.
+  - **Grid Gutters**: All visual metric/card grids MUST use `gutter="sm"`.
 
 ---
 

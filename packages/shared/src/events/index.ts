@@ -1,2 +1,2 @@
 export * from './job.events'
-export * from './technician.events'
+export * from './agent.events'

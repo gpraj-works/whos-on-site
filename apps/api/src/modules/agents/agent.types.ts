@@ -1,29 +1,29 @@
-import { Coordinates, TechnicianStatus } from '@whosonsite/shared'
+import { Coordinates, AgentStatus } from '@whosonsite/shared'
 
-export interface CreateTechnicianData {
+export interface CreateAgentData {
   companyId: string
   userId?: string
   name: string
   phone: string
-  status?: TechnicianStatus
+  status?: AgentStatus
   location?: Coordinates
   createdBy?: string
 }
 
-export interface NearbyTechnicianQuery {
+export interface NearbyAgentQuery {
   companyId: string
   lat: number
   lng: number
   radiusMeters?: number
 }
 
-export interface TechnicianQueryResult {
+export interface AgentQueryResult {
   id: string
   companyId: string
   userId: string | null
   name: string
   phone: string
-  status: TechnicianStatus
+  status: AgentStatus
   location: Coordinates | null
   lastLocationAt: string | null
   distanceMeters?: number

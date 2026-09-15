@@ -7,7 +7,7 @@ import { logger } from '../../infrastructure/logging/logger'
 import { NOTIFICATION_QUEUE_NAME, NotificationJobPayload } from '../queues/notification.queue'
 
 /** Process individual notification job by writing row to database */
-async function processNotificationJob(job: Job<NotificationJobPayload>): Promise<void> {
+export async function processNotificationJob(job: Job<NotificationJobPayload>): Promise<void> {
   const { companyId, jobId, type, payload } = job.data
 
   logger.info({ jobId: job.id, type, companyId }, 'Processing notification job')

@@ -29,6 +29,13 @@
       "when": 1789481189456,
       "tag": "0003_worthless_magik",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789502140967,
+      "tag": "0005_long_paper_doll",
+      "breakpoints": true
     }
   ]
 }

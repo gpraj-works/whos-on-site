@@ -1,7 +1,7 @@
 import { and, count, eq, gte, sql } from 'drizzle-orm'
-import { AnalyticsSummaryDto, DailyJobCount, JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { AnalyticsSummaryDto, DailyJobCount, JobStatus, AgentStatus } from '@whosonsite/shared'
 import { db } from '../../infrastructure/database/client'
-import { jobs, technicians } from '../../infrastructure/database/schema'
+import { jobs, agents } from '../../infrastructure/database/schema'
 
 export async function fetchAnalyticsSummary(companyId: string): Promise<AnalyticsSummaryDto> {
   // 1. Fetch Jobs by Status
@@ -65,29 +65,29 @@ export async function fetchAnalyticsSummary(companyId: string): Promise<Analytic
     curr.setDate(curr.getDate() + 1)
   }
 
-  // 3. Fetch Technician Availability Counts
+  // 3. Fetch Agent Availability Counts
   const techStatusCounts = await db
     .select({
-      status: technicians.status,
+      status: agents.status,
       count: count()
     })
-    .from(technicians)
-    .where(eq(technicians.companyId, companyId))
-    .groupBy(technicians.status)
+    .from(agents)
+    .where(eq(agents.companyId, companyId))
+    .groupBy(agents.status)
 
-  const technicianAvailability: Record<TechnicianStatus, number> = {
-    [TechnicianStatus.AVAILABLE]: 0,
-    [TechnicianStatus.BUSY]: 0,
-    [TechnicianStatus.OFFLINE]: 0
+  const agentAvailability: Record<AgentStatus, number> = {
+    [AgentStatus.AVAILABLE]: 0,
+    [AgentStatus.BUSY]: 0,
+    [AgentStatus.OFFLINE]: 0
   }
 
-  let totalTechniciansCount = 0
+  let totalAgentsCount = 0
   for (const row of techStatusCounts) {
-    const statusKey = row.status as TechnicianStatus
-    if (statusKey in technicianAvailability) {
-      technicianAvailability[statusKey] = Number(row.count)
+    const statusKey = row.status as AgentStatus
+    if (statusKey in agentAvailability) {
+      agentAvailability[statusKey] = Number(row.count)
     }
-    totalTechniciansCount += Number(row.count)
+    totalAgentsCount += Number(row.count)
   }
 
   // 4. Calculate Average Completion Time (in minutes)
@@ -103,9 +103,9 @@ export async function fetchAnalyticsSummary(companyId: string): Promise<Analytic
   return {
     jobsByStatus,
     jobsCreatedLast14Days,
-    technicianAvailability,
+    agentAvailability,
     avgCompletionTimeMinutes,
     totalJobsCount,
-    totalTechniciansCount
+    totalAgentsCount
   }
 }

@@ -7,17 +7,16 @@ import { AuthProvider } from '../components/auth/AuthContext'
 import { DispatcherOnly } from '../components/auth/DispatcherOnly'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
-import { TechnicianOnly } from '../components/auth/TechnicianOnly'
+import { AgentOnly } from '../components/auth/AgentOnly'
 import { Analytics } from '../pages/Analytics'
 import { CustomerStatusPage } from '../pages/CustomerStatusPage'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
-import { Dispatch } from '../pages/Dispatch'
 import { Jobs } from '../pages/Jobs'
 import { Login } from '../pages/Login'
 import { Settings } from '../pages/Settings'
-import { TechnicianJobs } from '../pages/TechnicianJobs'
-import { Technicians } from '../pages/Technicians'
+import { AgentJobs } from '../pages/AgentJobs'
+import { Agents } from '../pages/Agents'
 import { store } from '../store'
 import { queryClient } from './query/client'
 import { ThemeProvider } from './theme/ThemeContext'
@@ -42,20 +41,19 @@ export const App: React.FC = () => {
                 <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/jobs" element={<Jobs />} />
                   <Route
                     path="/my-jobs"
                     element={
-                      <TechnicianOnly>
-                        <TechnicianJobs />
-                      </TechnicianOnly>
+                      <AgentOnly>
+                        <AgentJobs />
+                      </AgentOnly>
                     }
                   />
                   <Route
-                    path="/dispatch"
+                    path="/jobs"
                     element={
                       <DispatcherOnly>
-                        <Dispatch />
+                        <Jobs />
                       </DispatcherOnly>
                     }
                   />
@@ -67,7 +65,7 @@ export const App: React.FC = () => {
                       </DispatcherOnly>
                     }
                   />
-                  <Route path="/technicians" element={<Technicians />} />
+                  <Route path="/agents" element={<Agents />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>

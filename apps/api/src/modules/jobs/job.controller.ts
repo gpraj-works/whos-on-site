@@ -71,32 +71,32 @@ export const deleteJobController: RequestHandler = asyncHandler(async (req, res)
   return sendSuccess(res, cancelled, 'Job cancelled successfully', HttpStatus.OK)
 })
 
-/** Assign technician endpoint handler */
+/** Assign agent endpoint handler */
 export const assignJobController: RequestHandler = asyncHandler(async (req, res) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
   const userId = req.auth.userId
   const id = req.params.id as string
-  const { technicianId } = assignJobSchema.parse(req.body)
+  const { agentId } = assignJobSchema.parse(req.body)
 
-  const assigned = await assignmentService.assignTechnicianToJob(
+  const assigned = await assignmentService.assignAgentToJob(
     id,
-    technicianId,
+    agentId,
     companyId,
     userId
   )
-  return sendSuccess(res, assigned, 'Technician assigned successfully', HttpStatus.OK)
+  return sendSuccess(res, assigned, 'Agent assigned successfully', HttpStatus.OK)
 })
 
-/** Unassign technician endpoint handler */
+/** Unassign agent endpoint handler */
 export const unassignJobController: RequestHandler = asyncHandler(async (req, res) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
   const userId = req.auth.userId
   const id = req.params.id as string
 
-  const unassigned = await assignmentService.unassignTechnicianFromJob(id, companyId, userId)
-  return sendSuccess(res, unassigned, 'Technician unassigned successfully', HttpStatus.OK)
+  const unassigned = await assignmentService.unassignAgentFromJob(id, companyId, userId)
+  return sendSuccess(res, unassigned, 'Agent unassigned successfully', HttpStatus.OK)
 })
 
 /** Change job status endpoint handler */

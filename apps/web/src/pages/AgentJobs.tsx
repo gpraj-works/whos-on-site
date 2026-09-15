@@ -20,18 +20,16 @@ import {
   MapPin,
   Navigation,
   Phone,
-  RefreshCw,
   RotateCw
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppTheme } from '../app/theme/ThemeContext'
 import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { useJobs, useUpdateJobStatus } from '../components/jobs/queries'
-import { useTechnicians } from '../components/technicians/queries'
+import { useAgents } from '../components/agents/queries'
 import { formatDate, formatDateTime } from '../lib/date/format'
 import { useLocationTracking } from '../lib/location/useLocationTracking'
 
@@ -43,12 +41,12 @@ interface UnsyncedUpdate {
   errorMsg: string
 }
 
-export const TechnicianJobs: React.FC = () => {
+export const AgentJobs: React.FC = () => {
   const { t } = useTranslation()
   const { user } = useAuth()
 
-  const { data: jobs = [], refetch: refetchJobs, isLoading: isLoadingJobs } = useJobs()
-  const { data: technicians = [] } = useTechnicians()
+  const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
+  const { data: agents = [] } = useAgents()
   const updateStatusMutation = useUpdateJobStatus()
 
   const [detailDrawerJob, setDetailDrawerJob] = useState<JobDto | null>(null)
@@ -57,18 +55,18 @@ export const TechnicianJobs: React.FC = () => {
   const [unsyncedQueue, setUnsyncedQueue] = useState<Record<string, UnsyncedUpdate>>({})
   const retryingJobsRef = useRef<Set<string>>(new Set())
 
-  // Find logged-in technician record
-  const currentTechnician = useMemo(() => {
-    return technicians.find((t) => t.userId === user?.id)
-  }, [technicians, user?.id])
+  // Find logged-in agent record
+  const currentAgent = useMemo(() => {
+    return agents.find((t) => t.userId === user?.id)
+  }, [agents, user?.id])
 
-  // Check if technician currently has an active job en_route or on_site
+  // Check if agent currently has an active job en_route or on_site
   const hasActiveEnRouteOrOnSite = useMemo(() => {
     return jobs.some((j) => j.status === JobStatus.EN_ROUTE || j.status === JobStatus.ON_SITE)
   }, [jobs])
 
-  // Enable live watchPosition GPS tracking when technician is en route or on site
-  useLocationTracking(currentTechnician?.id || null, hasActiveEnRouteOrOnSite)
+  // Enable live watchPosition GPS tracking when agent is en route or on site
+  useLocationTracking(currentAgent?.id || null, hasActiveEnRouteOrOnSite)
 
   // Execute status update with backoff retry support
   const executeStatusTransition = useCallback(
@@ -138,34 +136,25 @@ export const TechnicianJobs: React.FC = () => {
   }, [jobs])
 
   return (
-    <Container size="md" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
-          title={t('technician.myJobs', 'My Job Queue')}
+          title={t('agent.myJobs', 'My Job Queue')}
           subtitle={t(
-            'technician.subtitle',
+            'agent.subtitle',
             'Today’s assigned field jobs and one-tap status updates'
           )}
-          actions={
-            <Button
-              variant="default"
-              leftSection={<RefreshCw size={16} />}
-              onClick={() => refetchJobs()}
-            >
-              {t('common.refresh', 'Refresh')}
-            </Button>
-          }
         />
 
-        {currentTechnician && (
+        {currentAgent && (
           <Paper p="xs" radius="md" withBorder bg="var(--mantine-color-body)">
             <Group justify="space-between" align="center">
               <Group gap="xs">
                 <Badge color="teal" variant="dot">
-                  Tech Status: {currentTechnician.status.toUpperCase()}
+                  Tech Status: {currentAgent.status.toUpperCase()}
                 </Badge>
                 <Text size="xs" c="dimmed">
-                  {currentTechnician.name} ({currentTechnician.phone})
+                  {currentAgent.name} ({currentAgent.phone})
                 </Text>
               </Group>
               {hasActiveEnRouteOrOnSite && (
@@ -189,7 +178,7 @@ export const TechnicianJobs: React.FC = () => {
         {/* Active Queue Section */}
         <div>
           <Title order={4} mb="xs">
-            {t('technician.activeQueue', 'Active Jobs')} ({activeQueue.length})
+            {t('agent.activeQueue', 'Active Jobs')} ({activeQueue.length})
           </Title>
 
           {isLoadingJobs ? (
@@ -199,7 +188,7 @@ export const TechnicianJobs: React.FC = () => {
           ) : activeQueue.length === 0 ? (
             <Paper p="xl" radius="md" withBorder ta="center">
               <Text size="sm" c="dimmed">
-                🎉 {t('technician.noActiveJobs', 'No active jobs in your queue right now.')}
+                🎉 {t('agent.noActiveJobs', 'No active jobs in your queue right now.')}
               </Text>
             </Paper>
           ) : (
@@ -305,7 +294,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.EN_ROUTE)}
                           >
-                            {t('technician.startEnRoute', 'Start En Route')}
+                            {t('agent.startEnRoute', 'Start En Route')}
                           </Button>
                         )}
 
@@ -318,7 +307,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.ON_SITE)}
                           >
-                            {t('technician.arriveOnSite', 'Arrive On Site')}
+                            {t('agent.arriveOnSite', 'Arrive On Site')}
                           </Button>
                         )}
 
@@ -331,7 +320,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.COMPLETE)}
                           >
-                            {t('technician.completeJob', 'Complete Job')}
+                            {t('agent.completeJob', 'Complete Job')}
                           </Button>
                         )}
                       </Group>
@@ -347,7 +336,7 @@ export const TechnicianJobs: React.FC = () => {
         {completedQueue.length > 0 && (
           <div>
             <Title order={4} mb="xs" c="dimmed">
-              {t('technician.completedQueue', 'Completed & History')} ({completedQueue.length})
+              {t('agent.completedQueue', 'Completed & History')} ({completedQueue.length})
             </Title>
             <Stack gap="xs">
               {completedQueue.map((job) => (
@@ -385,4 +374,4 @@ export const TechnicianJobs: React.FC = () => {
   )
 }
 
-export default TechnicianJobs
+export default AgentJobs

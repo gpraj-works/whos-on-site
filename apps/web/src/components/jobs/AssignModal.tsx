@@ -3,26 +3,26 @@ import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useTechnicians } from '../technicians/queries'
+import { useAgents } from '../agents/queries'
 import { useAssignJob, useUnassignJob } from './queries'
 
-interface AssignTechnicianModalProps {
+interface AssignAgentModalProps {
   opened: boolean
   onClose: () => void
   jobId: string | null
-  currentTechnicianId?: string | null
-  currentTechnicianName?: string | null
+  currentAgentId?: string | null
+  currentAgentName?: string | null
 }
 
-export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
+export const AssignAgentModal: React.FC<AssignAgentModalProps> = ({
   opened,
   onClose,
   jobId,
-  currentTechnicianId,
-  currentTechnicianName
+  currentAgentId,
+  currentAgentName
 }) => {
   const { t } = useTranslation()
-  const { data: technicians = [], isLoading: isLoadingTechs } = useTechnicians()
+  const { data: agents = [], isLoading: isLoadingTechs } = useAgents()
   const assignJobMutation = useAssignJob()
   const unassignJobMutation = useUnassignJob()
 
@@ -40,12 +40,12 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
     setValidationError(null)
 
     if (!selectedTechId) {
-      setValidationError('Please select a technician to assign.')
+      setValidationError('Please select an agent to assign.')
       return
     }
 
     try {
-      await assignJobMutation.mutateAsync({ id: jobId, technicianId: selectedTechId })
+      await assignJobMutation.mutateAsync({ id: jobId, agentId: selectedTechId })
       handleClose()
     } catch {
       // Error caught by assignJobMutation.error
@@ -64,7 +64,7 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
     }
   }
 
-  const techSelectData = technicians.map((tech) => ({
+  const techSelectData = agents.map((tech) => ({
     value: tech.id,
     label: `${tech.name} (${tech.phone}) — ${tech.status}`
   }))
@@ -73,46 +73,50 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={t('jobs.assignTitle', 'Assign Technician')}
+      title={t('jobs.assignTitle', 'Assign Agent')}
       centered
       radius="md"
     >
       <Stack gap="md">
         <ApiErrorAlert error={assignJobMutation.error || unassignJobMutation.error} />
-        {validationError && <ApiErrorAlert error={validationError} title="Validation Error" />}
 
-        {currentTechnicianId && (
+        {currentAgentId && (
           <Text size="sm" c="dimmed">
             Currently assigned to:{' '}
             <Text span fw={700} c="var(--mantine-color-text)">
-              {currentTechnicianName || currentTechnicianId}
+              {currentAgentName || currentAgentId}
             </Text>
           </Text>
         )}
 
         <Select
-          label={t('jobs.selectTechnician', 'Select Field Technician')}
+          label={t('jobs.selectAgent', 'Select Field Agent')}
           placeholder={
             isLoadingTechs
-              ? t('common.loading', 'Loading technicians...')
-              : t('jobs.chooseTechnician', 'Choose an available technician')
+              ? t('common.loading', 'Loading agents...')
+              : t('jobs.chooseAgent', 'Choose an available agent')
           }
           data={techSelectData}
           value={selectedTechId}
-          onChange={(val) => setSelectedTechId(val || '')}
+          onChange={(val) => {
+            setSelectedTechId(val || '')
+            if (validationError) setValidationError(null)
+          }}
           searchable
           clearable
+          withAsterisk
+          error={validationError}
         />
 
         <Group justify="space-between" mt="sm">
-          {currentTechnicianId ? (
+          {currentAgentId ? (
             <Button
               color="red"
               variant="light"
               onClick={handleUnassign}
               loading={unassignJobMutation.isPending}
             >
-              {t('jobs.unassignButton', 'Unassign Current Technician')}
+              {t('jobs.unassignButton', 'Unassign Current Agent')}
             </Button>
           ) : (
             <div />

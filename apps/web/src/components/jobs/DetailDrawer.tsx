@@ -136,7 +136,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
               leftSection={<UserCheck size={14} />}
               onClick={() => onOpenAssignModal(currentJob)}
             >
-              {t('jobs.assignTechnician', 'Assign Technician')}
+              {t('jobs.assignAgent', 'Assign Agent')}
             </Button>
           )}
 
@@ -157,7 +157,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 color="indigo"
                 onClick={() => onOpenAssignModal(currentJob)}
               >
-                {t('jobs.reassignTechnician', 'Reassign Tech')}
+                {t('jobs.reassignAgent', 'Reassign Tech')}
               </Button>
             </>
           )}
@@ -265,9 +265,9 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                   </Text>
                 </div>
                 <Group gap="xs">
-                  {currentJob.assignedTechnicianName && (
+                  {currentJob.assignedAgentName && (
                     <Badge variant="light" color="blue" size="md">
-                      Tech: {currentJob.assignedTechnicianName}
+                      Tech: {currentJob.assignedAgentName}
                     </Badge>
                   )}
                   {currentJob.shareToken && (

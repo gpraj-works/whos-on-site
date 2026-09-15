@@ -9,7 +9,7 @@
 | Item | Status | Evidence | Plan |
 | ---- | ------ | -------- | ---- |
 | `job_delayed` reminder wiring | **Inert** — infrastructure exists but never scheduled | `enqueueDelayedReminderJob()` defined in `apps/api/src/jobs/queues/notification.queue.ts:42` with zero call sites in `apps/api/src`; worker branch ready in `apps/api/src/jobs/workers/notification.worker.ts:15` | Call `enqueueDelayedReminderJob(companyId, jobId)` from `createNewJob` in `apps/api/src/modules/jobs/job.service.ts:31` on **job creation only**. The `reminder:${jobId}` dedupe jobId prevents double-scheduling; the worker re-checks state at fire time and writes only if the job is still `unassigned`/`assigned`. No schema change required. |
-| Customer status page folder deviation | **Accepted as intentional** | Page lives at `apps/web/src/pages/CustomerStatusPage.tsx`; no `apps/web/src/modules/` directory exists | Leave in place. `PLAN.md` §8's `modules/customer/` layout is aspirational; the current `pages/` placement is functionally equivalent and routing (`/status/:token` in `apps/web/src/app/app.tsx:34`) is already wired. |
+| Customer status page folder | **Accepted as intentional** | Page lives at `apps/web/src/pages/CustomerStatusPage.tsx` (same folder as `Dashboard`, `Dispatch`, `Login`); no `apps/web/src/modules/` directory exists | Leave in place. `PLAN.md` §8's `modules/customer/` layout is aspirational; the current `pages/` placement is functionally equivalent, covered by `apps/web/src/test/components/CustomerStatusPage` (renders timeline + status stepper), and the route (`/status/:token` in `apps/web/src/app/app.tsx:76`) is already wired. |
 
 ---
 

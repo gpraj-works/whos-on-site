@@ -15,7 +15,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus } from '@whosonsite/shared'
 import { CheckCircle2, Clock, MapPin, Truck, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -24,7 +24,7 @@ import { useAppTheme } from '../app/theme/ThemeContext'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { ApiErrorAlert } from '../components/feedback/ApiErrorAlert'
 import { useJobs } from '../components/jobs/queries'
-import { useTechnicians } from '../components/technicians/queries'
+import { useAgents } from '../components/agents/queries'
 import { formatDateTime } from '../lib/date/format'
 
 export const Dashboard: React.FC = () => {
@@ -37,10 +37,10 @@ export const Dashboard: React.FC = () => {
     error: jobsError
   } = useJobs()
   const {
-    data: technicians = [],
+    data: agents = [],
     isLoading: isLoadingTechs,
     error: techsError
-  } = useTechnicians()
+  } = useAgents()
 
   const activeJobs = jobs.filter(
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
@@ -49,9 +49,9 @@ export const Dashboard: React.FC = () => {
   const enRouteCount = jobs.filter((j) => j.status === JobStatus.EN_ROUTE).length
   const onSiteCount = jobs.filter((j) => j.status === JobStatus.ON_SITE).length
 
-  const onlineTechs = technicians.filter((t) => t.status !== TechnicianStatus.OFFLINE)
-  const availableTechs = technicians.filter((t) => t.status === TechnicianStatus.AVAILABLE)
-  const busyTechs = technicians.filter((t) => t.status === TechnicianStatus.BUSY)
+  const onlineTechs = agents.filter((t) => t.status !== AgentStatus.OFFLINE)
+  const availableTechs = agents.filter((t) => t.status === AgentStatus.AVAILABLE)
+  const busyTechs = agents.filter((t) => t.status === AgentStatus.BUSY)
 
   const completedToday = jobs.filter((j) => j.status === JobStatus.COMPLETE).length
 
@@ -64,22 +64,22 @@ export const Dashboard: React.FC = () => {
       description: `${enRouteCount} en route, ${onSiteCount} on site, ${unassignedCount} unassigned`
     },
     {
-      title: t('dashboard.techniciansOnline', 'Technicians Online'),
-      value: `${onlineTechs.length} / ${technicians.length}`,
+      title: t('dashboard.agentsOnline', 'Agents Online'),
+      value: `${onlineTechs.length} / ${agents.length}`,
       icon: Users,
       color: 'blue',
       description: `${availableTechs.length} available, ${busyTechs.length} busy`
     },
     {
-      title: t('dashboard.completedToday', 'Completed Dispatches'),
+      title: t('dashboard.completedToday', 'Completed Jobs'),
       value: String(completedToday),
       icon: CheckCircle2,
       color: 'green',
-      description: `${jobs.length} total dispatches recorded`
+      description: `${jobs.length} total jobs recorded`
     },
     {
-      title: t('dashboard.totalTechnicians', 'Total Staff'),
-      value: String(technicians.length),
+      title: t('dashboard.totalAgents', 'Total Agents'),
+      value: String(agents.length),
       icon: Clock,
       color: 'violet',
       description: `${onlineTechs.length} currently online in field`
@@ -89,16 +89,16 @@ export const Dashboard: React.FC = () => {
   const recentJobs = jobs.slice(0, 5)
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <ApiErrorAlert error={jobsError || techsError} />
 
         {/* KPI Metrics Grid */}
-        <Grid>
+        <Grid gutter="sm">
           {stats.map((stat) => (
             <Grid.Col key={stat.title} span={{ base: 12, sm: 6, md: 3 }}>
               <Card p="md" radius="md" withBorder shadow="xs">
-                <Group justify="space-between" align="flex-start" mb="xs">
+                <Group justify="space-between" align="center">
                   <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                     {stat.title}
                   </Text>
@@ -120,13 +120,13 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Main Content: Live Dispatch Jobs & Tech Status Overview */}
-        <Grid>
+        <Grid gutter="sm">
           {/* Left Column: Recent Dispatch Jobs */}
           <Grid.Col span={{ base: 12, lg: 8 }}>
             <Card radius="md" withBorder shadow="xs" p="md">
               <Group justify="space-between" mb="md">
                 <div>
-                  <Title order={4}>Live Dispatch Board</Title>
+                  <Title order={4}>{t('jobs.title', 'Jobs')}</Title>
                   <Text size="xs" c="dimmed">
                     Active jobs and field operations tracking
                   </Text>
@@ -142,7 +142,7 @@ export const Dashboard: React.FC = () => {
                     <Table.Th>Job ID</Table.Th>
                     <Table.Th>Customer & Address</Table.Th>
                     <Table.Th>Status</Table.Th>
-                    <Table.Th hiddenFrom="sm">Technician</Table.Th>
+                    <Table.Th hiddenFrom="sm">Agent</Table.Th>
                     <Table.Th hiddenFrom="sm">Scheduled At</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -189,7 +189,7 @@ export const Dashboard: React.FC = () => {
                         </Table.Td>
                         <Table.Td hiddenFrom="sm">
                           <Text size="xs" fw={500}>
-                            {job.assignedTechnicianName || (
+                            {job.assignedAgentName || (
                               <Text span c="dimmed" fs="italic">
                                 Unassigned
                               </Text>
@@ -209,9 +209,9 @@ export const Dashboard: React.FC = () => {
             </Card>
           </Grid.Col>
 
-          {/* Right Column: Technician Readiness & Progress */}
+          {/* Right Column: Agent Readiness & Progress */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
-            <Stack gap="md">
+            <Stack gap="sm">
               {/* Daily Completion Progress Card */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="xs">
@@ -246,16 +246,16 @@ export const Dashboard: React.FC = () => {
                 </Text>
               </Card>
 
-              {/* Technician Status List */}
+              {/* Agent Status List */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="sm">
-                  <Title order={5}>Field Technicians</Title>
+                  <Title order={5}>Field Agents</Title>
                   <Button
                     size="xs"
                     variant="subtle"
                     color={primaryColor}
                     component={Link}
-                    to="/technicians"
+                    to="/agents"
                   >
                     View All
                   </Button>
@@ -263,14 +263,14 @@ export const Dashboard: React.FC = () => {
                 <Stack gap="xs">
                   {isLoadingTechs ? (
                     <Text size="xs" c="dimmed">
-                      {t('common.loading', 'Loading technicians...')}
+                      {t('common.loading', 'Loading agents...')}
                     </Text>
-                  ) : technicians.length === 0 ? (
+                  ) : agents.length === 0 ? (
                     <Text size="xs" c="dimmed">
-                      No technicians available.
+                      No agents available.
                     </Text>
                   ) : (
-                    technicians.slice(0, 4).map((tech) => (
+                    agents.slice(0, 4).map((tech) => (
                       <Paper
                         key={tech.id}
                         p="xs"
@@ -296,9 +296,9 @@ export const Dashboard: React.FC = () => {
                             size="xs"
                             variant="light"
                             color={
-                              tech.status === TechnicianStatus.AVAILABLE
+                              tech.status === AgentStatus.AVAILABLE
                                 ? 'green'
-                                : tech.status === TechnicianStatus.BUSY
+                                : tech.status === AgentStatus.BUSY
                                   ? 'orange'
                                   : 'gray'
                             }

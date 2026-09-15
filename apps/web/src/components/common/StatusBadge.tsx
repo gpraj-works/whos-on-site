@@ -1,9 +1,11 @@
 import React from 'react'
 import { Badge, MantineColor } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
-type StatusType = JobStatus | TechnicianStatus | string
+import { getJobStatusColor, getAgentStatusColor } from '../../app/theme'
+
+type StatusType = JobStatus | AgentStatus | string
 
 interface StatusBadgeProps {
   status: StatusType
@@ -15,32 +17,12 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'sm' })
 
   let color: MantineColor = 'gray'
 
-  switch (status) {
-    case JobStatus.UNASSIGNED:
-      color = 'yellow'
-      break
-    case JobStatus.ASSIGNED:
-      color = 'blue'
-      break
-    case JobStatus.EN_ROUTE:
-      color = 'indigo'
-      break
-    case JobStatus.ON_SITE:
-      color = 'cyan'
-      break
-    case JobStatus.COMPLETE:
-    case TechnicianStatus.AVAILABLE:
-      color = 'green'
-      break
-    case JobStatus.CANCELLED:
-    case TechnicianStatus.OFFLINE:
-      color = 'gray'
-      break
-    case TechnicianStatus.BUSY:
-      color = 'orange'
-      break
-    default:
-      color = 'gray'
+  if (Object.values(JobStatus).includes(status as JobStatus)) {
+    color = getJobStatusColor(status as JobStatus)
+  } else if (Object.values(AgentStatus).includes(status as AgentStatus)) {
+    color = getAgentStatusColor(status as AgentStatus)
+  } else {
+    color = getJobStatusColor(status)
   }
 
   const translatedLabel = t(`status.${status}`, status)

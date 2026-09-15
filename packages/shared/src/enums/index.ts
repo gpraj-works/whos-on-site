@@ -2,10 +2,10 @@ export enum UserRole {
   OWNER = 'owner',
   ADMIN = 'admin',
   DISPATCHER = 'dispatcher',
-  TECHNICIAN = 'technician'
+  AGENT = 'agent'
 }
 
-export enum TechnicianStatus {
+export enum AgentStatus {
   AVAILABLE = 'available',
   BUSY = 'busy',
   OFFLINE = 'offline'
@@ -36,3 +36,4 @@ export enum ThemeColor {
 }
 
 export const THEME_COLORS = ['teal', 'indigo', 'blue', 'violet', 'orange', 'green'] as const
+
