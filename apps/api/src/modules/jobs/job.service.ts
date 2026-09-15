@@ -177,6 +177,10 @@ export async function changeJobStatus(
     throw new NotFoundError('Job not found')
   }
 
+  if (job.status === targetStatus) {
+    return job
+  }
+
   // If technician, verify assigned to this job
   if (userRole === UserRole.TECHNICIAN) {
     const techList = await findCompanyTechnicians(companyId)

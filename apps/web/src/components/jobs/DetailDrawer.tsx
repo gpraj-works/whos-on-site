@@ -32,7 +32,7 @@ import { formatDate, formatDateTime, formatRelative } from '../../lib/date/forma
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { StatusBadge } from '../common/StatusBadge'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCancelJob, useJobHistory, useUpdateJobStatus } from './queries'
+import { useCancelJob, useJob, useJobHistory, useUpdateJobStatus } from './queries'
 
 interface JobDetailDrawerProps {
   opened: boolean
@@ -48,7 +48,10 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   onOpenAssignModal
 }) => {
   const { t } = useTranslation()
-  const { data: history = [], isLoading: isLoadingHistory } = useJobHistory(job?.id)
+  const { data: fetchedJob } = useJob(opened ? job?.id : null)
+  const currentJob = fetchedJob || job
+
+  const { data: history = [], isLoading: isLoadingHistory } = useJobHistory(currentJob?.id)
   const updateStatusMutation = useUpdateJobStatus()
   const cancelJobMutation = useCancelJob()
 
@@ -60,26 +63,26 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   useEffect(() => {
     setShowNoteInput(null)
     setStatusNote('')
-  }, [job?.id, job?.status])
+  }, [currentJob?.id, currentJob?.status])
 
-  if (!job) return null
+  if (!currentJob) return null
 
   const handleCopyShareLink = () => {
-    if (!job.shareToken) return
-    const shareUrl = `${window.location.origin}/status/${job.shareToken}`
+    if (!currentJob.shareToken) return
+    const shareUrl = `${window.location.origin}/status/${currentJob.shareToken}`
     navigator.clipboard.writeText(shareUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
   const submitStatusChange = async (nextStatus: JobStatus) => {
-    if (!job || job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
+    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
       return
     }
 
     try {
       await updateStatusMutation.mutateAsync({
-        id: job.id,
+        id: currentJob.id,
         status: nextStatus,
         note: statusNote.trim() || undefined
       })
@@ -91,7 +94,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   }
 
   const handleStatusTransition = (nextStatus: JobStatus) => {
-    if (!job || job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
+    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
       return
     }
     if (showNoteInput === nextStatus) {
@@ -103,16 +106,15 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
 
   const handleConfirmCancel = async () => {
     try {
-      await cancelJobMutation.mutateAsync(job.id)
+      await cancelJobMutation.mutateAsync(currentJob.id)
       setConfirmCancelOpened(false)
-      onClose()
     } catch {
       // Error handled via cancelJobMutation.error
     }
   }
 
   const renderStatusActionButtons = () => {
-    if (job.status === JobStatus.CANCELLED || job.status === JobStatus.COMPLETE) {
+    if (currentJob.status === JobStatus.CANCELLED || currentJob.status === JobStatus.COMPLETE) {
       return (
         <Text size="xs" c="dimmed" fs="italic">
           {t('jobs.terminalStateNotice', 'This job is in a terminal state.')}
@@ -127,18 +129,18 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         </Text>
 
         <Group gap="xs">
-          {job.status === JobStatus.UNASSIGNED && (
+          {currentJob.status === JobStatus.UNASSIGNED && (
             <Button
               size="xs"
               color="indigo"
               leftSection={<UserCheck size={14} />}
-              onClick={() => onOpenAssignModal(job)}
+              onClick={() => onOpenAssignModal(currentJob)}
             >
               {t('jobs.assignTechnician', 'Assign Technician')}
             </Button>
           )}
 
-          {job.status === JobStatus.ASSIGNED && (
+          {currentJob.status === JobStatus.ASSIGNED && (
             <>
               <Button
                 size="xs"
@@ -153,14 +155,14 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 size="xs"
                 variant="light"
                 color="indigo"
-                onClick={() => onOpenAssignModal(job)}
+                onClick={() => onOpenAssignModal(currentJob)}
               >
                 {t('jobs.reassignTechnician', 'Reassign Tech')}
               </Button>
             </>
           )}
 
-          {job.status === JobStatus.EN_ROUTE && (
+          {currentJob.status === JobStatus.EN_ROUTE && (
             <Button
               size="xs"
               color="teal"
@@ -172,7 +174,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
             </Button>
           )}
 
-          {job.status === JobStatus.ON_SITE && (
+          {currentJob.status === JobStatus.ON_SITE && (
             <Button
               size="xs"
               color="green"
@@ -239,9 +241,9 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         title={
           <Group gap="xs">
             <Text fw={700} size="lg">
-              {job.id.slice(0, 8)}...
+              {currentJob.id.slice(0, 8)}...
             </Text>
-            <StatusBadge status={job.status} />
+            <StatusBadge status={currentJob.status} />
           </Group>
         }
         position="right"
@@ -259,16 +261,16 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                     {t('jobs.customer', 'Customer')}
                   </Text>
                   <Text fw={700} size="md">
-                    {job.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
+                    {currentJob.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
                   </Text>
                 </div>
                 <Group gap="xs">
-                  {job.assignedTechnicianName && (
+                  {currentJob.assignedTechnicianName && (
                     <Badge variant="light" color="blue" size="md">
-                      Tech: {job.assignedTechnicianName}
+                      Tech: {currentJob.assignedTechnicianName}
                     </Badge>
                   )}
-                  {job.shareToken && (
+                  {currentJob.shareToken && (
                     <Button
                       size="xs"
                       variant="light"
@@ -282,17 +284,17 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 </Group>
               </Group>
 
-              {job.customer?.address && (
+              {currentJob.customer?.address && (
                 <Group gap={6}>
                   <MapPin size={16} style={{ color: 'gray' }} />
-                  <Text size="sm">{job.customer.address}</Text>
+                  <Text size="sm">{currentJob.customer.address}</Text>
                 </Group>
               )}
 
-              {job.customer?.mobile && (
+              {currentJob.customer?.mobile && (
                 <Group gap={6}>
                   <Text size="xs" c="dimmed">
-                    Phone: {job.customer.mobile}
+                    Phone: {currentJob.customer.mobile}
                   </Text>
                 </Group>
               )}
@@ -307,7 +309,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                       {t('jobs.scheduledFor', 'Scheduled For')}
                     </Text>
                     <Text size="xs" fw={600}>
-                      {formatDateTime(job.scheduledAt)}
+                      {formatDateTime(currentJob.scheduledAt)}
                     </Text>
                   </div>
                 </Group>
@@ -319,18 +321,18 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                       {t('jobs.createdAt', 'Created')}
                     </Text>
                     <Text size="xs" fw={600}>
-                      {formatDate(job.createdAt)}
+                      {formatDate(currentJob.createdAt)}
                     </Text>
                   </div>
                 </Group>
               </Group>
 
-              {job.notes && (
+              {currentJob.notes && (
                 <Paper p="xs" bg="var(--mantine-color-body)" withBorder mt="xs">
                   <Text size="xs" fw={600} c="dimmed" mb={2}>
                     {t('jobs.notes', 'Description')}
                   </Text>
-                  <Text size="xs">{job.notes}</Text>
+                  <Text size="xs">{currentJob.notes}</Text>
                 </Paper>
               )}
             </Stack>
