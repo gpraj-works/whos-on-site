@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Badge,
   Button,
@@ -16,11 +16,13 @@ import {
 import { JobDto, JobStatus } from '@whosonsite/shared'
 import {
   Calendar,
+  Check,
   CheckCircle2,
   Clock,
   MapPin,
   MessageSquare,
   Navigation,
+  Share2,
   UserCheck,
   XCircle
 } from 'lucide-react'
@@ -30,7 +32,7 @@ import { formatDate, formatDateTime, formatRelative } from '../../lib/date/forma
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { StatusBadge } from '../common/StatusBadge'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCancelJob, useJobHistory, useUpdateJobStatus } from './queries'
+import { useCancelJob, useJob, useJobHistory, useUpdateJobStatus } from './queries'
 
 interface JobDetailDrawerProps {
   opened: boolean
@@ -46,25 +48,41 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   onOpenAssignModal
 }) => {
   const { t } = useTranslation()
-  const { data: history = [], isLoading: isLoadingHistory } = useJobHistory(job?.id)
+  const { data: fetchedJob } = useJob(opened ? job?.id : null)
+  const currentJob = fetchedJob || job
+
+  const { data: history = [], isLoading: isLoadingHistory } = useJobHistory(currentJob?.id)
   const updateStatusMutation = useUpdateJobStatus()
   const cancelJobMutation = useCancelJob()
 
   const [confirmCancelOpened, setConfirmCancelOpened] = useState(false)
   const [statusNote, setStatusNote] = useState('')
   const [showNoteInput, setShowNoteInput] = useState<JobStatus | null>(null)
+  const [copied, setCopied] = useState(false)
 
-  if (!job) return null
+  useEffect(() => {
+    setShowNoteInput(null)
+    setStatusNote('')
+  }, [currentJob?.id, currentJob?.status])
 
-  const handleStatusTransition = async (nextStatus: JobStatus) => {
-    if (showNoteInput !== nextStatus) {
-      setShowNoteInput(nextStatus)
+  if (!currentJob) return null
+
+  const handleCopyShareLink = () => {
+    if (!currentJob.shareToken) return
+    const shareUrl = `${window.location.origin}/status/${currentJob.shareToken}`
+    navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const submitStatusChange = async (nextStatus: JobStatus) => {
+    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
       return
     }
 
     try {
       await updateStatusMutation.mutateAsync({
-        id: job.id,
+        id: currentJob.id,
         status: nextStatus,
         note: statusNote.trim() || undefined
       })
@@ -75,18 +93,28 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
     }
   }
 
+  const handleStatusTransition = (nextStatus: JobStatus) => {
+    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
+      return
+    }
+    if (showNoteInput === nextStatus) {
+      setShowNoteInput(null)
+    } else {
+      setShowNoteInput(nextStatus)
+    }
+  }
+
   const handleConfirmCancel = async () => {
     try {
-      await cancelJobMutation.mutateAsync(job.id)
+      await cancelJobMutation.mutateAsync(currentJob.id)
       setConfirmCancelOpened(false)
-      onClose()
     } catch {
       // Error handled via cancelJobMutation.error
     }
   }
 
   const renderStatusActionButtons = () => {
-    if (job.status === JobStatus.CANCELLED || job.status === JobStatus.COMPLETE) {
+    if (currentJob.status === JobStatus.CANCELLED || currentJob.status === JobStatus.COMPLETE) {
       return (
         <Text size="xs" c="dimmed" fs="italic">
           {t('jobs.terminalStateNotice', 'This job is in a terminal state.')}
@@ -101,18 +129,18 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         </Text>
 
         <Group gap="xs">
-          {job.status === JobStatus.UNASSIGNED && (
+          {currentJob.status === JobStatus.UNASSIGNED && (
             <Button
               size="xs"
               color="indigo"
               leftSection={<UserCheck size={14} />}
-              onClick={() => onOpenAssignModal(job)}
+              onClick={() => onOpenAssignModal(currentJob)}
             >
               {t('jobs.assignTechnician', 'Assign Technician')}
             </Button>
           )}
 
-          {job.status === JobStatus.ASSIGNED && (
+          {currentJob.status === JobStatus.ASSIGNED && (
             <>
               <Button
                 size="xs"
@@ -127,14 +155,14 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 size="xs"
                 variant="light"
                 color="indigo"
-                onClick={() => onOpenAssignModal(job)}
+                onClick={() => onOpenAssignModal(currentJob)}
               >
                 {t('jobs.reassignTechnician', 'Reassign Tech')}
               </Button>
             </>
           )}
 
-          {job.status === JobStatus.EN_ROUTE && (
+          {currentJob.status === JobStatus.EN_ROUTE && (
             <Button
               size="xs"
               color="teal"
@@ -146,7 +174,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
             </Button>
           )}
 
-          {job.status === JobStatus.ON_SITE && (
+          {currentJob.status === JobStatus.ON_SITE && (
             <Button
               size="xs"
               color="green"
@@ -188,7 +216,12 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
               <Button
                 size="xs"
                 loading={updateStatusMutation.isPending}
-                onClick={() => handleStatusTransition(showNoteInput)}
+                disabled={!showNoteInput}
+                onClick={() => {
+                  if (showNoteInput) {
+                    submitStatusChange(showNoteInput)
+                  }
+                }}
               >
                 {t('common.update', 'Update')}
               </Button>
@@ -204,12 +237,13 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
       <Drawer
         opened={opened}
         onClose={onClose}
+        zIndex={1000}
         title={
           <Group gap="xs">
             <Text fw={700} size="lg">
-              {job.id.slice(0, 8)}...
+              {currentJob.id.slice(0, 8)}...
             </Text>
-            <StatusBadge status={job.status} />
+            <StatusBadge status={currentJob.status} />
           </Group>
         }
         position="right"
@@ -221,33 +255,46 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
           {/* Customer & Job Info Card */}
           <Card withBorder radius="md" p="md">
             <Stack gap="xs">
-              <Group justify="space-between">
+              <Group justify="space-between" align="flex-start">
                 <div>
                   <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                     {t('jobs.customer', 'Customer')}
                   </Text>
                   <Text fw={700} size="md">
-                    {job.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
+                    {currentJob.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
                   </Text>
                 </div>
-                {job.assignedTechnicianName && (
-                  <Badge variant="light" color="blue" size="md">
-                    Tech: {job.assignedTechnicianName}
-                  </Badge>
-                )}
+                <Group gap="xs">
+                  {currentJob.assignedTechnicianName && (
+                    <Badge variant="light" color="blue" size="md">
+                      Tech: {currentJob.assignedTechnicianName}
+                    </Badge>
+                  )}
+                  {currentJob.shareToken && (
+                    <Button
+                      size="xs"
+                      variant="light"
+                      color={copied ? 'teal' : 'gray'}
+                      leftSection={copied ? <Check size={14} /> : <Share2 size={14} />}
+                      onClick={handleCopyShareLink}
+                    >
+                      {copied ? t('jobs.linkCopied', 'Copied') : t('jobs.copyShareLink', 'Copy Share Link')}
+                    </Button>
+                  )}
+                </Group>
               </Group>
 
-              {job.customer?.address && (
+              {currentJob.customer?.address && (
                 <Group gap={6}>
                   <MapPin size={16} style={{ color: 'gray' }} />
-                  <Text size="sm">{job.customer.address}</Text>
+                  <Text size="sm">{currentJob.customer.address}</Text>
                 </Group>
               )}
 
-              {job.customer?.mobile && (
+              {currentJob.customer?.mobile && (
                 <Group gap={6}>
                   <Text size="xs" c="dimmed">
-                    Phone: {job.customer.mobile}
+                    Phone: {currentJob.customer.mobile}
                   </Text>
                 </Group>
               )}
@@ -262,7 +309,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                       {t('jobs.scheduledFor', 'Scheduled For')}
                     </Text>
                     <Text size="xs" fw={600}>
-                      {formatDateTime(job.scheduledAt)}
+                      {formatDateTime(currentJob.scheduledAt)}
                     </Text>
                   </div>
                 </Group>
@@ -274,18 +321,18 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                       {t('jobs.createdAt', 'Created')}
                     </Text>
                     <Text size="xs" fw={600}>
-                      {formatDate(job.createdAt)}
+                      {formatDate(currentJob.createdAt)}
                     </Text>
                   </div>
                 </Group>
               </Group>
 
-              {job.notes && (
+              {currentJob.notes && (
                 <Paper p="xs" bg="var(--mantine-color-body)" withBorder mt="xs">
                   <Text size="xs" fw={600} c="dimmed" mb={2}>
                     {t('jobs.notes', 'Description')}
                   </Text>
-                  <Text size="xs">{job.notes}</Text>
+                  <Text size="xs">{currentJob.notes}</Text>
                 </Paper>
               )}
             </Stack>

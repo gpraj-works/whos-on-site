@@ -39,10 +39,8 @@ export async function updateJob(id: string, input: UpdateJobInput): Promise<JobD
   })
 }
 
-export async function cancelJob(id: string): Promise<void> {
-  return apiClient<void>(`/jobs/${id}`, {
-    method: 'DELETE'
-  })
+export async function cancelJob(id: string): Promise<JobDto> {
+  return updateJobStatus(id, JobStatus.CANCELLED, 'Job cancelled')
 }
 
 export async function assignJob(id: string, technicianId: string): Promise<JobDto> {

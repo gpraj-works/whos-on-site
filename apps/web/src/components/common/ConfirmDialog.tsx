@@ -12,6 +12,7 @@ interface ConfirmDialogProps {
   cancelLabel?: string
   loading?: boolean
   color?: string
+  zIndex?: number
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -23,12 +24,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmLabel,
   cancelLabel,
   loading = false,
-  color = 'red'
+  color = 'red',
+  zIndex = 1100
 }) => {
   const { t } = useTranslation()
 
   return (
-    <Modal opened={opened} onClose={onClose} title={title} centered radius="md">
+    <Modal opened={opened} onClose={onClose} title={title} centered radius="md" zIndex={zIndex}>
       <Text size="sm" mb="lg">
         {message}
       </Text>

@@ -1,7 +1,12 @@
 import { logger } from './infrastructure/logging/logger'
+import { registerDailySummaryJob } from './jobs/queues/notification.queue'
 import { closeNotificationWorker, notificationWorker } from './jobs/workers/notification.worker'
 
 logger.info('WhosOnSite Worker process started. Listening for background jobs...')
+
+registerDailySummaryJob().catch((err) => {
+  logger.warn({ err }, 'Failed to initialize daily summary cron schedule')
+})
 
 async function shutdown(signal: string) {
   logger.info({ signal }, 'Worker process shut down signal received. Closing workers...')

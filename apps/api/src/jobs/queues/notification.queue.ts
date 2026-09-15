@@ -24,6 +24,10 @@ export const notificationQueue = new Queue<NotificationJobPayload>(NOTIFICATION_
   }
 })
 
+notificationQueue.on('error', (err) => {
+  logger.warn({ err: err.message }, 'Notification queue Redis connection warning (Redis is offline)')
+})
+
 /** Enqueue a background notification job */
 export async function enqueueNotificationJob(data: NotificationJobPayload): Promise<void> {
   try {
@@ -33,3 +37,67 @@ export async function enqueueNotificationJob(data: NotificationJobPayload): Prom
     logger.warn({ err, type: data.type, companyId: data.companyId }, 'Failed to enqueue notification job')
   }
 }
+
+/** Enqueue a delayed reminder job to re-check job progress after delay */
+export async function enqueueDelayedReminderJob(
+  companyId: string,
+  jobId: string,
+  delayMs = 15 * 60 * 1000
+): Promise<void> {
+  try {
+    await notificationQueue.add(
+      'job_delayed',
+      {
+        companyId,
+        jobId,
+        type: 'job_delayed',
+        payload: { reminderDelayMs: delayMs }
+      },
+      {
+        delay: delayMs,
+        jobId: `reminder:${jobId}`
+      }
+    )
+    logger.debug({ companyId, jobId, delayMs }, 'Enqueued delayed job reminder')
+  } catch (err) {
+    logger.warn({ err, companyId, jobId }, 'Failed to enqueue delayed job reminder')
+  }
+}
+
+/** Register repeatable daily summary cron job */
+export async function registerDailySummaryJob(): Promise<void> {
+  try {
+    const queueAny = notificationQueue as any
+    if (typeof queueAny.upsertJobScheduler === 'function') {
+      await queueAny.upsertJobScheduler(
+        'repeatable:daily_summary',
+        { pattern: '0 8 * * *' },
+        {
+          name: 'daily_summary',
+          data: {
+            companyId: 'system',
+            type: 'daily_summary',
+            payload: {}
+          }
+        }
+      )
+    } else {
+      await notificationQueue.add(
+        'daily_summary',
+        {
+          companyId: 'system',
+          type: 'daily_summary',
+          payload: {}
+        },
+        {
+          repeat: { pattern: '0 8 * * *' },
+          jobId: 'repeatable:daily_summary'
+        } as any
+      )
+    }
+    logger.info('Registered repeatable daily summary cron job')
+  } catch (err) {
+    logger.warn({ err }, 'Failed to register repeatable daily summary job')
+  }
+}
+

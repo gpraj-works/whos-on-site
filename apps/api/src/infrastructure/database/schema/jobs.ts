@@ -1,4 +1,4 @@
-import { index, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
 import { technicians } from './technicians'
 import { customers } from './customers'
 import { postgisGeometry } from '../custom-types/postgis'
@@ -19,6 +19,7 @@ export const jobs = pgTable(
   'jobs',
   {
     id: uuid('id').primaryKey().defaultRandom(),
+    shareToken: uuid('share_token').defaultRandom().notNull(),
     companyId: companyId(),
     customerId: uuid('customer_id')
       .references(() => customers.id, { onDelete: 'no action' })
@@ -36,6 +37,7 @@ export const jobs = pgTable(
   (table) => [
     index('jobs_company_status_idx').on(table.companyId, table.status),
     index('jobs_assigned_technician_id_idx').on(table.assignedTechnicianId),
-    index('jobs_customer_id_idx').on(table.customerId)
+    index('jobs_customer_id_idx').on(table.customerId),
+    uniqueIndex('jobs_share_token_idx').on(table.shareToken)
   ]
 )

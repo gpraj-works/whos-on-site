@@ -9,6 +9,7 @@ import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
 import { TechnicianOnly } from '../components/auth/TechnicianOnly'
 import { Analytics } from '../pages/Analytics'
+import { CustomerStatusPage } from '../pages/CustomerStatusPage'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
 import { Dispatch } from '../pages/Dispatch'
@@ -29,6 +30,9 @@ export const App: React.FC = () => {
           <AuthProvider>
             <BrowserRouter>
               <Routes>
+                {/* Public Customer Status Link */}
+                <Route path="/status/:token" element={<CustomerStatusPage />} />
+
                 {/* Public Unauthenticated Routes */}
                 <Route element={<PublicRoute />}>
                   <Route path="/login" element={<Login />} />

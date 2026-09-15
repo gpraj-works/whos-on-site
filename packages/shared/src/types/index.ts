@@ -74,6 +74,7 @@ export interface TokenRefreshRequest {
 
 export interface JobDto {
   id: string
+  shareToken: string
   companyId: string
   customerId: string
   customer: CustomerDto | null
@@ -97,6 +98,25 @@ export interface JobStatusHistoryDto {
   changedByName?: string | null
   changedAt: string
   note: string | null
+}
+
+export interface CustomerStatusHistoryDto {
+  toStatus: JobStatus
+  changedAt: string
+  note: string | null
+}
+
+export interface CustomerStatusDto {
+  jobId: string
+  companyName: string
+  companyPrimaryColor: string
+  status: JobStatus
+  customerName: string
+  technicianName: string | null
+  scheduledAt: string | null
+  updatedAt: string
+  notes: string | null
+  history: CustomerStatusHistoryDto[]
 }
 
 export interface TechnicianDto {
