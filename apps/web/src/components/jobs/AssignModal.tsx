@@ -79,7 +79,6 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
     >
       <Stack gap="md">
         <ApiErrorAlert error={assignJobMutation.error || unassignJobMutation.error} />
-        {validationError && <ApiErrorAlert error={validationError} title="Validation Error" />}
 
         {currentTechnicianId && (
           <Text size="sm" c="dimmed">
@@ -99,9 +98,14 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
           }
           data={techSelectData}
           value={selectedTechId}
-          onChange={(val) => setSelectedTechId(val || '')}
+          onChange={(val) => {
+            setSelectedTechId(val || '')
+            if (validationError) setValidationError(null)
+          }}
           searchable
           clearable
+          withAsterisk
+          error={validationError}
         />
 
         <Group justify="space-between" mt="sm">

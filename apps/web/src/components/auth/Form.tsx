@@ -31,16 +31,25 @@ export const LoginForm: React.FC = () => {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
 
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+    setFieldErrors({})
 
     const validation = loginSchema.safeParse({ email, password })
     if (!validation.success) {
-      setError(validation.error.errors[0]?.message || 'Invalid input')
+      const formattedErrors: { email?: string; password?: string } = {}
+      validation.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
+        const fieldName = err.path[0] as 'email' | 'password'
+        if (fieldName && !formattedErrors[fieldName]) {
+          formattedErrors[fieldName] = err.message
+        }
+      })
+      setFieldErrors(formattedErrors)
       return
     }
 
@@ -60,6 +69,7 @@ export const LoginForm: React.FC = () => {
   const fillDemoCredentials = (demoEmail: string) => {
     setEmail(demoEmail)
     setPassword('password123')
+    setFieldErrors({})
   }
 
   return (
@@ -84,14 +94,19 @@ export const LoginForm: React.FC = () => {
 
           <ApiErrorAlert error={error} title="Authentication Error" />
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <Stack gap="md">
               <TextInput
                 label="Email Address"
                 placeholder="dispatcher@acmehvac.com"
                 leftSection={<Mail size={16} />}
                 value={email}
-                onChange={(e) => setEmail(e.currentTarget.value)}
+                onChange={(e) => {
+                  setEmail(e.currentTarget.value)
+                  if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
+                }}
+                withAsterisk
+                error={fieldErrors.email}
               />
 
               <PasswordInput
@@ -99,7 +114,12 @@ export const LoginForm: React.FC = () => {
                 placeholder="Your password"
                 leftSection={<KeyRound size={16} />}
                 value={password}
-                onChange={(e) => setPassword(e.currentTarget.value)}
+                onChange={(e) => {
+                  setPassword(e.currentTarget.value)
+                  if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }))
+                }}
+                withAsterisk
+                error={fieldErrors.password}
               />
 
               <Button type="submit" fullWidth loading={loading} mt="xs">

@@ -39,7 +39,7 @@ describe('CreateJobModal', () => {
 
     await user.click(screen.getByRole('button', { name: 'Add' }))
 
-    expect(await screen.findByText('Invalid customer ID')).toBeInTheDocument()
+    expect(await screen.findByText('Please select a customer')).toBeInTheDocument()
     expect(mockMutateAsync).not.toHaveBeenCalled()
   })
 })

@@ -34,13 +34,13 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
   const [notes, setNotes] = useState<string>('')
 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{ customerId?: string; scheduledAt?: string }>({})
 
   const handleReset = () => {
     setCustomerId('')
     setScheduledAt('')
     setNotes('')
-    setValidationError(null)
+    setFieldErrors({})
   }
 
   const handleClose = () => {
@@ -50,17 +50,18 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
   const handleCustomerCreated = (newCustomer: CustomerDto) => {
     setCustomerId(newCustomer.id)
+    setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setValidationError(null)
+    setFieldErrors({})
 
     let isoScheduledAt: string | undefined = undefined
     if (scheduledAt) {
       const parsedDate = new Date(scheduledAt)
       if (isNaN(parsedDate.getTime())) {
-        setValidationError('Invalid schedule date/time')
+        setFieldErrors({ scheduledAt: 'Invalid schedule date/time' })
         return
       }
       isoScheduledAt = parsedDate.toISOString()
@@ -74,7 +75,12 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
     const parseResult = createJobSchema.safeParse(rawInput)
     if (!parseResult.success) {
-      setValidationError(parseResult.error.errors[0]?.message || 'Invalid job form input')
+      const formatted: { customerId?: string; scheduledAt?: string } = {}
+      parseResult.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
+        if (err.path[0] === 'customerId') formatted.customerId = 'Please select a customer'
+        else if (err.path[0] === 'scheduledAt') formatted.scheduledAt = err.message
+      })
+      setFieldErrors(formatted)
       return
     }
 
@@ -101,10 +107,9 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
         centered
         radius="md"
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} noValidate>
           <Stack gap="md">
             <ApiErrorAlert error={createJobMutation.error} />
-            {validationError && <ApiErrorAlert error={validationError} title="Validation Error" />}
 
             {/* Row 1: Customer selection with plus icon button + Schedule */}
             <Grid align="flex-end" gutter="md">
@@ -119,9 +124,14 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
                     }
                     data={customerSelectData}
                     value={customerId}
-                    onChange={(val) => setCustomerId(val || '')}
+                    onChange={(val) => {
+                      setCustomerId(val || '')
+                      if (fieldErrors.customerId) setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
+                    }}
                     searchable
                     clearable
+                    withAsterisk
+                    error={fieldErrors.customerId}
                     style={{ flex: 1 }}
                   />
                   <ActionIcon
@@ -141,7 +151,11 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
                   label="Schedule"
                   type="datetime-local"
                   value={scheduledAt}
-                  onChange={(e) => setScheduledAt(e.target.value)}
+                  onChange={(e) => {
+                    setScheduledAt(e.target.value)
+                    if (fieldErrors.scheduledAt) setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+                  }}
+                  error={fieldErrors.scheduledAt}
                 />
               </Grid.Col>
             </Grid>

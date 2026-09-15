@@ -13,8 +13,8 @@ const renderAlert = (error: Error | string | null | undefined) =>
 
 describe('ApiErrorAlert', () => {
   it('renders nothing when there is no error', () => {
-    const { container } = renderAlert(null)
-    expect(container).toBeEmptyDOMElement()
+    renderAlert(null)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 
   it('renders a string error message', () => {

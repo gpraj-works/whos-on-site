@@ -101,3 +101,11 @@ export const customerFilterQuerySchema = z.object({
 })
 
 export type CustomerFilterQuery = z.infer<typeof customerFilterQuerySchema>
+
+export const createTechnicianSchema = z.object({
+  name: z.string().min(2, 'Technician name must be at least 2 characters'),
+  phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
+  status: technicianStatusSchema.optional()
+})
+
+export type CreateTechnicianInput = z.infer<typeof createTechnicianSchema>

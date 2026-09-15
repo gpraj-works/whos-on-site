@@ -1,17 +1,10 @@
 import React, { useState } from 'react'
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
-import { TechnicianDto, TechnicianStatus } from '@whosonsite/shared'
+import { createTechnicianSchema, TechnicianDto, TechnicianStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
-import { z } from 'zod'
 
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useCreateTechnician } from './queries'
-
-const createTechSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  phone: z.string().min(7, 'Invalid phone number'),
-  status: z.nativeEnum(TechnicianStatus).optional()
-})
 
 interface CreateTechnicianModalProps {
   opened: boolean
@@ -30,13 +23,13 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [status, setStatus] = useState<string>(TechnicianStatus.AVAILABLE)
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<{ name?: string; phone?: string }>({})
 
   const handleReset = () => {
     setName('')
     setPhone('')
     setStatus(TechnicianStatus.AVAILABLE)
-    setValidationError(null)
+    setFieldErrors({})
   }
 
   const handleClose = () => {
@@ -46,7 +39,7 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setValidationError(null)
+    setFieldErrors({})
 
     const payload = {
       name: name.trim(),
@@ -54,9 +47,16 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
       status: status as TechnicianStatus
     }
 
-    const parseResult = createTechSchema.safeParse(payload)
+    const parseResult = createTechnicianSchema.safeParse(payload)
     if (!parseResult.success) {
-      setValidationError(parseResult.error.errors[0]?.message || 'Invalid technician details')
+      const formatted: { name?: string; phone?: string } = {}
+      parseResult.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
+        const field = err.path[0] as 'name' | 'phone'
+        if (field && !formatted[field]) {
+          formatted[field] = err.message
+        }
+      })
+      setFieldErrors(formatted)
       return
     }
 
@@ -79,23 +79,32 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
       centered
       radius="md"
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <Stack gap="md">
           <ApiErrorAlert error={createTechMutation.error} />
-          {validationError && <ApiErrorAlert error={validationError} title="Validation Error" />}
 
           <TextInput
             label={t('technicians.name', 'Technician Name')}
             placeholder="John Doe"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value)
+              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }))
+            }}
+            withAsterisk
+            error={fieldErrors.name}
           />
 
           <TextInput
             label={t('technicians.phone', 'Phone Number')}
             placeholder="+1 404-555-0192"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={(e) => {
+              setPhone(e.target.value)
+              if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: undefined }))
+            }}
+            withAsterisk
+            error={fieldErrors.phone}
           />
 
           <Select
