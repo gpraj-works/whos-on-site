@@ -24,8 +24,9 @@ test.describe('WhosOnSite — Dispatch Happy Path', () => {
 
     await loginAsDispatcher(page)
 
-    // Navigate to the dispatch board (the Jobs page)
-    await page.getByRole('link', { name: /jobs/i }).click()
+    // Navigate to the dispatch board via the exact sidebar "Jobs" link
+    // (strict mode: avoid matching the row-level "View All Jobs" link too)
+    await page.getByRole('link', { name: 'Jobs', exact: true }).click()
     await expect(page).toHaveURL(/\/jobs/)
 
     // The dispatch board renders at least one seeded job
