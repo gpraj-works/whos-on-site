@@ -3,8 +3,8 @@ import {
   Button,
   Card,
   ColorSwatch,
+  Container,
   Divider,
-  Grid,
   Group,
   Stack,
   Text,
@@ -32,7 +32,8 @@ export const Settings: React.FC = () => {
     useAppTheme()
 
   return (
-    <Stack gap="xl">
+    <Container fluid p={0}>
+      <Stack gap="sm">
       <PageHeader
         title={t('nav.settings')}
         subtitle="Theme colors and application preferences"
@@ -97,7 +98,8 @@ export const Settings: React.FC = () => {
         </Stack>
       </Card>
     </Stack>
-  )
+  </Container>
+)
 }
 
 export default Settings

@@ -57,8 +57,8 @@ export const Analytics: React.FC = () => {
   )
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('analytics.title', 'Operations Analytics')}
           subtitle={t(
@@ -78,7 +78,7 @@ export const Analytics: React.FC = () => {
         />
 
         {/* Stat Cards Row */}
-        <Grid gutter="md">
+        <Grid gutter="sm">
           <Grid.Col span={{ base: 12, sm: 6, md: 2.4 }}>
             <Card withBorder radius="md" p="md">
               <Group justify="space-between">
@@ -165,7 +165,7 @@ export const Analytics: React.FC = () => {
           </Grid.Col>
         </Grid>
 
-        <Grid gutter="md">
+        <Grid gutter="sm">
           {/* Jobs by Status Distribution */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper radius="md" p="md" withBorder style={{ height: '100%' }}>

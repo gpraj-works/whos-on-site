@@ -57,7 +57,7 @@ export const en = {
       activeJobs: 'Active Jobs',
       techniciansOnline: 'Technicians Online',
       completedToday: 'Completed Dispatches',
-      totalTechnicians: 'Total Staff'
+      totalTechnicians: 'Total Technicians'
     },
     jobs: {
       title: 'Dispatch Board',

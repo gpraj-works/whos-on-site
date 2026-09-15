@@ -82,8 +82,8 @@ export const Dispatch: React.FC = () => {
   }, [jobs])
 
   return (
-    <Container size="xl" py="lg" style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
-      <Stack gap="md" style={{ height: '100%' }}>
+    <Container fluid p={0} style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+      <Stack gap="sm" style={{ height: '100%' }}>
         <PageHeader
           title={t('dispatch.title', 'Live Dispatch Board')}
           subtitle={t(
@@ -110,7 +110,7 @@ export const Dispatch: React.FC = () => {
           }
         />
 
-        <Grid style={{ flex: 1, minHeight: 0 }} gutter="md">
+        <Grid style={{ flex: 1, minHeight: 0 }} gutter="sm">
           {/* Left Column: Job Board & Filters */}
           <Grid.Col span={{ base: 12, md: 5, lg: 4 }} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <Paper radius="md" p="sm" withBorder style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>

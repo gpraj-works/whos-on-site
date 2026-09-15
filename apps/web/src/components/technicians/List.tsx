@@ -33,11 +33,11 @@ export const TechnicianList: React.FC = () => {
   ).length
 
   return (
-    <Stack gap="lg">
+    <Stack gap="sm">
       <ApiErrorAlert error={error} />
 
       {/* Tech Overview Stats */}
-      <Paper p="md" radius="md" withBorder>
+      <Paper p="sm" radius="md" withBorder>
         <Group justify="space-between" align="center" wrap="wrap">
           <Group gap="xl">
             <div>

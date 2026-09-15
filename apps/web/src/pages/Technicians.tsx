@@ -12,8 +12,8 @@ export const Technicians: React.FC = () => {
   const { refetch } = useTechnicians()
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('nav.technicians', 'Field Technicians')}
           subtitle={t(

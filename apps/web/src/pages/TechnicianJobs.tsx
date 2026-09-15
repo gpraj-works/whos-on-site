@@ -25,7 +25,6 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppTheme } from '../app/theme/ThemeContext'
 import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
@@ -138,8 +137,8 @@ export const TechnicianJobs: React.FC = () => {
   }, [jobs])
 
   return (
-    <Container size="md" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('technician.myJobs', 'My Job Queue')}
           subtitle={t(

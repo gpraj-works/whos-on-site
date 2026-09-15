@@ -78,7 +78,7 @@ export const Dashboard: React.FC = () => {
       description: `${jobs.length} total dispatches recorded`
     },
     {
-      title: t('dashboard.totalTechnicians', 'Total Staff'),
+      title: t('dashboard.totalTechnicians', 'Total Technicians'),
       value: String(technicians.length),
       icon: Clock,
       color: 'violet',
@@ -89,16 +89,16 @@ export const Dashboard: React.FC = () => {
   const recentJobs = jobs.slice(0, 5)
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <ApiErrorAlert error={jobsError || techsError} />
 
         {/* KPI Metrics Grid */}
-        <Grid>
+        <Grid gutter="sm">
           {stats.map((stat) => (
             <Grid.Col key={stat.title} span={{ base: 12, sm: 6, md: 3 }}>
               <Card p="md" radius="md" withBorder shadow="xs">
-                <Group justify="space-between" align="flex-start" mb="xs">
+                <Group justify="space-between" align="center">
                   <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                     {stat.title}
                   </Text>
@@ -120,7 +120,7 @@ export const Dashboard: React.FC = () => {
         </Grid>
 
         {/* Main Content: Live Dispatch Jobs & Tech Status Overview */}
-        <Grid>
+        <Grid gutter="sm">
           {/* Left Column: Recent Dispatch Jobs */}
           <Grid.Col span={{ base: 12, lg: 8 }}>
             <Card radius="md" withBorder shadow="xs" p="md">
@@ -211,7 +211,7 @@ export const Dashboard: React.FC = () => {
 
           {/* Right Column: Technician Readiness & Progress */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
-            <Stack gap="md">
+            <Stack gap="sm">
               {/* Daily Completion Progress Card */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="xs">

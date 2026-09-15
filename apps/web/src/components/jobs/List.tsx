@@ -114,11 +114,11 @@ export const JobList: React.FC = () => {
   ]
 
   return (
-    <Stack gap="md">
+    <Stack gap="sm">
       <ApiErrorAlert error={error} />
 
       {/* Filter Controls Bar */}
-      <Paper p="md" radius="md" withBorder>
+      <Paper p="sm" radius="md" withBorder>
         <Group justify="space-between" align="center" wrap="wrap" gap="md">
           <Group gap="md" style={{ flex: 1, minWidth: 280 }}>
             <TextInput

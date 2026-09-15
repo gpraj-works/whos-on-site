@@ -17,8 +17,8 @@ export const Customers: React.FC = () => {
   const { refetch } = useCustomers()
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('nav.customers', 'Customers')}
           subtitle={t(

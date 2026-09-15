@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, Group, Paper, Table, Text, TextInput } from '@mantine/core'
+import { Card, Group, Paper, Stack, Table, Text, TextInput } from '@mantine/core'
 import { Mail, MapPin, Phone, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -25,10 +25,10 @@ export const CustomerList: React.FC = () => {
   })
 
   return (
-    <>
+    <Stack gap="sm">
       <ApiErrorAlert error={error} />
 
-      <Paper p="md" radius="md" withBorder mb="md">
+      <Paper p="sm" radius="md" withBorder>
         <Group justify="space-between" align="center">
           <TextInput
             placeholder={t('common.search', 'Search customer name, phone, address, email...')}
@@ -114,6 +114,6 @@ export const CustomerList: React.FC = () => {
           </Table.Tbody>
         </Table>
       </Card>
-    </>
+    </Stack>
   )
 }

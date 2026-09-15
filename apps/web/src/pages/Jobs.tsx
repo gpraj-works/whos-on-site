@@ -17,8 +17,8 @@ export const Jobs: React.FC = () => {
   const { refetch } = useJobs()
 
   return (
-    <Container size="xl" py="lg">
-      <Stack gap="lg">
+    <Container fluid p={0}>
+      <Stack gap="sm">
         <PageHeader
           title={t('nav.jobs', 'Dispatch')}
           subtitle={t(

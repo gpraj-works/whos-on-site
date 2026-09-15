@@ -57,7 +57,7 @@ export const ta = {
       activeJobs: 'செயலில் உள்ள வேலைகள்',
       techniciansOnline: 'ஆன்லைன் தொழில்நுட்ப வல்லுநர்கள்',
       completedToday: 'நிறைவடைந்த வேலைகள்',
-      totalTechnicians: 'மொத்த பணியாளர்கள்'
+      totalTechnicians: 'மொத்த தொழில்நுட்ப வல்லுநர்கள்'
     },
     jobs: {
       title: 'வேலை பலகை',
