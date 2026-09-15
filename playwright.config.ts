@@ -12,6 +12,20 @@ export default defineConfig({
     trace: 'on-first-retry',
     viewport: { width: 1280, height: 720 }
   },
+  webServer: [
+    {
+      command: 'pnpm --filter @whosonsite/web dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: true,
+      timeout: 120000
+    },
+    {
+      command: 'pnpm --filter @whosonsite/api dev',
+      url: 'http://localhost:4000/health',
+      timeout: 120000,
+      reuseExistingServer: true
+    }
+  ],
   projects: [
     {
       name: 'chromium',

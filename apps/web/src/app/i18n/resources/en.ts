@@ -6,8 +6,8 @@ export const en = {
     },
     nav: {
       dashboard: 'Dashboard',
-      dispatch: 'Dispatch Board',
-      jobs: 'Dispatch Board',
+      dispatch: 'Jobs',
+      jobs: 'Jobs',
       technicians: 'Technicians',
       customers: 'Customers',
       analytics: 'Analytics',
@@ -57,12 +57,12 @@ export const en = {
     dashboard: {
       activeJobs: 'Active Jobs',
       techniciansOnline: 'Technicians Online',
-      completedToday: 'Completed Dispatches',
+      completedToday: 'Completed Jobs',
       totalTechnicians: 'Total Technicians'
     },
     jobs: {
-      title: 'Dispatch Board',
-      subtitle: 'Manage job assignments, status state machine, and customer dispatches',
+      title: 'Jobs',
+      subtitle: 'Manage job assignments, status, and tracking',
       newJob: 'New',
       createTitle: 'New Job',
       jobId: 'Job ID',
@@ -111,7 +111,7 @@ export const en = {
     },
     customerStatus: {
       title: 'Job Status Page',
-      subtitle: 'Real-time status tracking for customer dispatches',
+      subtitle: 'Real-time status tracking for customer jobs',
       customer: 'Customer',
       technician: 'Assigned Technician',
       unassignedTech: 'Awaiting technician assignment',
@@ -126,7 +126,7 @@ export const en = {
     technicians: {
       title: 'Technicians',
       subtitle:
-        'Real-time technician availability, status tracking, and location dispatch readiness',
+        'Real-time technician availability, status tracking, and location readiness',
       createTitle: 'New Technician',
       name: 'Technician',
       status: 'Status',

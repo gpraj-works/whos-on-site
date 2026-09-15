@@ -13,12 +13,12 @@ const renderHeader = (props: React.ComponentProps<typeof PageHeader>) =>
 
 describe('PageHeader', () => {
   it('renders the title', () => {
-    renderHeader({ title: 'Dispatch Board' })
-    expect(screen.getByRole('heading', { name: 'Dispatch Board' })).toBeInTheDocument()
+    renderHeader({ title: 'Jobs' })
+    expect(screen.getByRole('heading', { name: 'Jobs' })).toBeInTheDocument()
   })
 
   it('renders the description as subtitle text', () => {
-    renderHeader({ title: 'Dispatch Board', description: 'Live job tracking' })
+    renderHeader({ title: 'Jobs', description: 'Live job tracking' })
     expect(screen.getByText('Live job tracking')).toBeInTheDocument()
   })
 

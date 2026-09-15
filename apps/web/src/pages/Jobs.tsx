@@ -18,10 +18,10 @@ export const Jobs: React.FC = () => {
     <Container fluid p={0}>
       <Stack gap="sm">
         <PageHeader
-          title={t('nav.jobs', 'Dispatch')}
+          title={t('jobs.title', 'Jobs')}
           subtitle={t(
             'jobs.subtitle',
-            'Manage job assignments, status state machine, and customer dispatches'
+            'Manage job assignments, status, and tracking'
           )}
           actions={
             <Button

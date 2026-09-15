@@ -268,7 +268,7 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
           <Group justify="space-between" align="center">
             <Group gap="xs">
               <Text fw={600} size="sm">
-                Live Dispatch Map (Full Screen)
+                Live Map (Full Screen)
               </Text>
               <Badge variant="light" color="blue">
                 {jobsWithCoords.length} Jobs on map

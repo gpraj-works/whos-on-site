@@ -6,8 +6,8 @@ export const ta = {
     },
     nav: {
       dashboard: 'முகப்பு',
-      dispatch: 'வேலை பலகை',
-      jobs: 'வேலை பலகை',
+      dispatch: 'வேலைகள்',
+      jobs: 'வேலைகள்',
       technicians: 'தொழில்நுட்ப வல்லுநர்கள்',
       customers: 'வாடிக்கையாளர்கள்',
       analytics: 'பகுப்பாய்வு',
@@ -61,7 +61,7 @@ export const ta = {
       totalTechnicians: 'மொத்த தொழில்நுட்ப வல்லுநர்கள்'
     },
     jobs: {
-      title: 'வேலை பலகை',
+      title: 'வேலைகள்',
       subtitle: 'வேலை ஒதுக்கீடுகள் மற்றும் நிலைகளை நிர்வகிக்கவும்',
       newJob: 'புதியது',
       createTitle: 'புதிய வேலை',

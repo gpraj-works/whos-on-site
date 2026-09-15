@@ -33,7 +33,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
     },
     {
       icon: Truck,
-      label: t('nav.dispatch', 'Dispatch Board'),
+      label: t('nav.jobs', 'Jobs'),
       path: '/dispatch',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
     },

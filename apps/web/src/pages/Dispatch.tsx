@@ -86,10 +86,10 @@ export const Dispatch: React.FC = () => {
     <Container fluid p={0} style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
       <Stack gap="sm" style={{ height: '100%' }}>
         <PageHeader
-          title={t('jobs.title', 'Dispatch Board')}
+          title={t('jobs.title', 'Jobs')}
           subtitle={t(
             'jobs.subtitle',
-            'Manage job assignments, status state machine, and customer dispatches'
+            'Manage job assignments, status, and tracking'
           )}
           actions={
             <Button

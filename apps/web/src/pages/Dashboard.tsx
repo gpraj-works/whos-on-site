@@ -71,11 +71,11 @@ export const Dashboard: React.FC = () => {
       description: `${availableTechs.length} available, ${busyTechs.length} busy`
     },
     {
-      title: t('dashboard.completedToday', 'Completed Dispatches'),
+      title: t('dashboard.completedToday', 'Completed Jobs'),
       value: String(completedToday),
       icon: CheckCircle2,
       color: 'green',
-      description: `${jobs.length} total dispatches recorded`
+      description: `${jobs.length} total jobs recorded`
     },
     {
       title: t('dashboard.totalTechnicians', 'Total Technicians'),
@@ -126,7 +126,7 @@ export const Dashboard: React.FC = () => {
             <Card radius="md" withBorder shadow="xs" p="md">
               <Group justify="space-between" mb="md">
                 <div>
-                  <Title order={4}>Live Dispatch Board</Title>
+                  <Title order={4}>{t('jobs.title', 'Jobs')}</Title>
                   <Text size="xs" c="dimmed">
                     Active jobs and field operations tracking
                   </Text>

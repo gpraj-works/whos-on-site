@@ -8,7 +8,7 @@
     "dev": "pnpm --parallel --recursive dev",
     "test": "pnpm -r --parallel test",
     "test:e2e": "playwright test",
-    "test:coverage": "pnpm --filter @whosonsite/api test:coverage",
+    "test:coverage": "pnpm --filter @whosonsite/api test:coverage && pnpm --filter @whosonsite/web test:coverage",
     "dev:api": "pnpm --filter @whosonsite/api dev",
     "dev:web": "pnpm --filter @whosonsite/web dev",
     "build": "pnpm --recursive build",
