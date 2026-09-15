@@ -12,7 +12,7 @@ import {
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
-import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
+import { enqueueDelayedReminderJob, enqueueNotificationJob } from '../../jobs/queues/notification.queue'
 import { findCustomerById } from '../customers/customer.repository'
 import { findCompanyTechnicians } from '../technicians/technician.repository'
 import * as jobRepo from './job.repository'
@@ -72,6 +72,9 @@ export async function createNewJob(
     type: 'job_created',
     payload: { jobId: job.id, status: job.status, customerId: job.customerId }
   })
+
+  // Enqueue delayed reminder job
+  enqueueDelayedReminderJob(companyId, job.id)
 
   return job
 }

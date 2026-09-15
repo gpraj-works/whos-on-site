@@ -6,6 +6,9 @@
   "description": "Field-service dispatch & real-time job tracking platform",
   "scripts": {
     "dev": "pnpm --parallel --recursive dev",
+    "test": "pnpm -r --parallel test",
+    "test:e2e": "playwright test",
+    "test:coverage": "pnpm --filter @whosonsite/api test:coverage",
     "dev:api": "pnpm --filter @whosonsite/api dev",
     "dev:web": "pnpm --filter @whosonsite/web dev",
     "build": "pnpm --recursive build",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.13.5",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.1",

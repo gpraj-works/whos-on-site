@@ -62,7 +62,7 @@ export async function findNearbyAvailableTechnicians(
         sql`ST_DWithin(${technicians.currentLocation}, ${pointSql}, ${radiusMeters})`
       )
     )
-    .orderBy(sql`distance_meters ASC`)
+    .orderBy(sql`ST_Distance(${technicians.currentLocation}, ${pointSql}) ASC`)
 
   return rows.map((r) => ({
     ...r,

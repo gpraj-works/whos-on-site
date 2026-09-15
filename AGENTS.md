@@ -74,4 +74,4 @@ WhosOnSite is a `pnpm` monorepo organized into three primary packages:
 Before completing any task, execute:
 
 1. `pnpm typecheck` — Must pass with 0 errors across all 3 workspace packages (`shared`, `api`, `web`).
-2. `pnpm --filter @whosonsite/api test:phase2` — Verify security & spatial integration tests.
+2. `pnpm test` — Verify unit, integration, and security test suites.
