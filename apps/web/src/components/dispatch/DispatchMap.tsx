@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
-import { Badge, Button, Group, Paper, Stack, Text } from '@mantine/core'
+import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
 import { JobDto, JobStatus, TechnicianDto, TechnicianStatus } from '@whosonsite/shared'
 import L from 'leaflet'
+import { Maximize2, Minimize2 } from 'lucide-react'
 
 import 'leaflet/dist/leaflet.css'
 
@@ -25,6 +26,60 @@ interface DispatchMapProps {
 
 const DEFAULT_CENTER: [number, number] = [40.7128, -74.006] // Default fallback center
 const DEFAULT_ZOOM = 11
+
+/** Generates deterministic coordinates from address string if coordinates are missing */
+function hashStringToCoords(str: string): [number, number] {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i)
+    hash |= 0
+  }
+  const normLat = (Math.abs(hash % 1000) / 1000) * 0.08
+  const normLng = (Math.abs((hash >> 3) % 1000) / 1000) * 0.08
+
+  const lower = str.toLowerCase()
+  if (lower.includes('atlanta') || lower.includes('ga')) {
+    return [33.749 + normLat, -84.388 + normLng]
+  }
+  if (lower.includes('ny') || lower.includes('york') || lower.includes('brooklyn') || lower.includes('queens')) {
+    return [40.7128 + normLat, -74.006 + normLng]
+  }
+  return [33.75 + normLat, -84.38 + normLng]
+}
+
+/** Safely extracts valid lat/lng array from various coordinate formats or address fallback */
+function extractCoords(raw: unknown, address?: string | null): [number, number] | null {
+  if (typeof raw === 'object' && raw !== null) {
+    const obj = raw as Record<string, unknown>
+    if (typeof obj.lat === 'number' && typeof obj.lng === 'number' && (obj.lat !== 0 || obj.lng !== 0)) {
+      return [obj.lat, obj.lng]
+    }
+    if (typeof obj.x === 'number' && typeof obj.y === 'number' && (obj.x !== 0 || obj.y !== 0)) {
+      return [obj.y, obj.x]
+    }
+    if (Array.isArray(obj.coordinates) && obj.coordinates.length >= 2) {
+      const lng = Number(obj.coordinates[0])
+      const lat = Number(obj.coordinates[1])
+      if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
+        return [lat, lng]
+      }
+    }
+  }
+
+  if (typeof raw === 'string') {
+    const match = raw.match(/POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i)
+    if (match) {
+      return [parseFloat(match[2]), parseFloat(match[1])]
+    }
+  }
+
+  // Address fallback: generate coordinates from customer address
+  if (address && address.trim().length > 0) {
+    return hashStringToCoords(address)
+  }
+
+  return null
+}
 
 function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon {
   const color = JOB_STATUS_HEX_COLORS[status] || '#228be6'
@@ -96,11 +151,19 @@ function createTechnicianMarkerIcon(status: TechnicianStatus, isSelected: boolea
 }
 
 const MapAutoController: React.FC<{
-  jobs: JobDto[]
-  technicians: TechnicianDto[]
+  jobsWithCoords: Array<{ job: JobDto; coords: [number, number] }>
+  techsWithCoords: Array<{ tech: TechnicianDto; coords: [number, number] }>
   focusedCoords: [number, number] | null
-}> = ({ jobs, technicians, focusedCoords }) => {
+  isMaximized: boolean
+}> = ({ jobsWithCoords, techsWithCoords, focusedCoords, isMaximized }) => {
   const map = useMap()
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize()
+    }, 150)
+    return () => clearTimeout(timer)
+  }, [map, isMaximized])
 
   useEffect(() => {
     if (focusedCoords) {
@@ -108,25 +171,16 @@ const MapAutoController: React.FC<{
       return
     }
 
-    const points: [number, number][] = []
-
-    jobs.forEach((j) => {
-      if (j.location && typeof j.location.lat === 'number' && typeof j.location.lng === 'number') {
-        points.push([j.location.lat, j.location.lng])
-      }
-    })
-
-    technicians.forEach((t) => {
-      if (t.location && typeof t.location.lat === 'number' && typeof t.location.lng === 'number') {
-        points.push([t.location.lat, t.location.lng])
-      }
-    })
+    const points: [number, number][] = [
+      ...jobsWithCoords.map((item) => item.coords),
+      ...techsWithCoords.map((item) => item.coords)
+    ]
 
     if (points.length > 0) {
       const bounds = L.latLngBounds(points)
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15, animate: true })
     }
-  }, [map, jobs, technicians, focusedCoords])
+  }, [map, jobsWithCoords, techsWithCoords, focusedCoords])
 
   return null
 }
@@ -140,34 +194,127 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
   onSelectTechnician,
   onAssignJob
 }) => {
-  const validJobs = jobs.filter(
-    (j) => j.location && typeof j.location.lat === 'number' && typeof j.location.lng === 'number'
-  )
+  const [isMaximized, setIsMaximized] = useState(false)
 
-  const validTechnicians = technicians.filter(
-    (t) => t.location && typeof t.location.lat === 'number' && typeof t.location.lng === 'number'
-  )
+  // Map escape key to exit full screen view
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMaximized) {
+        setIsMaximized(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isMaximized])
+
+  const jobsWithCoords = jobs
+    .map((j) => ({ job: j, coords: extractCoords(j.location, j.customer?.address) }))
+    .filter((item): item is { job: JobDto; coords: [number, number] } => item.coords !== null)
+
+  const techsWithCoords = technicians
+    .map((t) => ({ tech: t, coords: extractCoords(t.location) }))
+    .filter((item): item is { tech: TechnicianDto; coords: [number, number] } => item.coords !== null)
 
   // Determine focused coords if selected job or technician is specified
   let focusedCoords: [number, number] | null = null
   if (selectedJobId) {
-    const job = validJobs.find((j) => j.id === selectedJobId)
-    if (job?.location) {
-      focusedCoords = [job.location.lat, job.location.lng]
-    }
+    const found = jobsWithCoords.find((item) => item.job.id === selectedJobId)
+    if (found) focusedCoords = found.coords
   } else if (selectedTechnicianId) {
-    const tech = validTechnicians.find((t) => t.id === selectedTechnicianId)
-    if (tech?.location) {
-      focusedCoords = [tech.location.lat, tech.location.lng]
-    }
+    const found = techsWithCoords.find((item) => item.tech.id === selectedTechnicianId)
+    if (found) focusedCoords = found.coords
   }
 
   return (
-    <Paper radius="md" style={{ width: '100%', height: '100%', minHeight: '500px', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+    <Paper
+      radius={isMaximized ? '0' : 'md'}
+      withBorder={!isMaximized}
+      style={
+        isMaximized
+          ? {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 9999,
+              borderRadius: 0,
+              backgroundColor: 'var(--mantine-color-body)',
+              display: 'flex',
+              flexDirection: 'column'
+            }
+          : {
+              width: '100%',
+              height: '100%',
+              minHeight: '500px',
+              overflow: 'hidden',
+              position: 'relative',
+              zIndex: 1
+            }
+      }
+    >
+      {/* Floating Header when Maximized */}
+      {isMaximized && (
+        <Paper
+          p="xs"
+          radius={0}
+          withBorder
+          style={{
+            zIndex: 10001,
+            backgroundColor: 'var(--mantine-color-body)',
+            borderBottom: '1px solid var(--mantine-color-default-border)'
+          }}
+        >
+          <Group justify="space-between" align="center">
+            <Group gap="xs">
+              <Text fw={600} size="sm">
+                Live Dispatch Map (Full Screen)
+              </Text>
+              <Badge variant="light" color="blue">
+                {jobsWithCoords.length} Jobs on map
+              </Badge>
+              <Badge variant="light" color="green">
+                {techsWithCoords.length} Technicians
+              </Badge>
+            </Group>
+            <Button
+              size="xs"
+              variant="default"
+              leftSection={<Minimize2 size={14} />}
+              onClick={() => setIsMaximized(false)}
+            >
+              Exit Full Screen (Esc)
+            </Button>
+          </Group>
+        </Paper>
+      )}
+
+      {/* Map Control Maximize/Minimize Overlay Button */}
+      {!isMaximized && (
+        <Tooltip label="Maximize Map (Full Screen)" position="left">
+          <ActionIcon
+            variant="filled"
+            color="blue"
+            size="md"
+            radius="md"
+            style={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              zIndex: 1000,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.25)'
+            }}
+            onClick={() => setIsMaximized(true)}
+          >
+            <Maximize2 size={18} />
+          </ActionIcon>
+        </Tooltip>
+      )}
+
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
-        style={{ width: '100%', height: '100%', minHeight: '500px', zIndex: 1 }}
+        style={{ width: '100%', flex: 1, minHeight: '500px', zIndex: 1 }}
         scrollWheelZoom={true}
       >
         <TileLayer
@@ -175,18 +322,21 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <MapAutoController jobs={validJobs} technicians={validTechnicians} focusedCoords={focusedCoords} />
+        <MapAutoController
+          jobsWithCoords={jobsWithCoords}
+          techsWithCoords={techsWithCoords}
+          focusedCoords={focusedCoords}
+          isMaximized={isMaximized}
+        />
 
         {/* Render Job Markers */}
-        {validJobs.map((job) => {
-          const lat = job.location!.lat
-          const lng = job.location!.lng
+        {jobsWithCoords.map(({ job, coords }) => {
           const isSelected = job.id === selectedJobId
 
           return (
             <Marker
               key={`job-${job.id}`}
-              position={[lat, lng]}
+              position={coords}
               icon={createJobMarkerIcon(job.status, isSelected)}
               eventHandlers={{
                 click: () => onSelectJob?.(job)
@@ -245,15 +395,13 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
         })}
 
         {/* Render Technician Markers */}
-        {validTechnicians.map((tech) => {
-          const lat = tech.location!.lat
-          const lng = tech.location!.lng
+        {techsWithCoords.map(({ tech, coords }) => {
           const isSelected = tech.id === selectedTechnicianId
 
           return (
             <Marker
               key={`tech-${tech.id}`}
-              position={[lat, lng]}
+              position={coords}
               icon={createTechnicianMarkerIcon(tech.status, isSelected)}
               eventHandlers={{
                 click: () => onSelectTechnician?.(tech)
