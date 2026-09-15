@@ -12,7 +12,6 @@ import { Analytics } from '../pages/Analytics'
 import { CustomerStatusPage } from '../pages/CustomerStatusPage'
 import { Customers } from '../pages/Customers'
 import { Dashboard } from '../pages/Dashboard'
-import { Dispatch } from '../pages/Dispatch'
 import { Jobs } from '../pages/Jobs'
 import { Login } from '../pages/Login'
 import { Settings } from '../pages/Settings'
@@ -42,7 +41,6 @@ export const App: React.FC = () => {
                 <Route element={<ProtectedRoute />}>
                   <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/jobs" element={<Jobs />} />
                   <Route
                     path="/my-jobs"
                     element={
@@ -52,10 +50,10 @@ export const App: React.FC = () => {
                     }
                   />
                   <Route
-                    path="/dispatch"
+                    path="/jobs"
                     element={
                       <DispatcherOnly>
-                        <Dispatch />
+                        <Jobs />
                       </DispatcherOnly>
                     }
                   />

@@ -5,10 +5,10 @@ import { timestamps } from './common'
 import { companyId } from './company'
 import { auditUserFields } from './audit'
 
-export const technicianStatusEnum = pgEnum('technician_status', ['available', 'busy', 'offline'])
+export const teamMemberStatusEnum = pgEnum('team_member_status', ['available', 'busy', 'offline'])
 
-export const technicians = pgTable(
-  'technicians',
+export const teamMembers = pgTable(
+  'team_members',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     companyId: companyId(),
@@ -16,14 +16,14 @@ export const technicians = pgTable(
     name: text('name').notNull(),
     phone: text('phone').notNull(),
     currentLocation: postgisGeometry('current_location'),
-    status: technicianStatusEnum('status').default('offline').notNull(),
+    status: teamMemberStatusEnum('status').default('offline').notNull(),
     lastLocationAt: timestamp('last_location_at', { withTimezone: true }),
     ...timestamps(),
     ...auditUserFields()
   },
   (table) => [
-    index('technicians_company_id_idx').on(table.companyId),
-    index('technicians_status_idx').on(table.status),
-    index('technicians_company_status_idx').on(table.companyId, table.status)
+    index('team_members_company_id_idx').on(table.companyId),
+    index('team_members_status_idx').on(table.status),
+    index('team_members_company_status_idx').on(table.companyId, table.status)
   ]
 )

@@ -14,7 +14,7 @@ import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueDelayedReminderJob, enqueueNotificationJob } from '../../jobs/queues/notification.queue'
 import { findCustomerById } from '../customers/customer.repository'
-import { findCompanyTechnicians } from '../technicians/technician.repository'
+import { findCompanyTeamMembers } from '../teamMembers/teamMember.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
 
@@ -60,7 +60,7 @@ export async function createNewJob(
     jobId: job.id,
     customerId: job.customerId,
     status: job.status,
-    assignedTechnicianId: job.assignedTechnicianId,
+    assignedTeamMemberId: job.assignedTeamMemberId,
     createdAt: job.createdAt,
     job
   })
@@ -91,11 +91,11 @@ export async function getJobDetail(
     throw new NotFoundError('Job not found')
   }
 
-  // If user is technician, verify they are assigned to this job
-  if (userRole === UserRole.TECHNICIAN) {
-    const techList = await findCompanyTechnicians(companyId)
+  // If user is teamMember, verify they are assigned to this job
+  if (userRole === UserRole.TEAM_MEMBER) {
+    const techList = await findCompanyTeamMembers(companyId)
     const currentTech = techList.find((t) => t.userId === userId)
-    if (!currentTech || job.assignedTechnicianId !== currentTech.id) {
+    if (!currentTech || job.assignedTeamMemberId !== currentTech.id) {
       throw new ForbiddenError('You can only view jobs assigned to you')
     }
   }
@@ -110,22 +110,22 @@ export async function listCompanyJobs(
   userRole: UserRole,
   userId: string
 ): Promise<JobDto[]> {
-  let filterTechnicianId = query.assignedTechnicianId
+  let filterTeamMemberId = query.assignedTeamMemberId
 
-  // If user is technician, force filter to their technician ID
-  if (userRole === UserRole.TECHNICIAN) {
-    const techList = await findCompanyTechnicians(companyId)
+  // If user is teamMember, force filter to their teamMember ID
+  if (userRole === UserRole.TEAM_MEMBER) {
+    const techList = await findCompanyTeamMembers(companyId)
     const currentTech = techList.find((t) => t.userId === userId)
     if (!currentTech) {
       return []
     }
-    filterTechnicianId = currentTech.id
+    filterTeamMemberId = currentTech.id
   }
 
   return jobRepo.findJobs({
     companyId,
     status: query.status,
-    assignedTechnicianId: filterTechnicianId,
+    assignedTeamMemberId: filterTeamMemberId,
     date: query.date,
     limit: query.limit,
     offset: query.offset
@@ -184,12 +184,12 @@ export async function changeJobStatus(
     return job
   }
 
-  // If technician, verify assigned to this job
-  if (userRole === UserRole.TECHNICIAN) {
-    const techList = await findCompanyTechnicians(companyId)
+  // If teamMember, verify assigned to this job
+  if (userRole === UserRole.TEAM_MEMBER) {
+    const techList = await findCompanyTeamMembers(companyId)
     const currentTech = techList.find((t) => t.userId === userId)
-    if (!currentTech || job.assignedTechnicianId !== currentTech.id) {
-      throw new ForbiddenError('Technicians can only update status for their assigned jobs')
+    if (!currentTech || job.assignedTeamMemberId !== currentTech.id) {
+      throw new ForbiddenError('TeamMembers can only update status for their assigned jobs')
     }
   }
 

@@ -1,4 +1,4 @@
-import { JobStatus, TechnicianStatus, UserRole } from '../enums/index'
+import { JobStatus, TeamMemberStatus, UserRole } from '../enums/index'
 import { Coordinates } from '../schemas/index'
 
 export interface HealthResponse {
@@ -81,8 +81,8 @@ export interface JobDto {
   location: Coordinates | null
   status: JobStatus
   scheduledAt: string | null
-  assignedTechnicianId: string | null
-  assignedTechnicianName?: string | null
+  assignedTeamMemberId: string | null
+  assignedTeamMemberName?: string | null
   notes: string | null
   createdAt: string
   updatedAt: string
@@ -112,20 +112,20 @@ export interface CustomerStatusDto {
   companyPrimaryColor: string
   status: JobStatus
   customerName: string
-  technicianName: string | null
+  teamMemberName: string | null
   scheduledAt: string | null
   updatedAt: string
   notes: string | null
   history: CustomerStatusHistoryDto[]
 }
 
-export interface TechnicianDto {
+export interface TeamMemberDto {
   id: string
   companyId: string
   userId: string
   name: string
   phone: string
-  status: TechnicianStatus
+  status: TeamMemberStatus
   location: Coordinates | null
   lastLocationAt: string | null
   distanceMeters?: number
@@ -139,9 +139,9 @@ export interface DailyJobCount {
 export interface AnalyticsSummaryDto {
   jobsByStatus: Record<JobStatus, number>
   jobsCreatedLast14Days: DailyJobCount[]
-  technicianAvailability: Record<TechnicianStatus, number>
+  teamMemberAvailability: Record<TeamMemberStatus, number>
   avgCompletionTimeMinutes: number
   totalJobsCount: number
-  totalTechniciansCount: number
+  totalTeamMembersCount: number
 }
 

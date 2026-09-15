@@ -4,12 +4,12 @@ import { authRouter } from '../modules/auth/auth.routes'
 import { customerRouter } from '../modules/customers/customer.routes'
 import jobRouter from '../modules/jobs/job.routes'
 import { publicStatusRouter } from '../modules/public-status/public-status.routes'
-import { technicianRouter } from '../modules/technicians/technician.routes'
+import { teamRouter } from '../modules/team/team.routes'
 
 const apiRouter: Router = Router()
 
 apiRouter.use('/auth', authRouter)
-apiRouter.use('/technicians', technicianRouter)
+apiRouter.use('/team', teamRouter)
 apiRouter.use('/customers', customerRouter)
 apiRouter.use('/jobs', jobRouter)
 apiRouter.use('/analytics', analyticsRouter)

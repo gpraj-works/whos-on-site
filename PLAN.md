@@ -290,7 +290,7 @@ erDiagram
 
 ![Job status state machine diagram showing transitions from unassigned to assigned, en_route, on_site, and complete, with a cancelled branch reachable from unassigned, assigned, or en_route](diagrams/03-job-status-state-machine.png)
 
-A job moves strictly forward through `unassigned → assigned → en_route → on_site → complete`, with `cancelled` reachable as a side-exit from the first three states (a job can't be cancelled once it's already complete, or once the technician is on site and mid-repair — enforce that in the transition logic, not just the UI). Every transition writes a row to `job_status_history`.
+A job moves strictly forward through `unassigned → assigned → en_route → on_site → complete`, with `cancelled` reachable as a side-exit from **unassigned, assigned, en_route, or on_site**. The one hard rule is terminal-state safety: a job can never be cancelled once it is `complete` (and a late mide-repair change that would strand a technician must be surfaced to the dispatcher instead). Every transition writes a row to `job_status_history`.
 
 <details>
 <summary>Mermaid source (diffable, kept in sync with the diagram above)</summary>

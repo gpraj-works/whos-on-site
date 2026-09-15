@@ -14,7 +14,7 @@ import {
   TECHNICIAN_STATUS_HEX_COLORS
 } from '../../app/theme'
 
-interface DispatchMapProps {
+interface JobMapProps {
   jobs: JobDto[]
   technicians: TechnicianDto[]
   selectedJobId?: string | null
@@ -185,7 +185,7 @@ const MapAutoController: React.FC<{
   return null
 }
 
-export const DispatchMap: React.FC<DispatchMapProps> = ({
+export const JobMap: React.FC<JobMapProps> = ({
   jobs,
   technicians,
   selectedJobId,

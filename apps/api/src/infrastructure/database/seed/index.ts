@@ -1,7 +1,7 @@
 import argon2 from 'argon2'
 import { sql } from 'drizzle-orm'
 import { db } from '../client'
-import { companies, customers, jobs, users, technicians } from '../schema/index'
+import { companies, customers, jobs, users, teamMembers } from '../schema/index'
 import { logger } from '../../logging/logger'
 import { UserRole } from '@whosonsite/shared'
 
@@ -54,12 +54,12 @@ export async function seedDatabase() {
       companyId: companyA.id,
       email: 'tech1@acmehvac.com',
       passwordHash: defaultPasswordHash,
-      role: UserRole.TECHNICIAN,
+      role: UserRole.TEAM_MEMBER,
       createdBy: dispatcherA.id
     })
     .returning()
 
-  await db.insert(technicians).values([
+  await db.insert(teamMembers).values([
     {
       companyId: companyA.id,
       userId: techUserA1.id,
@@ -121,11 +121,11 @@ export async function seedDatabase() {
       customerId: customerA2.id,
       location: sql`ST_SetSRID(ST_MakePoint(-84.3529, 33.8250), 4326)`,
       status: 'assigned',
-      assignedTechnicianId: (
+      assignedTeamMemberId: (
         await db
-          .select({ id: technicians.id })
-          .from(technicians)
-          .where(sql`${technicians.name} = 'John Atlanta Tech'`)
+          .select({ id: teamMembers.id })
+          .from(teamMembers)
+          .where(sql`${teamMembers.name} = 'John Atlanta Tech'`)
       )[0]?.id,
       notes: 'Routine HVAC filter replacement for common areas',
       createdBy: dispatcherA.id
@@ -173,12 +173,12 @@ export async function seedDatabase() {
       companyId: companyB.id,
       email: 'tech1@apexplumbing.com',
       passwordHash: defaultPasswordHash,
-      role: UserRole.TECHNICIAN,
+      role: UserRole.TEAM_MEMBER,
       createdBy: dispatcherB.id
     })
     .returning()
 
-  await db.insert(technicians).values([
+  await db.insert(teamMembers).values([
     {
       companyId: companyB.id,
       userId: techUserB1.id,
@@ -240,11 +240,11 @@ export async function seedDatabase() {
       customerId: customerB2.id,
       location: sql`ST_SetSRID(ST_MakePoint(-73.9105, 40.7427), 4326)`,
       status: 'assigned',
-      assignedTechnicianId: (
+      assignedTeamMemberId: (
         await db
-          .select({ id: technicians.id })
-          .from(technicians)
-          .where(sql`${technicians.name} = 'Mike Brooklyn Tech'`)
+          .select({ id: teamMembers.id })
+          .from(teamMembers)
+          .where(sql`${teamMembers.name} = 'Mike Brooklyn Tech'`)
       )[0]?.id,
       notes: 'Replace broken water heater in back stock room',
       createdBy: dispatcherB.id

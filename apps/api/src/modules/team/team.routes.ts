@@ -3,31 +3,31 @@ import { UserRole } from '@whosonsite/shared'
 import { authenticate } from '../../middleware/authenticate'
 import { companyContext } from '../../middleware/company'
 import { authorize } from '../../middleware/authorize'
-import * as technicianController from './technician.controller'
+import * as teamController from './team.controller'
 
 const router = Router()
 
-// Apply authentication and company context middleware across all technician routes
+// Apply authentication and company context middleware across all team routes
 router.use(authenticate, companyContext)
 
 router.get(
   '/',
   authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  technicianController.listTechnicians
+  teamController.listTeamMembers
 )
 
 router.get(
   '/nearby',
   authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  technicianController.nearbyTechnicians
+  teamController.nearbyTeamMembers
 )
 
-router.post('/', authorize([UserRole.OWNER, UserRole.ADMIN]), technicianController.createTechnician)
+router.post('/', authorize([UserRole.OWNER, UserRole.ADMIN]), teamController.createTeamMember)
 
 router.patch(
   '/:id/location',
-  authorize([UserRole.TECHNICIAN, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  technicianController.updateLocation
+  authorize([UserRole.TEAM_MEMBER, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
+  teamController.updateLocation
 )
 
-export const technicianRouter: Router = router
+export const teamRouter: Router = router

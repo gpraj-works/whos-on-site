@@ -7,7 +7,7 @@ import {
   customers,
   jobs,
   jobStatusHistory,
-  technicians
+  teamMembers
 } from '../../infrastructure/database/schema/index'
 
 export async function findPublicJobByShareToken(
@@ -24,12 +24,12 @@ export async function findPublicJobByShareToken(
       companyName: companies.name,
       companyPrimaryColor: companies.primaryColor,
       customerName: customers.name,
-      technicianName: technicians.name
+      teamMemberName: teamMembers.name
     })
     .from(jobs)
     .innerJoin(companies, eq(jobs.companyId, companies.id))
     .innerJoin(customers, eq(jobs.customerId, customers.id))
-    .leftJoin(technicians, eq(jobs.assignedTechnicianId, technicians.id))
+    .leftJoin(teamMembers, eq(jobs.assignedTeamMemberId, teamMembers.id))
     .where(eq(jobs.shareToken, token))
 
   if (!jobRow) {
@@ -60,7 +60,7 @@ export async function findPublicJobByShareToken(
     companyPrimaryColor: jobRow.companyPrimaryColor || '#0d9488',
     status: jobRow.status as JobStatus,
     customerName: jobRow.customerName,
-    technicianName: jobRow.technicianName || null,
+    teamMemberName: jobRow.teamMemberName || null,
     scheduledAt: jobRow.scheduledAt ? dayjs(jobRow.scheduledAt).toISOString() : null,
     updatedAt: dayjs(jobRow.updatedAt).toISOString(),
     notes: jobRow.notes || null,

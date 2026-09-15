@@ -1,25 +1,25 @@
 import { Request, RequestHandler, Response } from 'express'
-import * as technicianService from './technician.service'
+import * as teamMemberService from './team.service'
 import {
-  createTechnicianSchema,
+  createTeamMemberSchema,
   nearbyQuerySchema,
   updateLocationSchema
-} from './technician.schema'
+} from './team.schema'
 import { asyncHandler } from '../../middleware/error-handler'
 import { sendSuccess } from '../../common/response-handler'
 import { HttpStatus } from '../../common/http-status'
 
-export const listTechnicians: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+export const listTeamMembers: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const companyId = req.auth!.companyId
-  const technicians = await technicianService.getCompanyTechnicians(companyId)
-  sendSuccess(res, technicians)
+  const teamMembers = await teamMemberService.getCompanyTeamMembers(companyId)
+  sendSuccess(res, teamMembers)
 })
 
-export const nearbyTechnicians: RequestHandler = asyncHandler(
+export const nearbyTeamMembers: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const companyId = req.auth!.companyId
     const query = nearbyQuerySchema.parse(req.query)
-    const results = await technicianService.getNearbyTechnicians({
+    const results = await teamMemberService.getNearbyTeamMembers({
       companyId,
       lat: query.lat,
       lng: query.lng,
@@ -29,27 +29,27 @@ export const nearbyTechnicians: RequestHandler = asyncHandler(
   }
 )
 
-export const createTechnician: RequestHandler = asyncHandler(
+export const createTeamMember: RequestHandler = asyncHandler(
   async (req: Request, res: Response) => {
     const companyId = req.auth!.companyId
     const userId = req.auth!.userId
-    const parsed = createTechnicianSchema.parse(req.body)
+    const parsed = createTeamMemberSchema.parse(req.body)
 
-    const technician = await technicianService.createTechnician({
+    const teamMember = await teamMemberService.createTeamMember({
       ...parsed,
       companyId,
       createdBy: userId
     })
 
-    sendSuccess(res, technician, 'Technician created successfully.', HttpStatus.CREATED)
+    sendSuccess(res, teamMember, 'TeamMember created successfully.', HttpStatus.CREATED)
   }
 )
 
 export const updateLocation: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const companyId = req.auth!.companyId
-  const technicianId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
+  const teamMemberId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id
   const coords = updateLocationSchema.parse(req.body)
 
-  const updated = await technicianService.updateTechnicianLocation(technicianId, companyId, coords)
-  sendSuccess(res, updated, 'Technician location updated successfully.')
+  const updated = await teamMemberService.updateTeamMemberLocation(teamMemberId, companyId, coords)
+  sendSuccess(res, updated, 'TeamMember location updated successfully.')
 })
