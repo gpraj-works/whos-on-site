@@ -4,7 +4,7 @@ import { env } from '../../config/env'
 import { logger } from '../logging/logger'
 import { socketAuthMiddleware, AuthenticatedSocketData } from './socket.auth'
 import { joinCompanyRoom } from './socket.rooms'
-import { updateTeamMemberLocation, getTeamMemberByUserId } from '../../modules/team/team.service'
+import { updateAgentLocation, getAgentByUserId } from '../../modules/agents/agent.service'
 
 let io: SocketIoServer | null = null
 
@@ -39,20 +39,20 @@ export function initSocketServer(httpServer: HttpServer): SocketIoServer {
     joinCompanyRoom(socket)
 
     // Handle incoming client location:ping event
-    socket.on('location:ping', async (data: { lat: number; lng: number; teamMemberId?: string }) => {
+    socket.on('location:ping', async (data: { lat: number; lng: number; agentId?: string }) => {
       try {
         if (!authData) return
 
-        let techId = data.teamMemberId
+        let techId = data.agentId
         if (!techId) {
-          const tech = await getTeamMemberByUserId(authData.userId, authData.companyId)
+          const tech = await getAgentByUserId(authData.userId, authData.companyId)
           if (tech) {
             techId = tech.id
           }
         }
 
         if (techId && typeof data.lat === 'number' && typeof data.lng === 'number') {
-          await updateTeamMemberLocation(techId, authData.companyId, {
+          await updateAgentLocation(techId, authData.companyId, {
             lat: data.lat,
             lng: data.lng
           })

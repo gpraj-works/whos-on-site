@@ -3,26 +3,26 @@ import { Button, Group, Modal, Select, Stack, Text } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useTeamMembers } from '../team/queries'
+import { useAgents } from '../agents/queries'
 import { useAssignJob, useUnassignJob } from './queries'
 
-interface AssignTeamMemberModalProps {
+interface AssignAgentModalProps {
   opened: boolean
   onClose: () => void
   jobId: string | null
-  currentTeamMemberId?: string | null
-  currentTeamMemberName?: string | null
+  currentAgentId?: string | null
+  currentAgentName?: string | null
 }
 
-export const AssignTeamMemberModal: React.FC<AssignTeamMemberModalProps> = ({
+export const AssignAgentModal: React.FC<AssignAgentModalProps> = ({
   opened,
   onClose,
   jobId,
-  currentTeamMemberId,
-  currentTeamMemberName
+  currentAgentId,
+  currentAgentName
 }) => {
   const { t } = useTranslation()
-  const { data: teamMembers = [], isLoading: isLoadingTechs } = useTeamMembers()
+  const { data: agents = [], isLoading: isLoadingTechs } = useAgents()
   const assignJobMutation = useAssignJob()
   const unassignJobMutation = useUnassignJob()
 
@@ -40,12 +40,12 @@ export const AssignTeamMemberModal: React.FC<AssignTeamMemberModalProps> = ({
     setValidationError(null)
 
     if (!selectedTechId) {
-      setValidationError('Please select a teamMember to assign.')
+      setValidationError('Please select an agent to assign.')
       return
     }
 
     try {
-      await assignJobMutation.mutateAsync({ id: jobId, teamMemberId: selectedTechId })
+      await assignJobMutation.mutateAsync({ id: jobId, agentId: selectedTechId })
       handleClose()
     } catch {
       // Error caught by assignJobMutation.error
@@ -64,7 +64,7 @@ export const AssignTeamMemberModal: React.FC<AssignTeamMemberModalProps> = ({
     }
   }
 
-  const techSelectData = teamMembers.map((tech) => ({
+  const techSelectData = agents.map((tech) => ({
     value: tech.id,
     label: `${tech.name} (${tech.phone}) — ${tech.status}`
   }))
@@ -73,28 +73,28 @@ export const AssignTeamMemberModal: React.FC<AssignTeamMemberModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={t('jobs.assignTitle', 'Assign TeamMember')}
+      title={t('jobs.assignTitle', 'Assign Agent')}
       centered
       radius="md"
     >
       <Stack gap="md">
         <ApiErrorAlert error={assignJobMutation.error || unassignJobMutation.error} />
 
-        {currentTeamMemberId && (
+        {currentAgentId && (
           <Text size="sm" c="dimmed">
             Currently assigned to:{' '}
             <Text span fw={700} c="var(--mantine-color-text)">
-              {currentTeamMemberName || currentTeamMemberId}
+              {currentAgentName || currentAgentId}
             </Text>
           </Text>
         )}
 
         <Select
-          label={t('jobs.selectTeamMember', 'Select Field TeamMember')}
+          label={t('jobs.selectAgent', 'Select Field Agent')}
           placeholder={
             isLoadingTechs
-              ? t('common.loading', 'Loading teamMembers...')
-              : t('jobs.chooseTeamMember', 'Choose an available teamMember')
+              ? t('common.loading', 'Loading agents...')
+              : t('jobs.chooseAgent', 'Choose an available agent')
           }
           data={techSelectData}
           value={selectedTechId}
@@ -109,14 +109,14 @@ export const AssignTeamMemberModal: React.FC<AssignTeamMemberModalProps> = ({
         />
 
         <Group justify="space-between" mt="sm">
-          {currentTeamMemberId ? (
+          {currentAgentId ? (
             <Button
               color="red"
               variant="light"
               onClick={handleUnassign}
               loading={unassignJobMutation.isPending}
             >
-              {t('jobs.unassignButton', 'Unassign Current TeamMember')}
+              {t('jobs.unassignButton', 'Unassign Current Agent')}
             </Button>
           ) : (
             <div />

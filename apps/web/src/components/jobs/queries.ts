@@ -73,8 +73,8 @@ export function useCancelJob() {
 export function useAssignJob() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, teamMemberId }: { id: string; teamMemberId: string }) =>
-      assignJob(id, teamMemberId),
+    mutationFn: ({ id, agentId }: { id: string; agentId: string }) =>
+      assignJob(id, agentId),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: jobKeys.lists() })
       queryClient.invalidateQueries({ queryKey: jobKeys.detail(id) })

@@ -13,7 +13,7 @@ import {
   jobAssignments,
   jobs,
   jobStatusHistory,
-  teamMembers,
+  agents,
   users
 } from '../../infrastructure/database/schema/index'
 import {
@@ -57,8 +57,8 @@ function mapJobRow(row: Record<string, unknown>): JobDto {
     location: (row.location as Coordinates | null) || null,
     status: row.status as JobStatus,
     scheduledAt: row.scheduledAt ? dayjs(row.scheduledAt as Date | string).toISOString() : null,
-    assignedTeamMemberId: (row.assignedTeamMemberId as string | null) || null,
-    assignedTeamMemberName: (row.assignedTeamMemberName as string | null) || null,
+    assignedAgentId: (row.assignedAgentId as string | null) || null,
+    assignedAgentName: (row.assignedAgentName as string | null) || null,
     notes: (row.notes as string | null) || null,
     createdAt: dayjs(row.createdAt as Date | string).toISOString(),
     updatedAt: dayjs(row.updatedAt as Date | string).toISOString()
@@ -102,8 +102,8 @@ export async function findJobById(
       location: jobs.location,
       status: jobs.status,
       scheduledAt: jobs.scheduledAt,
-      assignedTeamMemberId: jobs.assignedTeamMemberId,
-      assignedTeamMemberName: teamMembers.name,
+      assignedAgentId: jobs.assignedAgentId,
+      assignedAgentName: agents.name,
       notes: jobs.notes,
       createdAt: jobs.createdAt,
       updatedAt: jobs.updatedAt,
@@ -118,7 +118,7 @@ export async function findJobById(
       customerUpdatedAt: customers.updatedAt
     })
     .from(jobs)
-    .leftJoin(teamMembers, eq(jobs.assignedTeamMemberId, teamMembers.id))
+    .leftJoin(agents, eq(jobs.assignedAgentId, agents.id))
     .leftJoin(customers, eq(jobs.customerId, customers.id))
     .where(and(eq(jobs.id, id), eq(jobs.companyId, companyId)))
 
@@ -126,7 +126,7 @@ export async function findJobById(
   return mapJobRow(row)
 }
 
-/** Find jobs with filters (status, teamMember, date, pagination) */
+/** Find jobs with filters (status, agent, date, pagination) */
 export async function findJobs(
   params: JobFilterParams,
   client: DatabaseClient = db
@@ -137,8 +137,8 @@ export async function findJobs(
     conditions.push(eq(jobs.status, params.status))
   }
 
-  if (params.assignedTeamMemberId) {
-    conditions.push(eq(jobs.assignedTeamMemberId, params.assignedTeamMemberId))
+  if (params.assignedAgentId) {
+    conditions.push(eq(jobs.assignedAgentId, params.assignedAgentId))
   }
 
   if (params.date) {
@@ -162,8 +162,8 @@ export async function findJobs(
       location: jobs.location,
       status: jobs.status,
       scheduledAt: jobs.scheduledAt,
-      assignedTeamMemberId: jobs.assignedTeamMemberId,
-      assignedTeamMemberName: teamMembers.name,
+      assignedAgentId: jobs.assignedAgentId,
+      assignedAgentName: agents.name,
       notes: jobs.notes,
       createdAt: jobs.createdAt,
       updatedAt: jobs.updatedAt,
@@ -178,7 +178,7 @@ export async function findJobs(
       customerUpdatedAt: customers.updatedAt
     })
     .from(jobs)
-    .leftJoin(teamMembers, eq(jobs.assignedTeamMemberId, teamMembers.id))
+    .leftJoin(agents, eq(jobs.assignedAgentId, agents.id))
     .leftJoin(customers, eq(jobs.customerId, customers.id))
     .where(and(...conditions))
     .orderBy(desc(jobs.createdAt))
@@ -243,17 +243,17 @@ export async function updateJobStatus(
   return findJobById(id, companyId, client)
 }
 
-/** Update job teamMember assignment */
+/** Update job agent assignment */
 export async function updateJobAssignment(
   id: string,
   companyId: string,
-  teamMemberId: string | null,
+  agentId: string | null,
   client: DatabaseClient = db
 ): Promise<JobDto | null> {
   const [row] = await client
     .update(jobs)
     .set({
-      assignedTeamMemberId: teamMemberId,
+      assignedAgentId: agentId,
       updatedAt: dayjs().toDate()
     })
     .where(and(eq(jobs.id, id), eq(jobs.companyId, companyId)))
@@ -330,7 +330,7 @@ export async function createAssignmentRecord(
     .values({
       companyId: data.companyId,
       jobId: data.jobId,
-      teamMemberId: data.teamMemberId,
+      agentId: data.agentId,
       assignedBy: data.assignedBy || null,
       assignedAt: dayjs().toDate()
     })

@@ -1,6 +1,6 @@
 import { index, pgTable, timestamp, uuid } from 'drizzle-orm/pg-core'
 import { jobs } from './jobs'
-import { teamMembers } from './team-members'
+import { agents } from './agents'
 import { users } from './users'
 import { companyId } from './company'
 
@@ -12,8 +12,8 @@ export const jobAssignments = pgTable(
     jobId: uuid('job_id')
       .references(() => jobs.id, { onDelete: 'cascade' })
       .notNull(),
-    teamMemberId: uuid('team_member_id')
-      .references(() => teamMembers.id, { onDelete: 'cascade' })
+    agentId: uuid('agent_id')
+      .references(() => agents.id, { onDelete: 'cascade' })
       .notNull(),
     assignedAt: timestamp('assigned_at', { withTimezone: true }).defaultNow().notNull(),
     assignedBy: uuid('assigned_by').references(() => users.id, { onDelete: 'set null' })

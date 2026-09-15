@@ -71,32 +71,32 @@ export const deleteJobController: RequestHandler = asyncHandler(async (req, res)
   return sendSuccess(res, cancelled, 'Job cancelled successfully', HttpStatus.OK)
 })
 
-/** Assign teamMember endpoint handler */
+/** Assign agent endpoint handler */
 export const assignJobController: RequestHandler = asyncHandler(async (req, res) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
   const userId = req.auth.userId
   const id = req.params.id as string
-  const { teamMemberId } = assignJobSchema.parse(req.body)
+  const { agentId } = assignJobSchema.parse(req.body)
 
-  const assigned = await assignmentService.assignTeamMemberToJob(
+  const assigned = await assignmentService.assignAgentToJob(
     id,
-    teamMemberId,
+    agentId,
     companyId,
     userId
   )
-  return sendSuccess(res, assigned, 'TeamMember assigned successfully', HttpStatus.OK)
+  return sendSuccess(res, assigned, 'Agent assigned successfully', HttpStatus.OK)
 })
 
-/** Unassign teamMember endpoint handler */
+/** Unassign agent endpoint handler */
 export const unassignJobController: RequestHandler = asyncHandler(async (req, res) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
   const userId = req.auth.userId
   const id = req.params.id as string
 
-  const unassigned = await assignmentService.unassignTeamMemberFromJob(id, companyId, userId)
-  return sendSuccess(res, unassigned, 'TeamMember unassigned successfully', HttpStatus.OK)
+  const unassigned = await assignmentService.unassignAgentFromJob(id, companyId, userId)
+  return sendSuccess(res, unassigned, 'Agent unassigned successfully', HttpStatus.OK)
 })
 
 /** Change job status endpoint handler */

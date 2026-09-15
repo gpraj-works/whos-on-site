@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { JobDto, JobStatus, TeamMemberDto, TeamMemberStatus } from '@whosonsite/shared'
+import { JobDto, JobStatus, AgentDto, AgentStatus } from '@whosonsite/shared'
 import L from 'leaflet'
 import { Maximize2, Minimize2 } from 'lucide-react'
 
@@ -15,12 +15,11 @@ import {
 } from '../../app/theme'
 
 interface JobMapProps {
-  jobs: JobDto[]
-  teamMembers: TeamMemberDto[]
+  agents: AgentDto[]
   selectedJobId?: string | null
-  selectedTeamMemberId?: string | null
+  selectedAgentId?: string | null
   onSelectJob?: (job: JobDto) => void
-  onSelectTeamMember?: (tech: TeamMemberDto) => void
+  onSelectAgent?: (tech: AgentDto) => void
   onAssignJob?: (job: JobDto) => void
 }
 
@@ -118,7 +117,7 @@ function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon 
   })
 }
 
-function createTeamMemberMarkerIcon(status: TeamMemberStatus, isSelected: boolean): L.DivIcon {
+function createAgentMarkerIcon(status: AgentStatus, isSelected: boolean): L.DivIcon {
   const color = TECHNICIAN_STATUS_HEX_COLORS[status] || '#868e96'
   const scaleCss = isSelected ? 'transform: scale(1.2);' : ''
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
@@ -152,10 +151,10 @@ function createTeamMemberMarkerIcon(status: TeamMemberStatus, isSelected: boolea
 
 const MapAutoController: React.FC<{
   jobsWithCoords: Array<{ job: JobDto; coords: [number, number] }>
-  techsWithCoords: Array<{ tech: TeamMemberDto; coords: [number, number] }>
+  agentsWithCoords: Array<{ tech: AgentDto; coords: [number, number] }>
   focusedCoords: [number, number] | null
   isMaximized: boolean
-}> = ({ jobsWithCoords, techsWithCoords, focusedCoords, isMaximized }) => {
+}> = ({ jobsWithCoords, agentsWithCoords, focusedCoords, isMaximized }) => {
   const map = useMap()
 
   useEffect(() => {
@@ -173,25 +172,25 @@ const MapAutoController: React.FC<{
 
     const points: [number, number][] = [
       ...jobsWithCoords.map((item) => item.coords),
-      ...techsWithCoords.map((item) => item.coords)
+      ...agentsWithCoords.map((item) => item.coords)
     ]
 
     if (points.length > 0) {
       const bounds = L.latLngBounds(points)
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15, animate: true })
     }
-  }, [map, jobsWithCoords, techsWithCoords, focusedCoords])
+  }, [map, jobsWithCoords, agentsWithCoords, focusedCoords])
 
   return null
 }
 
 export const JobMap: React.FC<JobMapProps> = ({
   jobs,
-  teamMembers,
+  agents,
   selectedJobId,
-  selectedTeamMemberId,
+  selectedAgentId,
   onSelectJob,
-  onSelectTeamMember,
+  onSelectAgent,
   onAssignJob
 }) => {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -211,17 +210,17 @@ export const JobMap: React.FC<JobMapProps> = ({
     .map((j) => ({ job: j, coords: extractCoords(j.location, j.customer?.address) }))
     .filter((item): item is { job: JobDto; coords: [number, number] } => item.coords !== null)
 
-  const techsWithCoords = teamMembers
+  const agentsWithCoords = agents
     .map((t) => ({ tech: t, coords: extractCoords(t.location) }))
-    .filter((item): item is { tech: TeamMemberDto; coords: [number, number] } => item.coords !== null)
+    .filter((item): item is { tech: AgentDto; coords: [number, number] } => item.coords !== null)
 
   // Determine focused coords if selected job or teamMember is specified
   let focusedCoords: [number, number] | null = null
   if (selectedJobId) {
     const found = jobsWithCoords.find((item) => item.job.id === selectedJobId)
     if (found) focusedCoords = found.coords
-  } else if (selectedTeamMemberId) {
-    const found = techsWithCoords.find((item) => item.tech.id === selectedTeamMemberId)
+  } else if (selectedAgentId) {
+    const found = agentsWithCoords.find((item) => item.tech.id === selectedAgentId)
     if (found) focusedCoords = found.coords
   }
 
@@ -246,10 +245,12 @@ export const JobMap: React.FC<JobMapProps> = ({
           : {
               width: '100%',
               height: '100%',
-              minHeight: '500px',
+              minHeight: '300px',
               overflow: 'hidden',
               position: 'relative',
-              zIndex: 1
+              zIndex: 1,
+              display: 'flex',
+              flexDirection: 'column'
             }
       }
     >
@@ -274,7 +275,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                 {jobsWithCoords.length} Jobs on map
               </Badge>
               <Badge variant="light" color="green">
-                {techsWithCoords.length} TeamMembers
+                {agentsWithCoords.length} Agents
               </Badge>
             </Group>
             <Button
@@ -314,7 +315,7 @@ export const JobMap: React.FC<JobMapProps> = ({
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
-        style={{ width: '100%', flex: 1, minHeight: '500px', zIndex: 1 }}
+        style={{ width: '100%', height: '100%', flex: 1, zIndex: 1 }}
         scrollWheelZoom={true}
       >
         <TileLayer
@@ -324,7 +325,7 @@ export const JobMap: React.FC<JobMapProps> = ({
 
         <MapAutoController
           jobsWithCoords={jobsWithCoords}
-          techsWithCoords={techsWithCoords}
+          agentsWithCoords={agentsWithCoords}
           focusedCoords={focusedCoords}
           isMaximized={isMaximized}
         />
@@ -362,9 +363,9 @@ export const JobMap: React.FC<JobMapProps> = ({
                     </Text>
                   </div>
 
-                  {job.assignedTeamMemberName ? (
+                  {job.assignedAgentName ? (
                     <Text size="xs">
-                      <strong>Assigned:</strong> {job.assignedTeamMemberName}
+                      <strong>Assigned:</strong> {job.assignedAgentName}
                     </Text>
                   ) : (
                     <Text size="xs" c="orange">
@@ -385,7 +386,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                       fullWidth
                       onClick={() => onAssignJob(job)}
                     >
-                      Assign TeamMember
+                      Assign Agent
                     </Button>
                   )}
                 </Stack>
@@ -394,17 +395,17 @@ export const JobMap: React.FC<JobMapProps> = ({
           )
         })}
 
-        {/* Render TeamMember Markers */}
-        {techsWithCoords.map(({ tech, coords }) => {
-          const isSelected = tech.id === selectedTeamMemberId
+        {/* Render Agent Markers */}
+        {agentsWithCoords.map(({ tech, coords }) => {
+          const isSelected = tech.id === selectedAgentId
 
           return (
             <Marker
               key={`tech-${tech.id}`}
               position={coords}
-              icon={createTeamMemberMarkerIcon(tech.status, isSelected)}
+              icon={createAgentMarkerIcon(tech.status, isSelected)}
               eventHandlers={{
-                click: () => onSelectTeamMember?.(tech)
+                click: () => onSelectAgent?.(tech)
               }}
             >
               <Popup>

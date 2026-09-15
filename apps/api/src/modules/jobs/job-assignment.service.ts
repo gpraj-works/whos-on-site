@@ -3,14 +3,14 @@ import { BadRequestError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
-import { findTeamMemberById } from '../team/team.repository'
+import { findAgentById } from '../agents/agent.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
 
-/** Assign a teamMember to a job within an atomic transaction */
-export async function assignTeamMemberToJob(
+/** Assign a agent to a job within an atomic transaction */
+export async function assignAgentToJob(
   jobId: string,
-  teamMemberId: string,
+  agentId: string,
   companyId: string,
   userId: string
 ): Promise<JobDto> {
@@ -20,15 +20,15 @@ export async function assignTeamMemberToJob(
     throw new NotFoundError('Job not found')
   }
 
-  // Verify teamMember belongs to company
-  const tech = await findTeamMemberById(teamMemberId, companyId)
+  // Verify agent belongs to company
+  const tech = await findAgentById(agentId, companyId)
   if (!tech) {
-    throw new NotFoundError('TeamMember not found or does not belong to company')
+    throw new NotFoundError('Agent not found or does not belong to company')
   }
 
   // Check if job is in a valid state to assign
   if (job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
-    throw new BadRequestError(`Cannot assign teamMember to a job that is '${job.status}'`)
+    throw new BadRequestError(`Cannot assign agent to a job that is '${job.status}'`)
   }
 
   const updatedJob = await withTransaction(async (tx) => {
@@ -37,14 +37,14 @@ export async function assignTeamMemberToJob(
       {
         companyId,
         jobId,
-        teamMemberId,
+        agentId,
         assignedBy: userId
       },
       tx
     )
 
     // Update job assignment column
-    await jobRepo.updateJobAssignment(jobId, companyId, teamMemberId, tx)
+    await jobRepo.updateJobAssignment(jobId, companyId, agentId, tx)
 
     // Transition status to ASSIGNED if currently UNASSIGNED
     if (job.status === JobStatus.UNASSIGNED) {
@@ -57,7 +57,7 @@ export async function assignTeamMemberToJob(
             fromStatus: JobStatus.UNASSIGNED,
             toStatus: JobStatus.ASSIGNED,
             changedBy: userId,
-            note: `Assigned to teamMember ${tech.name}`
+            note: `Assigned to agent ${tech.name}`
           },
           tx
         )
@@ -75,7 +75,7 @@ export async function assignTeamMemberToJob(
   emitToCompany<JobAssignedEvent>(companyId, 'job:assigned', {
     companyId,
     jobId: updatedJob.id,
-    teamMemberId,
+    agentId,
     assignedAt: new Date().toISOString()
   })
 
@@ -86,7 +86,7 @@ export async function assignTeamMemberToJob(
     type: 'tech_assigned',
     payload: {
       jobId: updatedJob.id,
-      teamMemberId,
+      agentId,
       assignedBy: userId
     }
   })
@@ -94,8 +94,8 @@ export async function assignTeamMemberToJob(
   return updatedJob
 }
 
-/** Unassign a teamMember from a job within an atomic transaction */
-export async function unassignTeamMemberFromJob(
+/** Unassign a agent from a job within an atomic transaction */
+export async function unassignAgentFromJob(
   jobId: string,
   companyId: string,
   userId: string
@@ -105,12 +105,12 @@ export async function unassignTeamMemberFromJob(
     throw new NotFoundError('Job not found')
   }
 
-  if (!job.assignedTeamMemberId) {
-    throw new BadRequestError('Job is not currently assigned to any teamMember')
+  if (!job.assignedAgentId) {
+    throw new BadRequestError('Job is not currently assigned to any agent')
   }
 
   if (job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
-    throw new BadRequestError(`Cannot unassign teamMember from a job that is '${job.status}'`)
+    throw new BadRequestError(`Cannot unassign agent from a job that is '${job.status}'`)
   }
 
   return withTransaction(async (tx) => {
@@ -125,7 +125,7 @@ export async function unassignTeamMemberFromJob(
           fromStatus: JobStatus.ASSIGNED,
           toStatus: JobStatus.UNASSIGNED,
           changedBy: userId,
-          note: 'Unassigned teamMember'
+          note: 'Unassigned agent'
         },
         tx
       )

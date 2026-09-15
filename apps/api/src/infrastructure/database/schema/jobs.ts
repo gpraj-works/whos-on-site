@@ -1,5 +1,5 @@
 import { index, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
-import { teamMembers } from './team-members'
+import { agents } from './agents'
 import { customers } from './customers'
 import { postgisGeometry } from '../custom-types/postgis'
 import { timestamps } from './common'
@@ -27,7 +27,7 @@ export const jobs = pgTable(
     location: postgisGeometry('location'),
     status: jobStatusEnum('status').default('unassigned').notNull(),
     scheduledAt: timestamp('scheduled_at', { withTimezone: true }),
-    assignedTeamMemberId: uuid('assigned_team_member_id').references(() => teamMembers.id, {
+    assignedAgentId: uuid('assigned_agent_id').references(() => agents.id, {
       onDelete: 'set null'
     }),
     notes: text('notes'),
@@ -36,7 +36,7 @@ export const jobs = pgTable(
   },
   (table) => [
     index('jobs_company_status_idx').on(table.companyId, table.status),
-    index('jobs_assigned_team_member_id_idx').on(table.assignedTeamMemberId),
+    index('jobs_assigned_agent_id_idx').on(table.assignedAgentId),
     index('jobs_customer_id_idx').on(table.customerId),
     uniqueIndex('jobs_share_token_idx').on(table.shareToken)
   ]

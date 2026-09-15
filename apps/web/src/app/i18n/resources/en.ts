@@ -8,7 +8,7 @@ export const en = {
       dashboard: 'Dashboard',
       dispatch: 'Jobs',
       jobs: 'Jobs',
-      teamMembers: 'TeamMembers',
+      agents: 'Agents',
       customers: 'Customers',
       analytics: 'Analytics',
       settings: 'Settings'
@@ -56,9 +56,9 @@ export const en = {
     },
     dashboard: {
       activeJobs: 'Active Jobs',
-      teamMembersOnline: 'TeamMembers Online',
+      agentsOnline: 'Agents Online',
       completedToday: 'Completed Jobs',
-      totalTeamMembers: 'Total TeamMembers'
+      totalAgents: 'Total Agents'
     },
     jobs: {
       title: 'Jobs',
@@ -82,16 +82,16 @@ export const en = {
       notes: 'Description',
       notesPlaceholder: 'Enter job service details or instructions',
       createSubmit: 'Add',
-      assignTitle: 'Assign TeamMember',
-      selectTeamMember: 'Select Field TeamMember',
-      chooseTeamMember: 'Choose an available teamMember',
+      assignTitle: 'Assign Agent',
+      selectAgent: 'Select Field Agent',
+      chooseAgent: 'Choose an available agent',
       assignConfirm: 'Update',
-      unassignButton: 'Unassign Current TeamMember',
+      unassignButton: 'Unassign Current Agent',
       noCustomer: 'Unassigned Customer',
       status: 'Status',
-      teamMember: 'TeamMember',
-      assignTeamMember: 'Assign TeamMember',
-      reassignTeamMember: 'Reassign Tech',
+      agent: 'Agent',
+      assignAgent: 'Assign Agent',
+      reassignAgent: 'Reassign Tech',
       markEnRoute: 'Start En Route',
       markOnSite: 'Arrive On Site',
       markComplete: 'Complete Job',
@@ -113,8 +113,8 @@ export const en = {
       title: 'Job Status Page',
       subtitle: 'Real-time status tracking for customer jobs',
       customer: 'Customer',
-      teamMember: 'Assigned TeamMember',
-      unassignedTech: 'Awaiting teamMember assignment',
+      agent: 'Assigned Agent',
+      unassignedTech: 'Awaiting agent assignment',
       scheduledAt: 'Scheduled Time',
       lastUpdated: 'Last Updated',
       timeline: 'Service Progress',
@@ -123,12 +123,12 @@ export const en = {
       notFoundTitle: 'Status Link Expired or Not Found',
       notFoundSubtitle: 'This public customer share link may have expired or is invalid.'
     },
-    teamMembers: {
-      title: 'TeamMembers',
+    agents: {
+      title: 'Agents',
       subtitle:
-        'Real-time teamMember availability, status tracking, and location readiness',
-      createTitle: 'New TeamMember',
-      name: 'TeamMember',
+        'Real-time agent availability, status tracking, and location readiness',
+      createTitle: 'New Agent',
+      name: 'Agent',
       status: 'Status',
       phone: 'Phone Number',
       location: 'Last Known Location',

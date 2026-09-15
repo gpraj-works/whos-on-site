@@ -6,7 +6,7 @@ export interface JobCreatedEvent {
   jobId: string
   customerId?: string
   status: JobStatus
-  assignedTeamMemberId?: string | null
+  assignedAgentId?: string | null
   createdAt?: string
   job?: JobDto
 }
@@ -15,7 +15,7 @@ export interface JobUpdatedEvent {
   companyId: string
   jobId: string
   status?: JobStatus
-  assignedTeamMemberId?: string | null
+  assignedAgentId?: string | null
   notes?: string | null
   updatedAt?: string
   job?: JobDto
@@ -24,7 +24,7 @@ export interface JobUpdatedEvent {
 export interface JobAssignedEvent {
   companyId: string
   jobId: string
-  teamMemberId: string
+  agentId: string
   assignedAt?: string
 }
 

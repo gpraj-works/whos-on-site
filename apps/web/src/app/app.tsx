@@ -7,7 +7,7 @@ import { AuthProvider } from '../components/auth/AuthContext'
 import { DispatcherOnly } from '../components/auth/DispatcherOnly'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
-import { TeamMemberOnly } from '../components/auth/TeamMemberOnly'
+import { AgentOnly } from '../components/auth/AgentOnly'
 import { Analytics } from '../pages/Analytics'
 import { CustomerStatusPage } from '../pages/CustomerStatusPage'
 import { Customers } from '../pages/Customers'
@@ -15,8 +15,8 @@ import { Dashboard } from '../pages/Dashboard'
 import { Jobs } from '../pages/Jobs'
 import { Login } from '../pages/Login'
 import { Settings } from '../pages/Settings'
-import { TeamMemberJobs } from '../pages/TeamMemberJobs'
-import { Team } from '../pages/Team'
+import { AgentJobs } from '../pages/AgentJobs'
+import { Agents } from '../pages/Agents'
 import { store } from '../store'
 import { queryClient } from './query/client'
 import { ThemeProvider } from './theme/ThemeContext'
@@ -44,9 +44,9 @@ export const App: React.FC = () => {
                   <Route
                     path="/my-jobs"
                     element={
-                      <TeamMemberOnly>
-                        <TeamMemberJobs />
-                      </TeamMemberOnly>
+                      <AgentOnly>
+                        <AgentJobs />
+                      </AgentOnly>
                     }
                   />
                   <Route
@@ -65,7 +65,7 @@ export const App: React.FC = () => {
                       </DispatcherOnly>
                     }
                   />
-                  <Route path="/team" element={<Team />} />
+                  <Route path="/agents" element={<Agents />} />
                   <Route path="/customers" element={<Customers />} />
                   <Route path="/settings" element={<Settings />} />
                 </Route>

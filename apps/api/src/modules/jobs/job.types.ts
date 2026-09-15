@@ -20,7 +20,7 @@ export interface UpdateJobData {
 export interface JobFilterParams {
   companyId: string
   status?: JobStatus
-  assignedTeamMemberId?: string
+  assignedAgentId?: string
   date?: string
   limit?: number
   offset?: number
@@ -38,6 +38,6 @@ export interface CreateStatusHistoryData {
 export interface CreateAssignmentData {
   companyId: string
   jobId: string
-  teamMemberId: string
+  agentId: string
   assignedBy?: string
 }

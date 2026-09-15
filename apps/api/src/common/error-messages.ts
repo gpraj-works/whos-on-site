@@ -18,6 +18,6 @@ export const ErrorMessages = {
 
   // Resource / Entity
   NOT_FOUND: 'The requested resource was not found.',
-  TECHNICIAN_NOT_FOUND: 'TeamMember not found or does not belong to your company.',
+  AGENT_NOT_FOUND: 'Agent not found or does not belong to your company.',
   USER_NOT_FOUND: 'User associated with this token no longer exists.'
 } as const

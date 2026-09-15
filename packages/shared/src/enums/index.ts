@@ -2,10 +2,10 @@ export enum UserRole {
   OWNER = 'owner',
   ADMIN = 'admin',
   DISPATCHER = 'dispatcher',
-  TEAM_MEMBER = 'team_member'
+  AGENT = 'agent'
 }
 
-export enum TeamMemberStatus {
+export enum AgentStatus {
   AVAILABLE = 'available',
   BUSY = 'busy',
   OFFLINE = 'offline'

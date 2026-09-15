@@ -2,10 +2,11 @@ import React, { useMemo, useState } from 'react'
 import {
   ActionIcon,
   Badge,
+  Box,
   Button,
   Card,
   Container,
-  Grid,
+  Flex,
   Group,
   Paper,
   ScrollArea,
@@ -22,11 +23,11 @@ import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { JobMap } from '../components/jobs/JobMap'
-import { AssignTeamMemberModal } from '../components/jobs/AssignModal'
+import { AssignAgentModal } from '../components/jobs/AssignModal'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { CreateJobModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
-import { useTeamMembers } from '../components/team/queries'
+import { useAgents } from '../components/agents/queries'
 import { formatDateTime } from '../lib/date/format'
 
 export const Jobs: React.FC = () => {
@@ -34,12 +35,12 @@ export const Jobs: React.FC = () => {
   const { primaryColor } = useAppTheme()
 
   const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
-  const { data: teamMembers = [] } = useTeamMembers()
+  const { data: agents = [] } = useAgents()
 
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
-  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<string | null>(null)
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null)
 
   const [createModalOpened, setCreateModalOpened] = useState(false)
   const [assignModalJob, setAssignModalJob] = useState<JobDto | null>(null)
@@ -63,7 +64,7 @@ export const Jobs: React.FC = () => {
         job.id.toLowerCase().includes(q) ||
         job.customer?.name.toLowerCase().includes(q) ||
         job.customer?.address.toLowerCase().includes(q) ||
-        (job.assignedTeamMemberName && job.assignedTeamMemberName.toLowerCase().includes(q)) ||
+        (job.assignedAgentName && job.assignedAgentName.toLowerCase().includes(q)) ||
         (job.notes && job.notes.toLowerCase().includes(q))
 
       return matchesStatus && matchesSearch
@@ -102,10 +103,15 @@ export const Jobs: React.FC = () => {
           }
         />
 
-        <Grid style={{ flex: 1, minHeight: 0 }} gutter="sm">
+        <Flex direction={{ base: 'column', md: 'row' }} style={{ flex: 1, minHeight: 0 }} gap="sm">
           {/* Left Column: Job Board & Filters */}
-          <Grid.Col span={{ base: 12, md: 5, lg: 4 }} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Paper radius="md" p="sm" withBorder style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          <Paper
+            w={{ base: '100%', md: '40%', lg: '33%' }}
+            radius="md"
+            p="sm"
+            withBorder
+            style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}
+          >
               <Stack gap="xs" mb="sm">
                 <TextInput
                   placeholder={t('dispatch.searchPlaceholder', 'Search customer, address, tech...')}
@@ -190,7 +196,7 @@ export const Jobs: React.FC = () => {
                           }}
                           onClick={() => {
                             setSelectedJobId(job.id)
-                            setSelectedTeamMemberId(null)
+                            setSelectedAgentId(null)
                           }}
                         >
                           <Stack gap={4}>
@@ -206,7 +212,7 @@ export const Jobs: React.FC = () => {
                                       onClick={(e) => {
                                         e.stopPropagation()
                                         setSelectedJobId(job.id)
-                                        setSelectedTeamMemberId(null)
+                                        setSelectedAgentId(null)
                                       }}
                                     >
                                       <Navigation size={14} />
@@ -240,9 +246,9 @@ export const Jobs: React.FC = () => {
                             )}
 
                             <Group justify="space-between" align="center" mt={4}>
-                              {job.assignedTeamMemberName ? (
+                              {job.assignedAgentName ? (
                                 <Badge size="xs" variant="light" color="indigo">
-                                  {job.assignedTeamMemberName}
+                                  {job.assignedAgentName}
                                 </Badge>
                               ) : (
                                 <Badge size="xs" variant="light" color="orange">
@@ -268,7 +274,7 @@ export const Jobs: React.FC = () => {
                                   setAssignModalJob(job)
                                 }}
                               >
-                                {t('jobs.assign', 'Assign TeamMember')}
+                                {t('jobs.assign', 'Assign Agent')}
                               </Button>
                             )}
                           </Stack>
@@ -279,37 +285,36 @@ export const Jobs: React.FC = () => {
                 )}
               </ScrollArea>
             </Paper>
-          </Grid.Col>
 
           {/* Right Column: Live Leaflet Map */}
-          <Grid.Col span={{ base: 12, md: 7, lg: 8 }} style={{ height: '100%' }}>
+          <Box style={{ flex: 1, height: '100%', minHeight: '300px' }}>
             <JobMap
               jobs={jobs}
-              teamMembers={teamMembers}
+              agents={agents}
               selectedJobId={selectedJobId}
-              selectedTeamMemberId={selectedTeamMemberId}
+              selectedAgentId={selectedAgentId}
               onSelectJob={(job) => {
                 setSelectedJobId(job.id)
-                setSelectedTeamMemberId(null)
+                setSelectedAgentId(null)
               }}
-              onSelectTeamMember={(tech) => {
-                setSelectedTeamMemberId(tech.id)
+              onSelectAgent={(tech) => {
+                setSelectedAgentId(tech.id)
                 setSelectedJobId(null)
               }}
               onAssignJob={(job) => setAssignModalJob(job)}
             />
-          </Grid.Col>
-        </Grid>
+          </Box>
+        </Flex>
 
         {/* Modals & Drawers */}
         <CreateJobModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
 
-        <AssignTeamMemberModal
+        <AssignAgentModal
           opened={Boolean(assignModalJob)}
           onClose={() => setAssignModalJob(null)}
           jobId={assignModalJob?.id || null}
-          currentTeamMemberId={assignModalJob?.assignedTeamMemberId}
-          currentTeamMemberName={assignModalJob?.assignedTeamMemberName}
+          currentAgentId={assignModalJob?.assignedAgentId}
+          currentAgentName={assignModalJob?.assignedAgentName}
         />
 
         <JobDetailDrawer
