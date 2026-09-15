@@ -9,7 +9,6 @@ import {
   Group,
   Paper,
   ScrollArea,
-  SegmentedControl,
   Stack,
   Text,
   TextInput,
@@ -19,7 +18,7 @@ import { JobDto, JobStatus } from '@whosonsite/shared'
 import { MapPin, Navigation, Plus, RefreshCw, Search, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppTheme } from '../app/theme/ThemeContext'
+import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { DispatchMap } from '../components/dispatch/DispatchMap'
@@ -54,7 +53,14 @@ export const Dispatch: React.FC = () => {
   // Filter jobs based on selected status and search query
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
-      const matchesStatus = statusFilter === 'ALL' || job.status === statusFilter
+      const matchesStatus =
+        statusFilter === 'ALL'
+          ? true
+          : statusFilter === 'ACTIVE'
+          ? job.status === JobStatus.ASSIGNED ||
+            job.status === JobStatus.EN_ROUTE ||
+            job.status === JobStatus.ON_SITE
+          : job.status === statusFilter
 
       const q = searchQuery.toLowerCase().trim()
       const matchesSearch =
@@ -124,18 +130,48 @@ export const Dispatch: React.FC = () => {
                 />
 
                 <ScrollArea type="never" style={{ width: '100%' }}>
-                  <SegmentedControl
-                    size="xs"
-                    fullWidth
-                    value={statusFilter}
-                    onChange={setStatusFilter}
-                    data={[
-                      { label: `All (${counts.all})`, value: 'ALL' },
-                      { label: `Unassigned (${counts.unassigned})`, value: JobStatus.UNASSIGNED },
-                      { label: `Active (${counts.inProgress})`, value: JobStatus.ASSIGNED },
-                      { label: `Done (${counts.complete})`, value: JobStatus.COMPLETE }
-                    ]}
-                  />
+                  <Group gap={4} wrap="nowrap" style={{ width: '100%' }}>
+                    <Button
+                      size="compact-xs"
+                      radius="md"
+                      variant={statusFilter === 'ALL' ? 'filled' : 'light'}
+                      color="gray"
+                      onClick={() => setStatusFilter('ALL')}
+                      style={{ flex: 1, minWidth: 'max-content' }}
+                    >
+                      All ({counts.all})
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      radius="md"
+                      variant={statusFilter === JobStatus.UNASSIGNED ? 'filled' : 'light'}
+                      color={JOB_STATUS_COLORS[JobStatus.UNASSIGNED]}
+                      onClick={() => setStatusFilter(JobStatus.UNASSIGNED)}
+                      style={{ flex: 1, minWidth: 'max-content' }}
+                    >
+                      Unassigned ({counts.unassigned})
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      radius="md"
+                      variant={statusFilter === 'ACTIVE' ? 'filled' : 'light'}
+                      color={JOB_STATUS_COLORS[JobStatus.ASSIGNED]}
+                      onClick={() => setStatusFilter('ACTIVE')}
+                      style={{ flex: 1, minWidth: 'max-content' }}
+                    >
+                      Active ({counts.inProgress})
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      radius="md"
+                      variant={statusFilter === JobStatus.COMPLETE ? 'filled' : 'light'}
+                      color={JOB_STATUS_COLORS[JobStatus.COMPLETE]}
+                      onClick={() => setStatusFilter(JobStatus.COMPLETE)}
+                      style={{ flex: 1, minWidth: 'max-content' }}
+                    >
+                      Done ({counts.complete})
+                    </Button>
+                  </Group>
                 </ScrollArea>
               </Stack>
 

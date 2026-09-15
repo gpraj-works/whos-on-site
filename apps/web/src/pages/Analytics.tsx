@@ -26,19 +26,10 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { useAppTheme } from '../app/theme/ThemeContext'
+import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { useAnalyticsSummary } from '../components/analytics/queries'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
-
-const JOB_STATUS_COLORS: Record<JobStatus, string> = {
-  [JobStatus.UNASSIGNED]: 'orange',
-  [JobStatus.ASSIGNED]: 'blue',
-  [JobStatus.EN_ROUTE]: 'yellow',
-  [JobStatus.ON_SITE]: 'teal',
-  [JobStatus.COMPLETE]: 'green',
-  [JobStatus.CANCELLED]: 'red'
-}
 
 export const Analytics: React.FC = () => {
   const { t } = useTranslation()

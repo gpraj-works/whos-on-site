@@ -36,3 +36,4 @@ export enum ThemeColor {
 }
 
 export const THEME_COLORS = ['teal', 'indigo', 'blue', 'violet', 'orange', 'green'] as const
+

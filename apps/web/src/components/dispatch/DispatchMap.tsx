@@ -6,6 +6,13 @@ import L from 'leaflet'
 
 import 'leaflet/dist/leaflet.css'
 
+import {
+  JOB_STATUS_COLORS,
+  JOB_STATUS_HEX_COLORS,
+  TECHNICIAN_STATUS_COLORS,
+  TECHNICIAN_STATUS_HEX_COLORS
+} from '../../app/theme'
+
 interface DispatchMapProps {
   jobs: JobDto[]
   technicians: TechnicianDto[]
@@ -19,23 +26,8 @@ interface DispatchMapProps {
 const DEFAULT_CENTER: [number, number] = [40.7128, -74.006] // Default fallback center
 const DEFAULT_ZOOM = 11
 
-const JOB_STATUS_COLORS: Record<JobStatus, string> = {
-  [JobStatus.UNASSIGNED]: '#fd7e14',
-  [JobStatus.ASSIGNED]: '#228be6',
-  [JobStatus.EN_ROUTE]: '#fab005',
-  [JobStatus.ON_SITE]: '#12b886',
-  [JobStatus.COMPLETE]: '#40c057',
-  [JobStatus.CANCELLED]: '#fa5252'
-}
-
-const TECH_STATUS_COLORS: Record<TechnicianStatus, string> = {
-  [TechnicianStatus.AVAILABLE]: '#40c057',
-  [TechnicianStatus.BUSY]: '#fd7e14',
-  [TechnicianStatus.OFFLINE]: '#868e96'
-}
-
 function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon {
-  const color = JOB_STATUS_COLORS[status] || '#228be6'
+  const color = JOB_STATUS_HEX_COLORS[status] || '#228be6'
   const borderWidth = isSelected ? '3px' : '2px'
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
   const scaleCss = isSelected ? 'transform: rotate(-45deg) scale(1.25);' : 'transform: rotate(-45deg);'
@@ -72,7 +64,7 @@ function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon 
 }
 
 function createTechnicianMarkerIcon(status: TechnicianStatus, isSelected: boolean): L.DivIcon {
-  const color = TECH_STATUS_COLORS[status] || '#868e96'
+  const color = TECHNICIAN_STATUS_HEX_COLORS[status] || '#868e96'
   const scaleCss = isSelected ? 'transform: scale(1.2);' : ''
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
 
@@ -270,7 +262,7 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
               <Popup>
                 <Stack gap="xs">
                   <Group justify="space-between" align="center">
-                    <Badge color={TECH_STATUS_COLORS[tech.status]} variant="filled" size="sm">
+                    <Badge color={TECHNICIAN_STATUS_COLORS[tech.status]} variant="filled" size="sm">
                       {tech.status.toUpperCase()}
                     </Badge>
                     <Text size="xs" c="dimmed">
