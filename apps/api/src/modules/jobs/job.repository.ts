@@ -50,6 +50,7 @@ function mapJobRow(row: Record<string, unknown>): JobDto {
 
   return {
     id: row.id as string,
+    shareToken: (row.shareToken as string) || '',
     companyId: row.companyId as string,
     customerId: row.customerId as string,
     customer,
@@ -83,7 +84,7 @@ export async function createJob(data: CreateJobData, client: DatabaseClient = db
     })
     .returning()
 
-  return mapJobRow(row)
+  return findJobById(row.id, data.companyId, client) as Promise<JobDto>
 }
 
 /** Find job by ID and company ID */
@@ -95,6 +96,7 @@ export async function findJobById(
   const [row] = await client
     .select({
       id: jobs.id,
+      shareToken: jobs.shareToken,
       companyId: jobs.companyId,
       customerId: jobs.customerId,
       location: jobs.location,
@@ -154,6 +156,7 @@ export async function findJobs(
   const rows = await client
     .select({
       id: jobs.id,
+      shareToken: jobs.shareToken,
       companyId: jobs.companyId,
       customerId: jobs.customerId,
       location: jobs.location,

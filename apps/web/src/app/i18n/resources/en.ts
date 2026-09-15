@@ -104,7 +104,23 @@ export const en = {
       notePlaceholder: 'e.g. Delayed due to traffic',
       statusHistory: 'Status Audit Trail',
       noHistory: 'No status changes recorded yet.',
-      filterAll: 'All Statuses'
+      filterAll: 'All Statuses',
+      copyShareLink: 'Copy Share Link',
+      linkCopied: 'Public share link copied to clipboard'
+    },
+    customerStatus: {
+      title: 'Job Status Page',
+      subtitle: 'Real-time status tracking for customer dispatches',
+      customer: 'Customer',
+      technician: 'Assigned Technician',
+      unassignedTech: 'Awaiting technician assignment',
+      scheduledAt: 'Scheduled Time',
+      lastUpdated: 'Last Updated',
+      timeline: 'Service Progress',
+      historyTitle: 'Status History',
+      autoRefresh: 'Auto-refreshing live status (30s)',
+      notFoundTitle: 'Status Link Expired or Not Found',
+      notFoundSubtitle: 'This public customer share link may have expired or is invalid.'
     },
     technicians: {
       title: 'Field Technicians',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Badge,
   Button,
@@ -16,11 +16,13 @@ import {
 import { JobDto, JobStatus } from '@whosonsite/shared'
 import {
   Calendar,
+  Check,
   CheckCircle2,
   Clock,
   MapPin,
   MessageSquare,
   Navigation,
+  Share2,
   UserCheck,
   XCircle
 } from 'lucide-react'
@@ -53,12 +55,25 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   const [confirmCancelOpened, setConfirmCancelOpened] = useState(false)
   const [statusNote, setStatusNote] = useState('')
   const [showNoteInput, setShowNoteInput] = useState<JobStatus | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    setShowNoteInput(null)
+    setStatusNote('')
+  }, [job?.id, job?.status])
 
   if (!job) return null
 
-  const handleStatusTransition = async (nextStatus: JobStatus) => {
-    if (showNoteInput !== nextStatus) {
-      setShowNoteInput(nextStatus)
+  const handleCopyShareLink = () => {
+    if (!job.shareToken) return
+    const shareUrl = `${window.location.origin}/status/${job.shareToken}`
+    navigator.clipboard.writeText(shareUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const submitStatusChange = async (nextStatus: JobStatus) => {
+    if (!job || job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
       return
     }
 
@@ -72,6 +87,17 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
       setStatusNote('')
     } catch {
       // Error handled via updateStatusMutation.error
+    }
+  }
+
+  const handleStatusTransition = (nextStatus: JobStatus) => {
+    if (!job || job.status === JobStatus.COMPLETE || job.status === JobStatus.CANCELLED) {
+      return
+    }
+    if (showNoteInput === nextStatus) {
+      setShowNoteInput(null)
+    } else {
+      setShowNoteInput(nextStatus)
     }
   }
 
@@ -188,7 +214,12 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
               <Button
                 size="xs"
                 loading={updateStatusMutation.isPending}
-                onClick={() => handleStatusTransition(showNoteInput)}
+                disabled={!showNoteInput}
+                onClick={() => {
+                  if (showNoteInput) {
+                    submitStatusChange(showNoteInput)
+                  }
+                }}
               >
                 {t('common.update', 'Update')}
               </Button>
@@ -204,6 +235,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
       <Drawer
         opened={opened}
         onClose={onClose}
+        zIndex={1000}
         title={
           <Group gap="xs">
             <Text fw={700} size="lg">
@@ -221,7 +253,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
           {/* Customer & Job Info Card */}
           <Card withBorder radius="md" p="md">
             <Stack gap="xs">
-              <Group justify="space-between">
+              <Group justify="space-between" align="flex-start">
                 <div>
                   <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                     {t('jobs.customer', 'Customer')}
@@ -230,11 +262,24 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                     {job.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
                   </Text>
                 </div>
-                {job.assignedTechnicianName && (
-                  <Badge variant="light" color="blue" size="md">
-                    Tech: {job.assignedTechnicianName}
-                  </Badge>
-                )}
+                <Group gap="xs">
+                  {job.assignedTechnicianName && (
+                    <Badge variant="light" color="blue" size="md">
+                      Tech: {job.assignedTechnicianName}
+                    </Badge>
+                  )}
+                  {job.shareToken && (
+                    <Button
+                      size="xs"
+                      variant="light"
+                      color={copied ? 'teal' : 'gray'}
+                      leftSection={copied ? <Check size={14} /> : <Share2 size={14} />}
+                      onClick={handleCopyShareLink}
+                    >
+                      {copied ? t('jobs.linkCopied', 'Copied') : t('jobs.copyShareLink', 'Copy Share Link')}
+                    </Button>
+                  )}
+                </Group>
               </Group>
 
               {job.customer?.address && (

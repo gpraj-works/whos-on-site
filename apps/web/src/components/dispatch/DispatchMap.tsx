@@ -171,11 +171,11 @@ export const DispatchMap: React.FC<DispatchMapProps> = ({
   }
 
   return (
-    <Paper radius="md" style={{ width: '100%', height: '100%', minHeight: '500px', overflow: 'hidden', position: 'relative' }}>
+    <Paper radius="md" style={{ width: '100%', height: '100%', minHeight: '500px', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
-        style={{ width: '100%', height: '100%', minHeight: '500px' }}
+        style={{ width: '100%', height: '100%', minHeight: '500px', zIndex: 1 }}
         scrollWheelZoom={true}
       >
         <TileLayer
