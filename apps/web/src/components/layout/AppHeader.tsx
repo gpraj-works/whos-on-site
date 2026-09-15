@@ -78,13 +78,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
             onClick={handleGlobalRefresh}
             aria-label={t('common.refresh', 'Refresh')}
           >
-            <RefreshCw
-              size={18}
-              style={{
-                transition: 'transform 0.6s ease',
-                transform: isRefreshing ? 'rotate(360deg)' : 'none'
-              }}
-            />
+            <RefreshCw size={18} />
           </ActionIcon>
         </Tooltip>
 

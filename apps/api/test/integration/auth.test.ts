@@ -106,4 +106,21 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
 
     expect(postLogoutRefresh.status).toBe(401)
   })
+
+  it('rate-limits login attempts once the threshold is exceeded', async () => {
+    let lastStatus = 200
+    for (let i = 0; i < 22; i++) {
+      const res = await request(app)
+        .post('/api/auth/login')
+        .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
+      lastStatus = res.status
+      if (lastStatus === 429) {
+        expect(res.body.success).toBe(false)
+        expect(res.body.error.code).toBe('RATE_LIMIT_EXCEEDED')
+        break
+      }
+    }
+
+    expect(lastStatus).toBe(429)
+  })
 })

@@ -71,7 +71,7 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={t('customers.createTitle', 'Add New Customer')}
+      title={t('customers.createTitle', 'New Customer')}
       centered
       radius="md"
     >

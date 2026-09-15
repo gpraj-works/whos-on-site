@@ -55,7 +55,7 @@ export async function enqueueDelayedReminderJob(
       },
       {
         delay: delayMs,
-        jobId: `reminder:${jobId}`
+        jobId: `reminder-${jobId}`
       }
     )
     logger.debug({ companyId, jobId, delayMs }, 'Enqueued delayed job reminder')

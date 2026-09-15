@@ -19,3 +19,14 @@ export async function updateTechnicianLocation(
   })
 }
 
+export async function createTechnician(data: {
+  name: string
+  phone: string
+  status?: string
+}): Promise<TechnicianDto> {
+  return apiClient<TechnicianDto>('/technicians', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+

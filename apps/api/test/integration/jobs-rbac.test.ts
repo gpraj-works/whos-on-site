@@ -55,6 +55,18 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
     createdJobId = res.body.data.id
   })
 
+  it('creates a job without coordinates, saving a null location', async () => {
+    const res = await request(app)
+      .post('/api/jobs')
+      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .send({ customerId, notes: 'No geocodable address available' })
+
+    expect(res.status).toBe(201)
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.status).toBe('unassigned')
+    expect(res.body.data.location).toBeNull()
+  })
+
   it('retrieves job details and status history trail', async () => {
     const res = await request(app)
       .get(`/api/jobs/${createdJobId}`)

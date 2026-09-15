@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   Badge,
-  Button,
   Card,
   Container,
   Grid,
@@ -19,7 +18,6 @@ import {
   Briefcase,
   CheckCircle2,
   Clock,
-  RefreshCw,
   Timer,
   UserCheck,
   Users
@@ -34,7 +32,7 @@ import { StatusBadge } from '../components/common/StatusBadge'
 export const Analytics: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
-  const { data: summary, isLoading, refetch, isRefetching } = useAnalyticsSummary()
+  const { data: summary, isLoading } = useAnalyticsSummary()
 
   const activeJobsCount =
     (summary?.jobsByStatus.assigned || 0) +
@@ -56,16 +54,6 @@ export const Analytics: React.FC = () => {
             'analytics.subtitle',
             'Real-time company metrics, job status breakdown, completion performance, and technician tracking'
           )}
-          actions={
-            <Button
-              variant="default"
-              leftSection={<RefreshCw size={16} className={isRefetching ? 'spin' : ''} />}
-              onClick={() => refetch()}
-              loading={isLoading}
-            >
-              {t('common.refresh', 'Refresh')}
-            </Button>
-          }
         />
 
         {/* Stat Cards Row */}

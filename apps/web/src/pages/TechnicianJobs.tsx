@@ -20,7 +20,6 @@ import {
   MapPin,
   Navigation,
   Phone,
-  RefreshCw,
   RotateCw
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -46,7 +45,7 @@ export const TechnicianJobs: React.FC = () => {
   const { t } = useTranslation()
   const { user } = useAuth()
 
-  const { data: jobs = [], refetch: refetchJobs, isLoading: isLoadingJobs } = useJobs()
+  const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
   const { data: technicians = [] } = useTechnicians()
   const updateStatusMutation = useUpdateJobStatus()
 
@@ -145,15 +144,6 @@ export const TechnicianJobs: React.FC = () => {
             'technician.subtitle',
             'Today’s assigned field jobs and one-tap status updates'
           )}
-          actions={
-            <Button
-              variant="default"
-              leftSection={<RefreshCw size={16} />}
-              onClick={() => refetchJobs()}
-            >
-              {t('common.refresh', 'Refresh')}
-            </Button>
-          }
         />
 
         {currentTechnician && (

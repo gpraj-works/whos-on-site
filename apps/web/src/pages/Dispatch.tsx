@@ -15,7 +15,7 @@ import {
   Tooltip
 } from '@mantine/core'
 import { JobDto, JobStatus } from '@whosonsite/shared'
-import { MapPin, Navigation, Plus, RefreshCw, Search, UserCheck } from 'lucide-react'
+import { MapPin, Navigation, Plus, Search, UserCheck } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
@@ -33,8 +33,8 @@ export const Dispatch: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
 
-  const { data: jobs = [], refetch: refetchJobs, isLoading: isLoadingJobs } = useJobs()
-  const { data: technicians = [], refetch: refetchTechs } = useTechnicians()
+  const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
+  const { data: technicians = [] } = useTechnicians()
 
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -44,11 +44,6 @@ export const Dispatch: React.FC = () => {
   const [createModalOpened, setCreateModalOpened] = useState(false)
   const [assignModalJob, setAssignModalJob] = useState<JobDto | null>(null)
   const [detailDrawerJob, setDetailDrawerJob] = useState<JobDto | null>(null)
-
-  const handleRefresh = () => {
-    refetchJobs()
-    refetchTechs()
-  }
 
   // Filter jobs based on selected status and search query
   const filteredJobs = useMemo(() => {
@@ -91,28 +86,19 @@ export const Dispatch: React.FC = () => {
     <Container fluid p={0} style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
       <Stack gap="sm" style={{ height: '100%' }}>
         <PageHeader
-          title={t('dispatch.title', 'Live Dispatch Board')}
+          title={t('jobs.title', 'Dispatch Board')}
           subtitle={t(
-            'dispatch.subtitle',
-            'Real-time spatial job tracking, technician dispatching, and status monitoring'
+            'jobs.subtitle',
+            'Manage job assignments, status state machine, and customer dispatches'
           )}
           actions={
-            <Group gap="xs">
-              <Button
-                variant="default"
-                leftSection={<RefreshCw size={16} />}
-                onClick={handleRefresh}
-              >
-                {t('common.refresh', 'Refresh')}
-              </Button>
-              <Button
-                leftSection={<Plus size={16} />}
-                color={primaryColor}
-                onClick={() => setCreateModalOpened(true)}
-              >
-                {t('common.newJob', 'New Job')}
-              </Button>
-            </Group>
+            <Button
+              leftSection={<Plus size={16} />}
+              color={primaryColor}
+              onClick={() => setCreateModalOpened(true)}
+            >
+              {t('common.new', 'New')}
+            </Button>
           }
         />
 

@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { technicianKeys } from '../../app/query/keys'
-import { listTechnicians, nearbyTechnicians } from './api'
+import { createTechnician, listTechnicians, nearbyTechnicians } from './api'
 
 export function useTechnicians() {
   return useQuery({
@@ -14,5 +14,15 @@ export function useNearbyTechnicians(coords: { lat: number; lng: number } | null
     queryKey: coords ? technicianKeys.nearby(coords) : ['technicians', 'nearby', 'none'],
     queryFn: () => (coords ? nearbyTechnicians(coords.lat, coords.lng) : []),
     enabled: Boolean(coords)
+  })
+}
+
+export function useCreateTechnician() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: { name: string; phone: string; status?: string }) => createTechnician(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: technicianKeys.all })
+    }
   })
 }

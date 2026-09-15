@@ -1,15 +1,22 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Button, Container, Stack } from '@mantine/core'
-import { RefreshCw } from 'lucide-react'
+import { UserRole } from '@whosonsite/shared'
+import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
+import { useAppTheme } from '../app/theme/ThemeContext'
+import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
+import { CreateTechnicianModal } from '../components/technicians/Form'
 import { TechnicianList } from '../components/technicians/List'
-import { useTechnicians } from '../components/technicians/queries'
 
 export const Technicians: React.FC = () => {
   const { t } = useTranslation()
-  const { refetch } = useTechnicians()
+  const { primaryColor } = useAppTheme()
+  const { user } = useAuth()
+  const [createModalOpened, setCreateModalOpened] = useState(false)
+
+  const isManagementRole = user?.role === UserRole.OWNER || user?.role === UserRole.ADMIN
 
   return (
     <Container fluid p={0}>
@@ -21,17 +28,24 @@ export const Technicians: React.FC = () => {
             'Real-time technician availability, status tracking, and location dispatch readiness'
           )}
           actions={
-            <Button
-              variant="default"
-              leftSection={<RefreshCw size={16} />}
-              onClick={() => refetch()}
-            >
-              {t('common.refresh', 'Refresh')}
-            </Button>
+            isManagementRole ? (
+              <Button
+                leftSection={<Plus size={16} />}
+                color={primaryColor}
+                onClick={() => setCreateModalOpened(true)}
+              >
+                {t('common.new', 'New')}
+              </Button>
+            ) : undefined
           }
         />
 
         <TechnicianList />
+
+        <CreateTechnicianModal
+          opened={createModalOpened}
+          onClose={() => setCreateModalOpened(false)}
+        />
       </Stack>
     </Container>
   )

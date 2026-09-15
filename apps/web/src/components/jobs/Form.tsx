@@ -96,7 +96,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
       <Modal
         opened={opened}
         onClose={handleClose}
-        title={t('jobs.createTitle', 'Create Dispatch Job')}
+        title={t('jobs.createTitle', 'New Job')}
         size="lg"
         centered
         radius="md"
