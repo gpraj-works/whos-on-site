@@ -7,14 +7,7 @@ dist/
 build/
 *.tsbuildinfo
 
-# Test coverage output (Vitest v8 + Istanbul)
-coverage/
 
-# Playwright runtime artifacts
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
 
 # Environment & secrets
 .env
