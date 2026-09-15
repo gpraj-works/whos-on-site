@@ -3,7 +3,7 @@ import { BadRequestError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
-import { findTeamMemberById } from '../teamMembers/teamMember.repository'
+import { findTeamMemberById } from '../team/team.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
 

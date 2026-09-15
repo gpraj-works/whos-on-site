@@ -1,34 +1,34 @@
 import React, { useState } from 'react'
 import { Button, Group, Modal, Select, Stack, TextInput } from '@mantine/core'
-import { createTechnicianSchema, TechnicianDto, TechnicianStatus } from '@whosonsite/shared'
+import { createTeamMemberSchema, TeamMemberDto, TeamMemberStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCreateTechnician } from './queries'
+import { useCreateTeamMember } from './queries'
 
-interface CreateTechnicianModalProps {
+interface CreateTeamMemberModalProps {
   opened: boolean
   onClose: () => void
-  onSuccess?: (tech: TechnicianDto) => void
+  onSuccess?: (tech: TeamMemberDto) => void
 }
 
-export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
+export const CreateTeamMemberModal: React.FC<CreateTeamMemberModalProps> = ({
   opened,
   onClose,
   onSuccess
 }) => {
   const { t } = useTranslation()
-  const createTechMutation = useCreateTechnician()
+  const createTechMutation = useCreateTeamMember()
 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [status, setStatus] = useState<string>(TechnicianStatus.AVAILABLE)
+  const [status, setStatus] = useState<string>(TeamMemberStatus.AVAILABLE)
   const [fieldErrors, setFieldErrors] = useState<{ name?: string; phone?: string }>({})
 
   const handleReset = () => {
     setName('')
     setPhone('')
-    setStatus(TechnicianStatus.AVAILABLE)
+    setStatus(TeamMemberStatus.AVAILABLE)
     setFieldErrors({})
   }
 
@@ -44,10 +44,10 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
     const payload = {
       name: name.trim(),
       phone: phone.trim(),
-      status: status as TechnicianStatus
+      status: status as TeamMemberStatus
     }
 
-    const parseResult = createTechnicianSchema.safeParse(payload)
+    const parseResult = createTeamMemberSchema.safeParse(payload)
     if (!parseResult.success) {
       const formatted: { name?: string; phone?: string } = {}
       parseResult.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
@@ -75,7 +75,7 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={t('technicians.createTitle', 'New Technician')}
+      title={t('teamMembers.createTitle', 'New TeamMember')}
       centered
       radius="md"
     >
@@ -84,7 +84,7 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
           <ApiErrorAlert error={createTechMutation.error} />
 
           <TextInput
-            label={t('technicians.name', 'Technician Name')}
+            label={t('teamMembers.name', 'TeamMember Name')}
             placeholder="John Doe"
             value={name}
             onChange={(e) => {
@@ -96,7 +96,7 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
           />
 
           <TextInput
-            label={t('technicians.phone', 'Phone Number')}
+            label={t('teamMembers.phone', 'Phone Number')}
             placeholder="+1 404-555-0192"
             value={phone}
             onChange={(e) => {
@@ -108,14 +108,14 @@ export const CreateTechnicianModal: React.FC<CreateTechnicianModalProps> = ({
           />
 
           <Select
-            label={t('technicians.status', 'Initial Status')}
+            label={t('teamMembers.status', 'Initial Status')}
             data={[
-              { value: TechnicianStatus.AVAILABLE, label: 'Available' },
-              { value: TechnicianStatus.BUSY, label: 'Busy' },
-              { value: TechnicianStatus.OFFLINE, label: 'Offline' }
+              { value: TeamMemberStatus.AVAILABLE, label: 'Available' },
+              { value: TeamMemberStatus.BUSY, label: 'Busy' },
+              { value: TeamMemberStatus.OFFLINE, label: 'Offline' }
             ]}
             value={status}
-            onChange={(val) => setStatus(val || TechnicianStatus.AVAILABLE)}
+            onChange={(val) => setStatus(val || TeamMemberStatus.AVAILABLE)}
           />
 
           <Group justify="flex-end" gap="xs" mt="sm">

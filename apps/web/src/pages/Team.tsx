@@ -7,10 +7,10 @@ import { useTranslation } from 'react-i18next'
 import { useAppTheme } from '../app/theme/ThemeContext'
 import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
-import { CreateTechnicianModal } from '../components/technicians/Form'
-import { TechnicianList } from '../components/technicians/List'
+import { CreateTeamMemberModal } from '../components/team/Form'
+import { TeamMemberList } from '../components/team/List'
 
-export const Technicians: React.FC = () => {
+export const Team: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
   const { user } = useAuth()
@@ -22,10 +22,10 @@ export const Technicians: React.FC = () => {
     <Container fluid p={0}>
       <Stack gap="sm">
         <PageHeader
-          title={t('nav.technicians', 'Field Technicians')}
+          title={t('nav.teamMembers', 'Field TeamMembers')}
           subtitle={t(
-            'technicians.subtitle',
-            'Real-time technician availability, status tracking, and location dispatch readiness'
+            'teamMembers.subtitle',
+            'Real-time teamMember availability, status tracking, and location dispatch readiness'
           )}
           actions={
             isManagementRole ? (
@@ -40,9 +40,9 @@ export const Technicians: React.FC = () => {
           }
         />
 
-        <TechnicianList />
+        <TeamMemberList />
 
-        <CreateTechnicianModal
+        <CreateTeamMemberModal
           opened={createModalOpened}
           onClose={() => setCreateModalOpened(false)}
         />
@@ -51,4 +51,4 @@ export const Technicians: React.FC = () => {
   )
 }
 
-export default Technicians
+export default Team

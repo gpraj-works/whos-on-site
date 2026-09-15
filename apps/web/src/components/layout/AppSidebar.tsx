@@ -29,7 +29,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       icon: LayoutDashboard,
       label: t('nav.dashboard'),
       path: '/dashboard',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TECHNICIAN]
+      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER]
     },
     {
       icon: Briefcase,
@@ -41,12 +41,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       icon: Briefcase,
       label: t('nav.myJobs', 'My Jobs'),
       path: '/my-jobs',
-      roles: [UserRole.TECHNICIAN]
+      roles: [UserRole.TEAM_MEMBER]
     },
     {
       icon: Users,
-      label: t('nav.technicians'),
-      path: '/technicians',
+      label: t('nav.teamMembers'),
+      path: '/team',
       roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
     },
     {

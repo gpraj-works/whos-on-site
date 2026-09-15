@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { jobKeys, technicianKeys } from '../../app/query/keys'
+import { jobKeys, teamMemberKeys } from '../../app/query/keys'
 import { connectSocket } from './client'
 import { registerSocketHandlers } from './events'
 
@@ -24,18 +24,18 @@ export function useSocketEvents(enabled = true): void {
         queryClient.invalidateQueries({ queryKey: jobKeys.lists() })
         queryClient.invalidateQueries({ queryKey: jobKeys.detail(event.jobId) })
         queryClient.invalidateQueries({ queryKey: jobKeys.history(event.jobId) })
-        queryClient.invalidateQueries({ queryKey: technicianKeys.all })
+        queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
       },
       onJobStatusChanged: (event) => {
         queryClient.invalidateQueries({ queryKey: jobKeys.lists() })
         queryClient.invalidateQueries({ queryKey: jobKeys.detail(event.jobId) })
         queryClient.invalidateQueries({ queryKey: jobKeys.history(event.jobId) })
       },
-      onTechnicianLocationUpdated: () => {
-        queryClient.invalidateQueries({ queryKey: technicianKeys.all })
+      onTeamMemberLocationUpdated: () => {
+        queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
       },
-      onTechnicianStatusChanged: () => {
-        queryClient.invalidateQueries({ queryKey: technicianKeys.all })
+      onTeamMemberStatusChanged: () => {
+        queryClient.invalidateQueries({ queryKey: teamMemberKeys.all })
       }
     })
 

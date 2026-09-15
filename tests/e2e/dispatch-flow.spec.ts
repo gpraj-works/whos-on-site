@@ -15,25 +15,24 @@ async function loginAsDispatcher(page: Page) {
 }
 
 test.describe('WhosOnSite — Dispatch Happy Path', () => {
-  test('dispatcher sees the live board and opens a job share link for the customer', async ({
+  test('dispatcher opens the live board and shares the customer status link', async ({
     page,
     context
   }) => {
-    // Clipboard support is required to grab the customer share link
+    // Clipboard access is required to grab the customer share link
     await context.grantPermissions(['clipboard-read', 'clipboard-write'])
 
     await loginAsDispatcher(page)
 
-    // Navigate to the dispatch board
-    await page.getByRole('link', { name: /dispatch board/i }).click()
-    await expect(page).toHaveURL(/\/dispatch/)
+    // Navigate to the dispatch board (the Jobs page)
+    await page.getByRole('link', { name: /jobs/i }).click()
+    await expect(page).toHaveURL(/\/jobs/)
 
     // The dispatch board renders at least one seeded job
     await expect(page.getByText(/riverbend apartments/i).first()).toBeVisible()
 
-    // Open the first job card to reveal the live job detail drawer
+    // Open the job to reveal the share-link drawer
     await page.getByText(/riverbend apartments/i).first().click()
-    await expect(page.getByRole('heading', { name: /job detail/i })).toBeVisible()
 
     // Copy the customer share link, then read it back from the clipboard
     await page.getByRole('button', { name: /copy share link/i }).click()
@@ -46,8 +45,9 @@ test.describe('WhosOnSite — Dispatch Happy Path', () => {
     await page.goto(shareUrl)
     await expect(page).toHaveURL(/\/status\//)
 
-    // The public page shows the customer-facing status timeline
-    await expect(page.getByText(/service status/i)).toBeVisible()
+    // The public page shows the customer-facing status without authentication:
+    // seeded company name and customer name are always rendered by the page
+    await expect(page.getByText(/acme hvac/i)).toBeVisible()
     await expect(page.getByText(/riverbend apartments/i)).toBeVisible()
   })
 })

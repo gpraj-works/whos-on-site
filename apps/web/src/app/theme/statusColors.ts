@@ -1,4 +1,4 @@
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, TeamMemberStatus } from '@whosonsite/shared'
 
 /** Mantine color name tokens for each JobStatus */
 export const JOB_STATUS_COLORS: Record<JobStatus, string> = {
@@ -20,18 +20,18 @@ export const JOB_STATUS_HEX_COLORS: Record<JobStatus, string> = {
   [JobStatus.CANCELLED]: '#868e96'
 }
 
-/** Mantine color name tokens for each TechnicianStatus */
-export const TECHNICIAN_STATUS_COLORS: Record<TechnicianStatus, string> = {
-  [TechnicianStatus.AVAILABLE]: 'green',
-  [TechnicianStatus.BUSY]: 'orange',
-  [TechnicianStatus.OFFLINE]: 'gray'
+/** Mantine color name tokens for each TeamMemberStatus */
+export const TECHNICIAN_STATUS_COLORS: Record<TeamMemberStatus, string> = {
+  [TeamMemberStatus.AVAILABLE]: 'green',
+  [TeamMemberStatus.BUSY]: 'orange',
+  [TeamMemberStatus.OFFLINE]: 'gray'
 }
 
-/** Hex color values for Leaflet maps for each TechnicianStatus */
-export const TECHNICIAN_STATUS_HEX_COLORS: Record<TechnicianStatus, string> = {
-  [TechnicianStatus.AVAILABLE]: '#40c057',
-  [TechnicianStatus.BUSY]: '#fd7e14',
-  [TechnicianStatus.OFFLINE]: '#868e96'
+/** Hex color values for Leaflet maps for each TeamMemberStatus */
+export const TECHNICIAN_STATUS_HEX_COLORS: Record<TeamMemberStatus, string> = {
+  [TeamMemberStatus.AVAILABLE]: '#40c057',
+  [TeamMemberStatus.BUSY]: '#fd7e14',
+  [TeamMemberStatus.OFFLINE]: '#868e96'
 }
 
 /** Helper to get Mantine status color with fallback */
@@ -42,10 +42,10 @@ export function getJobStatusColor(status: JobStatus | string): string {
   return 'gray'
 }
 
-/** Helper to get Technician status color with fallback */
-export function getTechnicianStatusColor(status: TechnicianStatus | string): string {
+/** Helper to get TeamMember status color with fallback */
+export function getTeamMemberStatusColor(status: TeamMemberStatus | string): string {
   if (status in TECHNICIAN_STATUS_COLORS) {
-    return TECHNICIAN_STATUS_COLORS[status as TechnicianStatus]
+    return TECHNICIAN_STATUS_COLORS[status as TeamMemberStatus]
   }
   return 'gray'
 }

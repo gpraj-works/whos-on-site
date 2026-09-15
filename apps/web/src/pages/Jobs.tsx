@@ -22,11 +22,11 @@ import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { JobMap } from '../components/jobs/JobMap'
-import { AssignTechnicianModal } from '../components/jobs/AssignModal'
+import { AssignTeamMemberModal } from '../components/jobs/AssignModal'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { CreateJobModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
-import { useTechnicians } from '../components/technicians/queries'
+import { useTeamMembers } from '../components/team/queries'
 import { formatDateTime } from '../lib/date/format'
 
 export const Jobs: React.FC = () => {
@@ -34,12 +34,12 @@ export const Jobs: React.FC = () => {
   const { primaryColor } = useAppTheme()
 
   const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
-  const { data: technicians = [] } = useTechnicians()
+  const { data: teamMembers = [] } = useTeamMembers()
 
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
-  const [selectedTechnicianId, setSelectedTechnicianId] = useState<string | null>(null)
+  const [selectedTeamMemberId, setSelectedTeamMemberId] = useState<string | null>(null)
 
   const [createModalOpened, setCreateModalOpened] = useState(false)
   const [assignModalJob, setAssignModalJob] = useState<JobDto | null>(null)
@@ -63,7 +63,7 @@ export const Jobs: React.FC = () => {
         job.id.toLowerCase().includes(q) ||
         job.customer?.name.toLowerCase().includes(q) ||
         job.customer?.address.toLowerCase().includes(q) ||
-        (job.assignedTechnicianName && job.assignedTechnicianName.toLowerCase().includes(q)) ||
+        (job.assignedTeamMemberName && job.assignedTeamMemberName.toLowerCase().includes(q)) ||
         (job.notes && job.notes.toLowerCase().includes(q))
 
       return matchesStatus && matchesSearch
@@ -190,7 +190,7 @@ export const Jobs: React.FC = () => {
                           }}
                           onClick={() => {
                             setSelectedJobId(job.id)
-                            setSelectedTechnicianId(null)
+                            setSelectedTeamMemberId(null)
                           }}
                         >
                           <Stack gap={4}>
@@ -206,7 +206,7 @@ export const Jobs: React.FC = () => {
                                       onClick={(e) => {
                                         e.stopPropagation()
                                         setSelectedJobId(job.id)
-                                        setSelectedTechnicianId(null)
+                                        setSelectedTeamMemberId(null)
                                       }}
                                     >
                                       <Navigation size={14} />
@@ -240,9 +240,9 @@ export const Jobs: React.FC = () => {
                             )}
 
                             <Group justify="space-between" align="center" mt={4}>
-                              {job.assignedTechnicianName ? (
+                              {job.assignedTeamMemberName ? (
                                 <Badge size="xs" variant="light" color="indigo">
-                                  {job.assignedTechnicianName}
+                                  {job.assignedTeamMemberName}
                                 </Badge>
                               ) : (
                                 <Badge size="xs" variant="light" color="orange">
@@ -268,7 +268,7 @@ export const Jobs: React.FC = () => {
                                   setAssignModalJob(job)
                                 }}
                               >
-                                {t('jobs.assign', 'Assign Technician')}
+                                {t('jobs.assign', 'Assign TeamMember')}
                               </Button>
                             )}
                           </Stack>
@@ -285,15 +285,15 @@ export const Jobs: React.FC = () => {
           <Grid.Col span={{ base: 12, md: 7, lg: 8 }} style={{ height: '100%' }}>
             <JobMap
               jobs={jobs}
-              technicians={technicians}
+              teamMembers={teamMembers}
               selectedJobId={selectedJobId}
-              selectedTechnicianId={selectedTechnicianId}
+              selectedTeamMemberId={selectedTeamMemberId}
               onSelectJob={(job) => {
                 setSelectedJobId(job.id)
-                setSelectedTechnicianId(null)
+                setSelectedTeamMemberId(null)
               }}
-              onSelectTechnician={(tech) => {
-                setSelectedTechnicianId(tech.id)
+              onSelectTeamMember={(tech) => {
+                setSelectedTeamMemberId(tech.id)
                 setSelectedJobId(null)
               }}
               onAssignJob={(job) => setAssignModalJob(job)}
@@ -304,12 +304,12 @@ export const Jobs: React.FC = () => {
         {/* Modals & Drawers */}
         <CreateJobModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
 
-        <AssignTechnicianModal
+        <AssignTeamMemberModal
           opened={Boolean(assignModalJob)}
           onClose={() => setAssignModalJob(null)}
           jobId={assignModalJob?.id || null}
-          currentTechnicianId={assignModalJob?.assignedTechnicianId}
-          currentTechnicianName={assignModalJob?.assignedTechnicianName}
+          currentTeamMemberId={assignModalJob?.assignedTeamMemberId}
+          currentTeamMemberName={assignModalJob?.assignedTeamMemberName}
         />
 
         <JobDetailDrawer

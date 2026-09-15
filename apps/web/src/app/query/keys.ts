@@ -13,11 +13,11 @@ export const jobKeys = {
   history: (id: string) => [...jobKeys.detail(id), 'history'] as const
 }
 
-export const technicianKeys = {
-  all: ['technicians'] as const,
-  list: () => [...technicianKeys.all, 'list'] as const,
+export const teamMemberKeys = {
+  all: ['teamMembers'] as const,
+  list: () => [...teamMemberKeys.all, 'list'] as const,
   nearby: (coords: { lat: number; lng: number; radiusMeters?: number }) =>
-    [...technicianKeys.all, 'nearby', coords] as const
+    [...teamMemberKeys.all, 'nearby', coords] as const
 }
 
 export const customerKeys = {

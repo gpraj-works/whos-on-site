@@ -12,7 +12,7 @@ import {
   Title,
   Tooltip
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, TeamMemberStatus } from '@whosonsite/shared'
 import {
   BarChart2,
   Briefcase,
@@ -52,7 +52,7 @@ export const Analytics: React.FC = () => {
           title={t('analytics.title', 'Operations Analytics')}
           subtitle={t(
             'analytics.subtitle',
-            'Real-time company metrics, job status breakdown, completion performance, and technician tracking'
+            'Real-time company metrics, job status breakdown, completion performance, and teamMember tracking'
           )}
         />
 
@@ -135,10 +135,10 @@ export const Analytics: React.FC = () => {
                 <Users size={20} style={{ color: 'var(--mantine-color-teal-6)' }} />
               </Group>
               <Text fw={700} size="xl" mt="xs" c="teal">
-                {isLoading ? '...' : summary?.totalTechniciansCount || 0}
+                {isLoading ? '...' : summary?.totalTeamMembersCount || 0}
               </Text>
               <Text size="xs" c="dimmed" mt={4}>
-                Registered technicians
+                Registered teamMembers
               </Text>
             </Card>
           </Grid.Col>
@@ -193,12 +193,12 @@ export const Analytics: React.FC = () => {
             </Paper>
           </Grid.Col>
 
-          {/* Technician Availability Overview */}
+          {/* TeamMember Availability Overview */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper radius="md" p="md" withBorder style={{ height: '100%' }}>
               <Stack gap="md">
                 <Group justify="space-between">
-                  <Title order={5}>Field Technician Availability</Title>
+                  <Title order={5}>Field TeamMember Availability</Title>
                   <UserCheck size={18} style={{ color: 'gray' }} />
                 </Group>
 
@@ -215,7 +215,7 @@ export const Analytics: React.FC = () => {
                             AVAILABLE
                           </Badge>
                           <Text fw={700} size="lg" c="green">
-                            {summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0}
+                            {summary?.teamMemberAvailability[TeamMemberStatus.AVAILABLE] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -226,7 +226,7 @@ export const Analytics: React.FC = () => {
                             BUSY
                           </Badge>
                           <Text fw={700} size="lg" c="orange">
-                            {summary?.technicianAvailability[TechnicianStatus.BUSY] || 0}
+                            {summary?.teamMemberAvailability[TeamMemberStatus.BUSY] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -237,7 +237,7 @@ export const Analytics: React.FC = () => {
                             OFFLINE
                           </Badge>
                           <Text fw={700} size="lg" c="gray">
-                            {summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0}
+                            {summary?.teamMemberAvailability[TeamMemberStatus.OFFLINE] || 0}
                           </Text>
                         </Paper>
                       </Grid.Col>
@@ -248,11 +248,11 @@ export const Analytics: React.FC = () => {
                         Overall Capacity Split
                       </Text>
                       <Progress.Root size="xl" radius="xl">
-                        <Tooltip label={`Available: ${summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0}`}>
+                        <Tooltip label={`Available: ${summary?.teamMemberAvailability[TeamMemberStatus.AVAILABLE] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.AVAILABLE] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.teamMemberAvailability[TeamMemberStatus.AVAILABLE] || 0) /
+                                (summary?.totalTeamMembersCount || 1)) *
                               100
                             }
                             color="green"
@@ -260,11 +260,11 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Available</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Busy: ${summary?.technicianAvailability[TechnicianStatus.BUSY] || 0}`}>
+                        <Tooltip label={`Busy: ${summary?.teamMemberAvailability[TeamMemberStatus.BUSY] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.BUSY] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.teamMemberAvailability[TeamMemberStatus.BUSY] || 0) /
+                                (summary?.totalTeamMembersCount || 1)) *
                               100
                             }
                             color="orange"
@@ -272,11 +272,11 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Busy</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Offline: ${summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0}`}>
+                        <Tooltip label={`Offline: ${summary?.teamMemberAvailability[TeamMemberStatus.OFFLINE] || 0}`}>
                           <Progress.Section
                             value={
-                              ((summary?.technicianAvailability[TechnicianStatus.OFFLINE] || 0) /
-                                (summary?.totalTechniciansCount || 1)) *
+                              ((summary?.teamMemberAvailability[TeamMemberStatus.OFFLINE] || 0) /
+                                (summary?.totalTeamMembersCount || 1)) *
                               100
                             }
                             color="gray"

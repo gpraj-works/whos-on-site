@@ -14,7 +14,7 @@ import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueDelayedReminderJob, enqueueNotificationJob } from '../../jobs/queues/notification.queue'
 import { findCustomerById } from '../customers/customer.repository'
-import { findCompanyTeamMembers } from '../teamMembers/teamMember.repository'
+import { findCompanyTeamMembers } from '../team/team.repository'
 import * as jobRepo from './job.repository'
 import { canTransition } from './job.state-machine'
 

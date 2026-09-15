@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { JobDto, JobStatus, TechnicianDto, TechnicianStatus } from '@whosonsite/shared'
+import { JobDto, JobStatus, TeamMemberDto, TeamMemberStatus } from '@whosonsite/shared'
 import L from 'leaflet'
 import { Maximize2, Minimize2 } from 'lucide-react'
 
@@ -16,11 +16,11 @@ import {
 
 interface JobMapProps {
   jobs: JobDto[]
-  technicians: TechnicianDto[]
+  teamMembers: TeamMemberDto[]
   selectedJobId?: string | null
-  selectedTechnicianId?: string | null
+  selectedTeamMemberId?: string | null
   onSelectJob?: (job: JobDto) => void
-  onSelectTechnician?: (tech: TechnicianDto) => void
+  onSelectTeamMember?: (tech: TeamMemberDto) => void
   onAssignJob?: (job: JobDto) => void
 }
 
@@ -118,7 +118,7 @@ function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon 
   })
 }
 
-function createTechnicianMarkerIcon(status: TechnicianStatus, isSelected: boolean): L.DivIcon {
+function createTeamMemberMarkerIcon(status: TeamMemberStatus, isSelected: boolean): L.DivIcon {
   const color = TECHNICIAN_STATUS_HEX_COLORS[status] || '#868e96'
   const scaleCss = isSelected ? 'transform: scale(1.2);' : ''
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
@@ -152,7 +152,7 @@ function createTechnicianMarkerIcon(status: TechnicianStatus, isSelected: boolea
 
 const MapAutoController: React.FC<{
   jobsWithCoords: Array<{ job: JobDto; coords: [number, number] }>
-  techsWithCoords: Array<{ tech: TechnicianDto; coords: [number, number] }>
+  techsWithCoords: Array<{ tech: TeamMemberDto; coords: [number, number] }>
   focusedCoords: [number, number] | null
   isMaximized: boolean
 }> = ({ jobsWithCoords, techsWithCoords, focusedCoords, isMaximized }) => {
@@ -187,11 +187,11 @@ const MapAutoController: React.FC<{
 
 export const JobMap: React.FC<JobMapProps> = ({
   jobs,
-  technicians,
+  teamMembers,
   selectedJobId,
-  selectedTechnicianId,
+  selectedTeamMemberId,
   onSelectJob,
-  onSelectTechnician,
+  onSelectTeamMember,
   onAssignJob
 }) => {
   const [isMaximized, setIsMaximized] = useState(false)
@@ -211,17 +211,17 @@ export const JobMap: React.FC<JobMapProps> = ({
     .map((j) => ({ job: j, coords: extractCoords(j.location, j.customer?.address) }))
     .filter((item): item is { job: JobDto; coords: [number, number] } => item.coords !== null)
 
-  const techsWithCoords = technicians
+  const techsWithCoords = teamMembers
     .map((t) => ({ tech: t, coords: extractCoords(t.location) }))
-    .filter((item): item is { tech: TechnicianDto; coords: [number, number] } => item.coords !== null)
+    .filter((item): item is { tech: TeamMemberDto; coords: [number, number] } => item.coords !== null)
 
-  // Determine focused coords if selected job or technician is specified
+  // Determine focused coords if selected job or teamMember is specified
   let focusedCoords: [number, number] | null = null
   if (selectedJobId) {
     const found = jobsWithCoords.find((item) => item.job.id === selectedJobId)
     if (found) focusedCoords = found.coords
-  } else if (selectedTechnicianId) {
-    const found = techsWithCoords.find((item) => item.tech.id === selectedTechnicianId)
+  } else if (selectedTeamMemberId) {
+    const found = techsWithCoords.find((item) => item.tech.id === selectedTeamMemberId)
     if (found) focusedCoords = found.coords
   }
 
@@ -274,7 +274,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                 {jobsWithCoords.length} Jobs on map
               </Badge>
               <Badge variant="light" color="green">
-                {techsWithCoords.length} Technicians
+                {techsWithCoords.length} TeamMembers
               </Badge>
             </Group>
             <Button
@@ -362,9 +362,9 @@ export const JobMap: React.FC<JobMapProps> = ({
                     </Text>
                   </div>
 
-                  {job.assignedTechnicianName ? (
+                  {job.assignedTeamMemberName ? (
                     <Text size="xs">
-                      <strong>Assigned:</strong> {job.assignedTechnicianName}
+                      <strong>Assigned:</strong> {job.assignedTeamMemberName}
                     </Text>
                   ) : (
                     <Text size="xs" c="orange">
@@ -385,7 +385,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                       fullWidth
                       onClick={() => onAssignJob(job)}
                     >
-                      Assign Technician
+                      Assign TeamMember
                     </Button>
                   )}
                 </Stack>
@@ -394,17 +394,17 @@ export const JobMap: React.FC<JobMapProps> = ({
           )
         })}
 
-        {/* Render Technician Markers */}
+        {/* Render TeamMember Markers */}
         {techsWithCoords.map(({ tech, coords }) => {
-          const isSelected = tech.id === selectedTechnicianId
+          const isSelected = tech.id === selectedTeamMemberId
 
           return (
             <Marker
               key={`tech-${tech.id}`}
               position={coords}
-              icon={createTechnicianMarkerIcon(tech.status, isSelected)}
+              icon={createTeamMemberMarkerIcon(tech.status, isSelected)}
               eventHandlers={{
-                click: () => onSelectTechnician?.(tech)
+                click: () => onSelectTeamMember?.(tech)
               }}
             >
               <Popup>

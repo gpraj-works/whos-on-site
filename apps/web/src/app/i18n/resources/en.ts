@@ -8,7 +8,7 @@ export const en = {
       dashboard: 'Dashboard',
       dispatch: 'Jobs',
       jobs: 'Jobs',
-      technicians: 'Technicians',
+      teamMembers: 'TeamMembers',
       customers: 'Customers',
       analytics: 'Analytics',
       settings: 'Settings'
@@ -56,9 +56,9 @@ export const en = {
     },
     dashboard: {
       activeJobs: 'Active Jobs',
-      techniciansOnline: 'Technicians Online',
+      teamMembersOnline: 'TeamMembers Online',
       completedToday: 'Completed Jobs',
-      totalTechnicians: 'Total Technicians'
+      totalTeamMembers: 'Total TeamMembers'
     },
     jobs: {
       title: 'Jobs',
@@ -82,16 +82,16 @@ export const en = {
       notes: 'Description',
       notesPlaceholder: 'Enter job service details or instructions',
       createSubmit: 'Add',
-      assignTitle: 'Assign Technician',
-      selectTechnician: 'Select Field Technician',
-      chooseTechnician: 'Choose an available technician',
+      assignTitle: 'Assign TeamMember',
+      selectTeamMember: 'Select Field TeamMember',
+      chooseTeamMember: 'Choose an available teamMember',
       assignConfirm: 'Update',
-      unassignButton: 'Unassign Current Technician',
+      unassignButton: 'Unassign Current TeamMember',
       noCustomer: 'Unassigned Customer',
       status: 'Status',
-      technician: 'Technician',
-      assignTechnician: 'Assign Technician',
-      reassignTechnician: 'Reassign Tech',
+      teamMember: 'TeamMember',
+      assignTeamMember: 'Assign TeamMember',
+      reassignTeamMember: 'Reassign Tech',
       markEnRoute: 'Start En Route',
       markOnSite: 'Arrive On Site',
       markComplete: 'Complete Job',
@@ -113,8 +113,8 @@ export const en = {
       title: 'Job Status Page',
       subtitle: 'Real-time status tracking for customer jobs',
       customer: 'Customer',
-      technician: 'Assigned Technician',
-      unassignedTech: 'Awaiting technician assignment',
+      teamMember: 'Assigned TeamMember',
+      unassignedTech: 'Awaiting teamMember assignment',
       scheduledAt: 'Scheduled Time',
       lastUpdated: 'Last Updated',
       timeline: 'Service Progress',
@@ -123,12 +123,12 @@ export const en = {
       notFoundTitle: 'Status Link Expired or Not Found',
       notFoundSubtitle: 'This public customer share link may have expired or is invalid.'
     },
-    technicians: {
-      title: 'Technicians',
+    teamMembers: {
+      title: 'TeamMembers',
       subtitle:
-        'Real-time technician availability, status tracking, and location readiness',
-      createTitle: 'New Technician',
-      name: 'Technician',
+        'Real-time teamMember availability, status tracking, and location readiness',
+      createTitle: 'New TeamMember',
+      name: 'TeamMember',
       status: 'Status',
       phone: 'Phone Number',
       location: 'Last Known Location',

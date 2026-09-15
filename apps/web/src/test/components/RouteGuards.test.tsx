@@ -27,7 +27,7 @@ vi.mock('../../components/common/LoadingState', () => ({
 }))
 
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute'
-import { TechnicianOnly } from '../../components/auth/TechnicianOnly'
+import { TeamMemberOnly } from '../../components/auth/TeamMemberOnly'
 
 const resetAuth = (overrides: Partial<typeof mockAuth> = {}) => {
   Object.assign(mockAuth, {
@@ -110,15 +110,15 @@ describe('ProtectedRoute', () => {
   })
 })
 
-describe('TechnicianOnly', () => {
+describe('TeamMemberOnly', () => {
   it('shows a loading state while permissions are verified', () => {
     resetAuth({ isLoading: true })
 
     render(
       <MemoryRouter>
-        <TechnicianOnly>
+        <TeamMemberOnly>
           <div>child</div>
-        </TechnicianOnly>
+        </TeamMemberOnly>
       </MemoryRouter>
     )
 
@@ -134,9 +134,9 @@ describe('TechnicianOnly', () => {
           <Route
             path="/tech"
             element={
-              <TechnicianOnly>
+              <TeamMemberOnly>
                 <div>tech-content</div>
-              </TechnicianOnly>
+              </TeamMemberOnly>
             }
           />
           <Route path="/login" element={<div>login-page</div>} />
@@ -147,14 +147,14 @@ describe('TechnicianOnly', () => {
     expect(screen.getByText('login-page')).toBeInTheDocument()
   })
 
-  it('renders children for a technician role', () => {
-    resetAuth({ isAuthenticated: true, user: { role: UserRole.TECHNICIAN } })
+  it('renders children for a teamMember role', () => {
+    resetAuth({ isAuthenticated: true, user: { role: UserRole.TEAM_MEMBER } })
 
     render(
       <MemoryRouter>
-        <TechnicianOnly>
+        <TeamMemberOnly>
           <div>tech-content</div>
-        </TechnicianOnly>
+        </TeamMemberOnly>
       </MemoryRouter>
     )
 
@@ -166,9 +166,9 @@ describe('TechnicianOnly', () => {
 
     render(
       <MemoryRouter>
-        <TechnicianOnly>
+        <TeamMemberOnly>
           <div>tech-content</div>
-        </TechnicianOnly>
+        </TeamMemberOnly>
       </MemoryRouter>
     )
 

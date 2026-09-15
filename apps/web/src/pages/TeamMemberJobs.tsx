@@ -29,7 +29,7 @@ import { PageHeader } from '../components/common/PageHeader'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { useJobs, useUpdateJobStatus } from '../components/jobs/queries'
-import { useTechnicians } from '../components/technicians/queries'
+import { useTeamMembers } from '../components/team/queries'
 import { formatDate, formatDateTime } from '../lib/date/format'
 import { useLocationTracking } from '../lib/location/useLocationTracking'
 
@@ -41,12 +41,12 @@ interface UnsyncedUpdate {
   errorMsg: string
 }
 
-export const TechnicianJobs: React.FC = () => {
+export const TeamMemberJobs: React.FC = () => {
   const { t } = useTranslation()
   const { user } = useAuth()
 
   const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
-  const { data: technicians = [] } = useTechnicians()
+  const { data: teamMembers = [] } = useTeamMembers()
   const updateStatusMutation = useUpdateJobStatus()
 
   const [detailDrawerJob, setDetailDrawerJob] = useState<JobDto | null>(null)
@@ -55,18 +55,18 @@ export const TechnicianJobs: React.FC = () => {
   const [unsyncedQueue, setUnsyncedQueue] = useState<Record<string, UnsyncedUpdate>>({})
   const retryingJobsRef = useRef<Set<string>>(new Set())
 
-  // Find logged-in technician record
-  const currentTechnician = useMemo(() => {
-    return technicians.find((t) => t.userId === user?.id)
-  }, [technicians, user?.id])
+  // Find logged-in teamMember record
+  const currentTeamMember = useMemo(() => {
+    return teamMembers.find((t) => t.userId === user?.id)
+  }, [teamMembers, user?.id])
 
-  // Check if technician currently has an active job en_route or on_site
+  // Check if teamMember currently has an active job en_route or on_site
   const hasActiveEnRouteOrOnSite = useMemo(() => {
     return jobs.some((j) => j.status === JobStatus.EN_ROUTE || j.status === JobStatus.ON_SITE)
   }, [jobs])
 
-  // Enable live watchPosition GPS tracking when technician is en route or on site
-  useLocationTracking(currentTechnician?.id || null, hasActiveEnRouteOrOnSite)
+  // Enable live watchPosition GPS tracking when teamMember is en route or on site
+  useLocationTracking(currentTeamMember?.id || null, hasActiveEnRouteOrOnSite)
 
   // Execute status update with backoff retry support
   const executeStatusTransition = useCallback(
@@ -139,22 +139,22 @@ export const TechnicianJobs: React.FC = () => {
     <Container fluid p={0}>
       <Stack gap="sm">
         <PageHeader
-          title={t('technician.myJobs', 'My Job Queue')}
+          title={t('teamMember.myJobs', 'My Job Queue')}
           subtitle={t(
-            'technician.subtitle',
+            'teamMember.subtitle',
             'Today’s assigned field jobs and one-tap status updates'
           )}
         />
 
-        {currentTechnician && (
+        {currentTeamMember && (
           <Paper p="xs" radius="md" withBorder bg="var(--mantine-color-body)">
             <Group justify="space-between" align="center">
               <Group gap="xs">
                 <Badge color="teal" variant="dot">
-                  Tech Status: {currentTechnician.status.toUpperCase()}
+                  Tech Status: {currentTeamMember.status.toUpperCase()}
                 </Badge>
                 <Text size="xs" c="dimmed">
-                  {currentTechnician.name} ({currentTechnician.phone})
+                  {currentTeamMember.name} ({currentTeamMember.phone})
                 </Text>
               </Group>
               {hasActiveEnRouteOrOnSite && (
@@ -178,7 +178,7 @@ export const TechnicianJobs: React.FC = () => {
         {/* Active Queue Section */}
         <div>
           <Title order={4} mb="xs">
-            {t('technician.activeQueue', 'Active Jobs')} ({activeQueue.length})
+            {t('teamMember.activeQueue', 'Active Jobs')} ({activeQueue.length})
           </Title>
 
           {isLoadingJobs ? (
@@ -188,7 +188,7 @@ export const TechnicianJobs: React.FC = () => {
           ) : activeQueue.length === 0 ? (
             <Paper p="xl" radius="md" withBorder ta="center">
               <Text size="sm" c="dimmed">
-                🎉 {t('technician.noActiveJobs', 'No active jobs in your queue right now.')}
+                🎉 {t('teamMember.noActiveJobs', 'No active jobs in your queue right now.')}
               </Text>
             </Paper>
           ) : (
@@ -294,7 +294,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.EN_ROUTE)}
                           >
-                            {t('technician.startEnRoute', 'Start En Route')}
+                            {t('teamMember.startEnRoute', 'Start En Route')}
                           </Button>
                         )}
 
@@ -307,7 +307,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.ON_SITE)}
                           >
-                            {t('technician.arriveOnSite', 'Arrive On Site')}
+                            {t('teamMember.arriveOnSite', 'Arrive On Site')}
                           </Button>
                         )}
 
@@ -320,7 +320,7 @@ export const TechnicianJobs: React.FC = () => {
                             loading={updateStatusMutation.isPending && !unsynced}
                             onClick={() => executeStatusTransition(job.id, JobStatus.COMPLETE)}
                           >
-                            {t('technician.completeJob', 'Complete Job')}
+                            {t('teamMember.completeJob', 'Complete Job')}
                           </Button>
                         )}
                       </Group>
@@ -336,7 +336,7 @@ export const TechnicianJobs: React.FC = () => {
         {completedQueue.length > 0 && (
           <div>
             <Title order={4} mb="xs" c="dimmed">
-              {t('technician.completedQueue', 'Completed & History')} ({completedQueue.length})
+              {t('teamMember.completedQueue', 'Completed & History')} ({completedQueue.length})
             </Title>
             <Stack gap="xs">
               {completedQueue.map((job) => (
@@ -374,4 +374,4 @@ export const TechnicianJobs: React.FC = () => {
   )
 }
 
-export default TechnicianJobs
+export default TeamMemberJobs

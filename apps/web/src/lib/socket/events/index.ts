@@ -3,16 +3,16 @@ import {
   JobAssignedEvent,
   JobCreatedEvent,
   JobStatusChangedEvent,
-  TechnicianLocationUpdatedEvent,
-  TechnicianStatusChangedEvent
+  TeamMemberLocationUpdatedEvent,
+  TeamMemberStatusChangedEvent
 } from '@whosonsite/shared'
 
 export interface SocketEventHandlers {
   onJobCreated?: (event: JobCreatedEvent) => void
   onJobAssigned?: (event: JobAssignedEvent) => void
   onJobStatusChanged?: (event: JobStatusChangedEvent) => void
-  onTechnicianLocationUpdated?: (event: TechnicianLocationUpdatedEvent) => void
-  onTechnicianStatusChanged?: (event: TechnicianStatusChangedEvent) => void
+  onTeamMemberLocationUpdated?: (event: TeamMemberLocationUpdatedEvent) => void
+  onTeamMemberStatusChanged?: (event: TeamMemberStatusChangedEvent) => void
 }
 
 /**
@@ -35,25 +35,25 @@ export function registerSocketHandlers(
     handlers.onJobStatusChanged?.(data)
   }
 
-  const techLocationListener = (data: TechnicianLocationUpdatedEvent) => {
-    handlers.onTechnicianLocationUpdated?.(data)
+  const techLocationListener = (data: TeamMemberLocationUpdatedEvent) => {
+    handlers.onTeamMemberLocationUpdated?.(data)
   }
 
-  const techStatusListener = (data: TechnicianStatusChangedEvent) => {
-    handlers.onTechnicianStatusChanged?.(data)
+  const techStatusListener = (data: TeamMemberStatusChangedEvent) => {
+    handlers.onTeamMemberStatusChanged?.(data)
   }
 
   socket.on('job:created', jobCreatedListener)
   socket.on('job:assigned', jobAssignedListener)
   socket.on('job:statusChanged', jobStatusChangedListener)
-  socket.on('technician:locationUpdated', techLocationListener)
-  socket.on('technician:statusChanged', techStatusListener)
+  socket.on('teamMember:locationUpdated', techLocationListener)
+  socket.on('teamMember:statusChanged', techStatusListener)
 
   return () => {
     socket.off('job:created', jobCreatedListener)
     socket.off('job:assigned', jobAssignedListener)
     socket.off('job:statusChanged', jobStatusChangedListener)
-    socket.off('technician:locationUpdated', techLocationListener)
-    socket.off('technician:statusChanged', techStatusListener)
+    socket.off('teamMember:locationUpdated', techLocationListener)
+    socket.off('teamMember:statusChanged', techStatusListener)
   }
 }

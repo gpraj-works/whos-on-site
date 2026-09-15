@@ -47,9 +47,9 @@ const STATUS_CONFIG: Record<
   { label: string; color: string; icon: React.ComponentType<{ size?: number }> }
 > = {
   [JobStatus.UNASSIGNED]: { label: 'Unassigned', color: 'gray', icon: Clock },
-  [JobStatus.ASSIGNED]: { label: 'Technician Assigned', color: 'blue', icon: User },
+  [JobStatus.ASSIGNED]: { label: 'TeamMember Assigned', color: 'blue', icon: User },
   [JobStatus.EN_ROUTE]: { label: 'En Route', color: 'cyan', icon: Truck },
-  [JobStatus.ON_SITE]: { label: 'Technician On Site', color: 'teal', icon: Wrench },
+  [JobStatus.ON_SITE]: { label: 'TeamMember On Site', color: 'teal', icon: Wrench },
   [JobStatus.COMPLETE]: { label: 'Job Complete', color: 'green', icon: CheckCircle2 },
   [JobStatus.CANCELLED]: { label: 'Cancelled', color: 'red', icon: XCircle }
 }
@@ -202,10 +202,10 @@ export const CustomerStatusPage: React.FC = () => {
             <Group gap="xs">
               <Wrench size={16} style={{ color: 'var(--mantine-color-dimmed)' }} />
               <Text size="sm" fw={500}>
-                {t('customerStatus.technician')}:
+                {t('customerStatus.teamMember')}:
               </Text>
               <Text size="sm">
-                {data.technicianName || t('customerStatus.unassignedTech')}
+                {data.teamMemberName || t('customerStatus.unassignedTech')}
               </Text>
             </Group>
 

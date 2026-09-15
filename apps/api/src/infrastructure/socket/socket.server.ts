@@ -4,7 +4,7 @@ import { env } from '../../config/env'
 import { logger } from '../logging/logger'
 import { socketAuthMiddleware, AuthenticatedSocketData } from './socket.auth'
 import { joinCompanyRoom } from './socket.rooms'
-import { updateTeamMemberLocation, getTeamMemberByUserId } from '../../modules/teamMembers/teamMember.service'
+import { updateTeamMemberLocation, getTeamMemberByUserId } from '../../modules/team/team.service'
 
 let io: SocketIoServer | null = null
 

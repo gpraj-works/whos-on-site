@@ -15,7 +15,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { JobStatus, TechnicianStatus } from '@whosonsite/shared'
+import { JobStatus, TeamMemberStatus } from '@whosonsite/shared'
 import { CheckCircle2, Clock, MapPin, Truck, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
@@ -24,7 +24,7 @@ import { useAppTheme } from '../app/theme/ThemeContext'
 import { StatusBadge } from '../components/common/StatusBadge'
 import { ApiErrorAlert } from '../components/feedback/ApiErrorAlert'
 import { useJobs } from '../components/jobs/queries'
-import { useTechnicians } from '../components/technicians/queries'
+import { useTeamMembers } from '../components/team/queries'
 import { formatDateTime } from '../lib/date/format'
 
 export const Dashboard: React.FC = () => {
@@ -37,10 +37,10 @@ export const Dashboard: React.FC = () => {
     error: jobsError
   } = useJobs()
   const {
-    data: technicians = [],
+    data: teamMembers = [],
     isLoading: isLoadingTechs,
     error: techsError
-  } = useTechnicians()
+  } = useTeamMembers()
 
   const activeJobs = jobs.filter(
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
@@ -49,9 +49,9 @@ export const Dashboard: React.FC = () => {
   const enRouteCount = jobs.filter((j) => j.status === JobStatus.EN_ROUTE).length
   const onSiteCount = jobs.filter((j) => j.status === JobStatus.ON_SITE).length
 
-  const onlineTechs = technicians.filter((t) => t.status !== TechnicianStatus.OFFLINE)
-  const availableTechs = technicians.filter((t) => t.status === TechnicianStatus.AVAILABLE)
-  const busyTechs = technicians.filter((t) => t.status === TechnicianStatus.BUSY)
+  const onlineTechs = teamMembers.filter((t) => t.status !== TeamMemberStatus.OFFLINE)
+  const availableTechs = teamMembers.filter((t) => t.status === TeamMemberStatus.AVAILABLE)
+  const busyTechs = teamMembers.filter((t) => t.status === TeamMemberStatus.BUSY)
 
   const completedToday = jobs.filter((j) => j.status === JobStatus.COMPLETE).length
 
@@ -64,8 +64,8 @@ export const Dashboard: React.FC = () => {
       description: `${enRouteCount} en route, ${onSiteCount} on site, ${unassignedCount} unassigned`
     },
     {
-      title: t('dashboard.techniciansOnline', 'Technicians Online'),
-      value: `${onlineTechs.length} / ${technicians.length}`,
+      title: t('dashboard.teamMembersOnline', 'TeamMembers Online'),
+      value: `${onlineTechs.length} / ${teamMembers.length}`,
       icon: Users,
       color: 'blue',
       description: `${availableTechs.length} available, ${busyTechs.length} busy`
@@ -78,8 +78,8 @@ export const Dashboard: React.FC = () => {
       description: `${jobs.length} total jobs recorded`
     },
     {
-      title: t('dashboard.totalTechnicians', 'Total Technicians'),
-      value: String(technicians.length),
+      title: t('dashboard.totalTeamMembers', 'Total TeamMembers'),
+      value: String(teamMembers.length),
       icon: Clock,
       color: 'violet',
       description: `${onlineTechs.length} currently online in field`
@@ -142,7 +142,7 @@ export const Dashboard: React.FC = () => {
                     <Table.Th>Job ID</Table.Th>
                     <Table.Th>Customer & Address</Table.Th>
                     <Table.Th>Status</Table.Th>
-                    <Table.Th hiddenFrom="sm">Technician</Table.Th>
+                    <Table.Th hiddenFrom="sm">TeamMember</Table.Th>
                     <Table.Th hiddenFrom="sm">Scheduled At</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
@@ -189,7 +189,7 @@ export const Dashboard: React.FC = () => {
                         </Table.Td>
                         <Table.Td hiddenFrom="sm">
                           <Text size="xs" fw={500}>
-                            {job.assignedTechnicianName || (
+                            {job.assignedTeamMemberName || (
                               <Text span c="dimmed" fs="italic">
                                 Unassigned
                               </Text>
@@ -209,7 +209,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           </Grid.Col>
 
-          {/* Right Column: Technician Readiness & Progress */}
+          {/* Right Column: TeamMember Readiness & Progress */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Stack gap="sm">
               {/* Daily Completion Progress Card */}
@@ -246,16 +246,16 @@ export const Dashboard: React.FC = () => {
                 </Text>
               </Card>
 
-              {/* Technician Status List */}
+              {/* TeamMember Status List */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="sm">
-                  <Title order={5}>Field Technicians</Title>
+                  <Title order={5}>Field TeamMembers</Title>
                   <Button
                     size="xs"
                     variant="subtle"
                     color={primaryColor}
                     component={Link}
-                    to="/technicians"
+                    to="/team"
                   >
                     View All
                   </Button>
@@ -263,14 +263,14 @@ export const Dashboard: React.FC = () => {
                 <Stack gap="xs">
                   {isLoadingTechs ? (
                     <Text size="xs" c="dimmed">
-                      {t('common.loading', 'Loading technicians...')}
+                      {t('common.loading', 'Loading teamMembers...')}
                     </Text>
-                  ) : technicians.length === 0 ? (
+                  ) : teamMembers.length === 0 ? (
                     <Text size="xs" c="dimmed">
-                      No technicians available.
+                      No teamMembers available.
                     </Text>
                   ) : (
-                    technicians.slice(0, 4).map((tech) => (
+                    teamMembers.slice(0, 4).map((tech) => (
                       <Paper
                         key={tech.id}
                         p="xs"
@@ -296,9 +296,9 @@ export const Dashboard: React.FC = () => {
                             size="xs"
                             variant="light"
                             color={
-                              tech.status === TechnicianStatus.AVAILABLE
+                              tech.status === TeamMemberStatus.AVAILABLE
                                 ? 'green'
-                                : tech.status === TechnicianStatus.BUSY
+                                : tech.status === TeamMemberStatus.BUSY
                                   ? 'orange'
                                   : 'gray'
                             }

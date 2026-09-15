@@ -1,35 +1,35 @@
 import React from 'react'
 import { Avatar, Badge, Card, Group, Paper, Stack, Table, Text, Title } from '@mantine/core'
-import { TechnicianStatus } from '@whosonsite/shared'
+import { TeamMemberStatus } from '@whosonsite/shared'
 import { MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { formatDateTime, formatRelative } from '../../lib/date/format'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useTechnicians } from './queries'
+import { useTeamMembers } from './queries'
 
-export const TechnicianList: React.FC = () => {
+export const TeamMemberList: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
-  const { data: technicians = [], isLoading, error } = useTechnicians()
+  const { data: teamMembers = [], isLoading, error } = useTeamMembers()
 
-  const getStatusColor = (status: TechnicianStatus) => {
+  const getStatusColor = (status: TeamMemberStatus) => {
     switch (status) {
-      case TechnicianStatus.AVAILABLE:
+      case TeamMemberStatus.AVAILABLE:
         return 'green'
-      case TechnicianStatus.BUSY:
+      case TeamMemberStatus.BUSY:
         return 'orange'
-      case TechnicianStatus.OFFLINE:
+      case TeamMemberStatus.OFFLINE:
         return 'gray'
       default:
         return 'blue'
     }
   }
 
-  const activeCount = technicians.filter((tech) => tech.status !== TechnicianStatus.OFFLINE).length
-  const availableCount = technicians.filter(
-    (tech) => tech.status === TechnicianStatus.AVAILABLE
+  const activeCount = teamMembers.filter((tech) => tech.status !== TeamMemberStatus.OFFLINE).length
+  const availableCount = teamMembers.filter(
+    (tech) => tech.status === TeamMemberStatus.AVAILABLE
   ).length
 
   return (
@@ -42,9 +42,9 @@ export const TechnicianList: React.FC = () => {
           <Group gap="xl">
             <div>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
-                Total Technicians
+                Total TeamMembers
               </Text>
-              <Title order={3}>{technicians.length}</Title>
+              <Title order={3}>{teamMembers.length}</Title>
             </div>
             <div>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
@@ -66,16 +66,16 @@ export const TechnicianList: React.FC = () => {
         </Group>
       </Paper>
 
-      {/* Technicians Table */}
+      {/* TeamMembers Table */}
       <Card radius="md" withBorder shadow="xs" p="0">
         <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>{t('technicians.name', 'Technician')}</Table.Th>
-              <Table.Th>{t('technicians.status', 'Status')}</Table.Th>
-              <Table.Th>{t('technicians.phone', 'Phone Number')}</Table.Th>
-              <Table.Th>{t('technicians.location', 'Last Known Location')}</Table.Th>
-              <Table.Th>{t('technicians.lastUpdated', 'Last Updated')}</Table.Th>
+              <Table.Th>{t('teamMembers.name', 'TeamMember')}</Table.Th>
+              <Table.Th>{t('teamMembers.status', 'Status')}</Table.Th>
+              <Table.Th>{t('teamMembers.phone', 'Phone Number')}</Table.Th>
+              <Table.Th>{t('teamMembers.location', 'Last Known Location')}</Table.Th>
+              <Table.Th>{t('teamMembers.lastUpdated', 'Last Updated')}</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -83,20 +83,20 @@ export const TechnicianList: React.FC = () => {
               <Table.Tr>
                 <Table.Td colSpan={5} ta="center" py="xl">
                   <Text size="sm" c="dimmed">
-                    {t('common.loading', 'Loading technicians...')}
+                    {t('common.loading', 'Loading teamMembers...')}
                   </Text>
                 </Table.Td>
               </Table.Tr>
-            ) : technicians.length === 0 ? (
+            ) : teamMembers.length === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={5} ta="center" py="xl">
                   <Text size="sm" c="dimmed">
-                    {t('common.noData', 'No technicians registered in company.')}
+                    {t('common.noData', 'No teamMembers registered in company.')}
                   </Text>
                 </Table.Td>
               </Table.Tr>
             ) : (
-              technicians.map((tech) => (
+              teamMembers.map((tech) => (
                 <Table.Tr key={tech.id}>
                   <Table.Td>
                     <Group gap="xs">
