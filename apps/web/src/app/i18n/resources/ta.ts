@@ -8,7 +8,7 @@ export const ta = {
       dashboard: 'முகப்பு',
       dispatch: 'வேலைகள்',
       jobs: 'வேலைகள்',
-      teamMembers: 'தொழில்நுட்ப வல்லுநர்கள்',
+      agents: 'தொழில்நுட்ப வல்லுநர்கள்',
       customers: 'வாடிக்கையாளர்கள்',
       analytics: 'பகுப்பாய்வு',
       settings: 'நிறுவன அமைப்புகள்'
@@ -56,9 +56,9 @@ export const ta = {
     },
     dashboard: {
       activeJobs: 'செயலில் உள்ள வேலைகள்',
-      teamMembersOnline: 'ஆன்லைன் தொழில்நுட்ப வல்லுநர்கள்',
+      agentsOnline: 'ஆன்லைன் தொழில்நுட்ப வல்லுநர்கள்',
       completedToday: 'நிறைவடைந்த வேலைகள்',
-      totalTeamMembers: 'மொத்த தொழில்நுட்ப வல்லுநர்கள்'
+      totalAgents: 'மொத்த தொழில்நுட்ப வல்லுநர்கள்'
     },
     jobs: {
       title: 'வேலைகள்',
@@ -83,15 +83,15 @@ export const ta = {
       notesPlaceholder: 'வேலை பற்றிய குறிப்புகள் உள்ளிடவும்',
       createSubmit: 'சேர்',
       assignTitle: 'தொழில்நுட்ப வல்லுநரை ஒதுக்கவும்',
-      selectTeamMember: 'தொழில்நுட்ப வல்லுநரைத் தேர்ந்தெடுக்கவும்',
-      chooseTeamMember: 'வல்லுநரைத் தேர்ந்தெடுக்கவும்',
+      selectAgent: 'தொழில்நுட்ப வல்லுநரைத் தேர்ந்தெடுக்கவும்',
+      chooseAgent: 'வல்லுநரைத் தேர்ந்தெடுக்கவும்',
       assignConfirm: 'புதுப்பி',
       unassignButton: 'ஒதுக்கீட்டை நீக்கு',
       noCustomer: 'வாடிக்கையாளர் இல்லை',
       status: 'நிலை',
-      teamMember: 'தொழில்நுட்ப வல்லுநர்',
-      assignTeamMember: 'வல்லுநரை ஒதுக்கவும்',
-      reassignTeamMember: 'மீண்டும் ஒதுக்கவும்',
+      agent: 'தொழில்நுட்ப வல்லுநர்',
+      assignAgent: 'வல்லுநரை ஒதுக்கவும்',
+      reassignAgent: 'மீண்டும் ஒதுக்கவும்',
       markEnRoute: 'பயணத்தை தொடங்கு',
       markOnSite: 'இடத்தை அடைந்தார்',
       markComplete: 'வேலையை முடி',
@@ -112,7 +112,7 @@ export const ta = {
       title: 'வேலை நிலை பக்கம்',
       subtitle: 'வாடிக்கையாளருக்கான நேரலை சேவை நிலை',
       customer: 'வாடிக்கையாளர்',
-      teamMember: 'தொழில்நுட்ப வல்லுநர்',
+      agent: 'தொழில்நுட்ப வல்லுநர்',
       unassignedTech: 'வல்லுநர் ஒதுக்கீட்டிற்கு காத்திருக்கிறது',
       scheduledAt: 'திட்டமிடப்பட்ட நேரம்',
       lastUpdated: 'கடைசி புதுப்பிப்பு',
@@ -122,7 +122,7 @@ export const ta = {
       notFoundTitle: 'நிலை பக்கம் கிடைக்கவில்லை',
       notFoundSubtitle: 'இந்த பொது பகிர்வு இணைப்பு காலாவதியாகியிருக்கலாம் அல்லது தவறானது.'
     },
-    teamMembers: {
+    agents: {
       title: 'தொழில்நுட்ப வல்லுநர்கள்',
       subtitle: 'நேரலை வல்லுநர் நிலைகள் மற்றும் இருப்பிட கண்காணிப்பு',
       createTitle: 'புதிய தொழில்நுட்ப வல்லுநர்',

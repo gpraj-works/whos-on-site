@@ -209,7 +209,7 @@ export const Dashboard: React.FC = () => {
             </Card>
           </Grid.Col>
 
-          {/* Right Column: TeamMember Readiness & Progress */}
+          {/* Right Column: Agent Readiness & Progress */}
           <Grid.Col span={{ base: 12, lg: 4 }}>
             <Stack gap="sm">
               {/* Daily Completion Progress Card */}
@@ -246,7 +246,7 @@ export const Dashboard: React.FC = () => {
                 </Text>
               </Card>
 
-              {/* TeamMember Status List */}
+              {/* Agent Status List */}
               <Card radius="md" withBorder shadow="xs" p="md">
                 <Group justify="space-between" mb="sm">
                   <Title order={5}>Field Agents</Title>

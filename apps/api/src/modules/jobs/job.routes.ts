@@ -29,13 +29,13 @@ router.post(
 
 router.get(
   '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
   listJobsController
 )
 
 router.get(
   '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
   getJobByIdController
 )
 
@@ -51,7 +51,7 @@ router.delete(
   deleteJobController
 )
 
-// TeamMember Assignments
+// Agent Assignments
 router.post(
   '/:id/assign',
   authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
@@ -67,13 +67,13 @@ router.post(
 // Status Transitions & Audit History
 router.post(
   '/:id/status',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
   updateJobStatusController
 )
 
 router.get(
   '/:id/status-history',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
   getJobHistoryController
 )
 

@@ -12,7 +12,7 @@ import {
   Title,
   Tooltip
 } from '@mantine/core'
-import { JobStatus, TeamMemberStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus } from '@whosonsite/shared'
 import {
   BarChart2,
   Briefcase,
@@ -193,7 +193,7 @@ export const Analytics: React.FC = () => {
             </Paper>
           </Grid.Col>
 
-          {/* TeamMember Availability Overview */}
+          {/* Agent Availability Overview */}
           <Grid.Col span={{ base: 12, md: 6 }}>
             <Paper radius="md" p="md" withBorder style={{ height: '100%' }}>
               <Stack gap="md">

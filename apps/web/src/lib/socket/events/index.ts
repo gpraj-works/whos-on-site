@@ -3,16 +3,16 @@ import {
   JobAssignedEvent,
   JobCreatedEvent,
   JobStatusChangedEvent,
-  TeamMemberLocationUpdatedEvent,
-  TeamMemberStatusChangedEvent
+  AgentLocationUpdatedEvent,
+  AgentStatusChangedEvent
 } from '@whosonsite/shared'
 
 export interface SocketEventHandlers {
   onJobCreated?: (event: JobCreatedEvent) => void
   onJobAssigned?: (event: JobAssignedEvent) => void
   onJobStatusChanged?: (event: JobStatusChangedEvent) => void
-  onTeamMemberLocationUpdated?: (event: TeamMemberLocationUpdatedEvent) => void
-  onTeamMemberStatusChanged?: (event: TeamMemberStatusChangedEvent) => void
+  onAgentLocationUpdated?: (event: AgentLocationUpdatedEvent) => void
+  onAgentStatusChanged?: (event: AgentStatusChangedEvent) => void
 }
 
 /**
@@ -35,25 +35,25 @@ export function registerSocketHandlers(
     handlers.onJobStatusChanged?.(data)
   }
 
-  const techLocationListener = (data: TeamMemberLocationUpdatedEvent) => {
-    handlers.onTeamMemberLocationUpdated?.(data)
+  const techLocationListener = (data: AgentLocationUpdatedEvent) => {
+    handlers.onAgentLocationUpdated?.(data)
   }
 
-  const techStatusListener = (data: TeamMemberStatusChangedEvent) => {
-    handlers.onTeamMemberStatusChanged?.(data)
+  const techStatusListener = (data: AgentStatusChangedEvent) => {
+    handlers.onAgentStatusChanged?.(data)
   }
 
   socket.on('job:created', jobCreatedListener)
   socket.on('job:assigned', jobAssignedListener)
   socket.on('job:statusChanged', jobStatusChangedListener)
-  socket.on('teamMember:locationUpdated', techLocationListener)
-  socket.on('teamMember:statusChanged', techStatusListener)
+  socket.on('agent:locationUpdated', techLocationListener)
+  socket.on('agent:statusChanged', techStatusListener)
 
   return () => {
     socket.off('job:created', jobCreatedListener)
     socket.off('job:assigned', jobAssignedListener)
     socket.off('job:statusChanged', jobStatusChangedListener)
-    socket.off('teamMember:locationUpdated', techLocationListener)
-    socket.off('teamMember:statusChanged', techStatusListener)
+    socket.off('agent:locationUpdated', techLocationListener)
+    socket.off('agent:statusChanged', techStatusListener)
   }
 }

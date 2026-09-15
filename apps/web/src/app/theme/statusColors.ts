@@ -1,4 +1,4 @@
-import { JobStatus, TeamMemberStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus } from '@whosonsite/shared'
 
 /** Mantine color name tokens for each JobStatus */
 export const JOB_STATUS_COLORS: Record<JobStatus, string> = {
@@ -20,18 +20,18 @@ export const JOB_STATUS_HEX_COLORS: Record<JobStatus, string> = {
   [JobStatus.CANCELLED]: '#868e96'
 }
 
-/** Mantine color name tokens for each TeamMemberStatus */
-export const TECHNICIAN_STATUS_COLORS: Record<TeamMemberStatus, string> = {
-  [TeamMemberStatus.AVAILABLE]: 'green',
-  [TeamMemberStatus.BUSY]: 'orange',
-  [TeamMemberStatus.OFFLINE]: 'gray'
+/** Mantine color name tokens for each AgentStatus */
+export const TECHNICIAN_STATUS_COLORS: Record<AgentStatus, string> = {
+  [AgentStatus.AVAILABLE]: 'green',
+  [AgentStatus.BUSY]: 'orange',
+  [AgentStatus.OFFLINE]: 'gray'
 }
 
-/** Hex color values for Leaflet maps for each TeamMemberStatus */
-export const TECHNICIAN_STATUS_HEX_COLORS: Record<TeamMemberStatus, string> = {
-  [TeamMemberStatus.AVAILABLE]: '#40c057',
-  [TeamMemberStatus.BUSY]: '#fd7e14',
-  [TeamMemberStatus.OFFLINE]: '#868e96'
+/** Hex color values for Leaflet maps for each AgentStatus */
+export const TECHNICIAN_STATUS_HEX_COLORS: Record<AgentStatus, string> = {
+  [AgentStatus.AVAILABLE]: '#40c057',
+  [AgentStatus.BUSY]: '#fd7e14',
+  [AgentStatus.OFFLINE]: '#868e96'
 }
 
 /** Helper to get Mantine status color with fallback */
@@ -42,10 +42,10 @@ export function getJobStatusColor(status: JobStatus | string): string {
   return 'gray'
 }
 
-/** Helper to get TeamMember status color with fallback */
-export function getTeamMemberStatusColor(status: TeamMemberStatus | string): string {
+/** Helper to get Agent status color with fallback */
+export function getAgentStatusColor(status: AgentStatus | string): string {
   if (status in TECHNICIAN_STATUS_COLORS) {
-    return TECHNICIAN_STATUS_COLORS[status as TeamMemberStatus]
+    return TECHNICIAN_STATUS_COLORS[status as AgentStatus]
   }
   return 'gray'
 }

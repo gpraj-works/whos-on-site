@@ -214,7 +214,7 @@ export const JobMap: React.FC<JobMapProps> = ({
     .map((t) => ({ tech: t, coords: extractCoords(t.location) }))
     .filter((item): item is { tech: AgentDto; coords: [number, number] } => item.coords !== null)
 
-  // Determine focused coords if selected job or teamMember is specified
+  // Determine focused coords if selected job or agent is specified
   let focusedCoords: [number, number] | null = null
   if (selectedJobId) {
     const found = jobsWithCoords.find((item) => item.job.id === selectedJobId)

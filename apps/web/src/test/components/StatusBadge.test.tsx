@@ -17,7 +17,7 @@ describe('StatusBadge', () => {
     expect(screen.getByText('Assigned')).toBeInTheDocument()
   })
 
-  it('renders the translated label for a teamMember status', () => {
+  it('renders the translated label for an agent status', () => {
     renderBadge('available')
     expect(screen.getByText('Available')).toBeInTheDocument()
   })

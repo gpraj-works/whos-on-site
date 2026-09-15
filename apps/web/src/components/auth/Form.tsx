@@ -169,7 +169,7 @@ export const LoginForm: React.FC = () => {
                 color="orange"
                 onClick={() => fillDemoCredentials('tech1@acmehvac.com')}
               >
-                TeamMember
+                Agent
               </Button>
             </Group>
           </Stack>

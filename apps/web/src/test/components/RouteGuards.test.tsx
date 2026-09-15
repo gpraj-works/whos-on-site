@@ -27,7 +27,7 @@ vi.mock('../../components/common/LoadingState', () => ({
 }))
 
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute'
-import { TeamMemberOnly } from '../../components/auth/TeamMemberOnly'
+import { AgentOnly } from '../../components/auth/AgentOnly'
 
 const resetAuth = (overrides: Partial<typeof mockAuth> = {}) => {
   Object.assign(mockAuth, {
@@ -110,15 +110,15 @@ describe('ProtectedRoute', () => {
   })
 })
 
-describe('TeamMemberOnly', () => {
+describe('AgentOnly', () => {
   it('shows a loading state while permissions are verified', () => {
     resetAuth({ isLoading: true })
 
     render(
       <MemoryRouter>
-        <TeamMemberOnly>
+        <AgentOnly>
           <div>child</div>
-        </TeamMemberOnly>
+        </AgentOnly>
       </MemoryRouter>
     )
 
@@ -134,9 +134,9 @@ describe('TeamMemberOnly', () => {
           <Route
             path="/tech"
             element={
-              <TeamMemberOnly>
+              <AgentOnly>
                 <div>tech-content</div>
-              </TeamMemberOnly>
+              </AgentOnly>
             }
           />
           <Route path="/login" element={<div>login-page</div>} />
@@ -147,14 +147,14 @@ describe('TeamMemberOnly', () => {
     expect(screen.getByText('login-page')).toBeInTheDocument()
   })
 
-  it('renders children for a teamMember role', () => {
-    resetAuth({ isAuthenticated: true, user: { role: UserRole.TEAM_MEMBER } })
+  it('renders children for an agent role', () => {
+    resetAuth({ isAuthenticated: true, user: { role: UserRole.AGENT } })
 
     render(
       <MemoryRouter>
-        <TeamMemberOnly>
+        <AgentOnly>
           <div>tech-content</div>
-        </TeamMemberOnly>
+        </AgentOnly>
       </MemoryRouter>
     )
 
@@ -166,9 +166,9 @@ describe('TeamMemberOnly', () => {
 
     render(
       <MemoryRouter>
-        <TeamMemberOnly>
+        <AgentOnly>
           <div>tech-content</div>
-        </TeamMemberOnly>
+        </AgentOnly>
       </MemoryRouter>
     )
 
