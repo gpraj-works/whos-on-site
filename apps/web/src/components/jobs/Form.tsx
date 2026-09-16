@@ -29,9 +29,9 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers()
   const createJobMutation = useCreateJob()
 
-  const [customerId, setCustomerId] = useState<string>('')
-  const [scheduledAt, setScheduledAt] = useState<string>('')
-  const [notes, setNotes] = useState<string>('')
+  const [customerId, setCustomerId] = useState('')
+  const [scheduledAt, setScheduledAt] = useState('')
+  const [notes, setNotes] = useState('')
 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{ customerId?: string; scheduledAt?: string }>({})

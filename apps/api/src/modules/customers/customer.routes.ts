@@ -18,13 +18,13 @@ router.use(authenticate, companyContext)
 
 router.get(
   '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
   listCustomers
 )
 
 router.get(
   '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
   getCustomerById
 )
 
@@ -34,4 +34,4 @@ router.patch('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), updateCustomer)
 
 router.delete('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), deleteCustomer)
 
-export const customerRouter: Router = router
+export const customerRouter = router

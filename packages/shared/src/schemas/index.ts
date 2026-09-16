@@ -1,7 +1,6 @@
 import { z } from 'zod'
-import { AgentStatus, JobStatus, UserRole } from '../enums/index'
+import { AgentStatus, JobStatus } from '../enums/index'
 
-export const userRoleSchema = z.nativeEnum(UserRole)
 export const agentStatusSchema = z.nativeEnum(AgentStatus)
 export const jobStatusSchema = z.nativeEnum(JobStatus)
 
@@ -24,14 +23,6 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required')
-})
-
-export const refreshSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required')
-})
-
-export const logoutSchema = z.object({
-  refreshToken: z.string().min(1, 'Refresh token is required')
 })
 
 export const createJobSchema = z.object({
@@ -61,14 +52,10 @@ export const assignJobSchema = z.object({
   agentId: z.string().uuid('Invalid agent ID')
 })
 
-export type AssignJobInput = z.infer<typeof assignJobSchema>
-
 export const updateJobStatusSchema = z.object({
   status: jobStatusSchema,
   note: z.string().optional()
 })
-
-export type UpdateJobStatusInput = z.infer<typeof updateJobStatusSchema>
 
 export const jobFilterQuerySchema = z.object({
   status: jobStatusSchema.optional(),
@@ -100,12 +87,8 @@ export const customerFilterQuerySchema = z.object({
   offset: z.coerce.number().min(0).default(0).optional()
 })
 
-export type CustomerFilterQuery = z.infer<typeof customerFilterQuerySchema>
-
 export const createAgentSchema = z.object({
   name: z.string().min(2, 'Agent name must be at least 2 characters'),
   phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
   status: agentStatusSchema.optional()
 })
-
-export type CreateAgentInput = z.infer<typeof createAgentSchema>

@@ -10,7 +10,7 @@ import { HealthResponse, ReadinessResponse } from '@whosonsite/shared'
 import { apiRouter } from './routes/index'
 import { errorHandler } from './middleware/error-handler'
 
-const app: express.Express = express()
+const app = express()
 
 const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim())
 

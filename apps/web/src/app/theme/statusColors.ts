@@ -21,14 +21,14 @@ export const JOB_STATUS_HEX_COLORS: Record<JobStatus, string> = {
 }
 
 /** Mantine color name tokens for each AgentStatus */
-export const TECHNICIAN_STATUS_COLORS: Record<AgentStatus, string> = {
+export const AGENT_STATUS_COLORS: Record<AgentStatus, string> = {
   [AgentStatus.AVAILABLE]: 'green',
   [AgentStatus.BUSY]: 'orange',
   [AgentStatus.OFFLINE]: 'gray'
 }
 
 /** Hex color values for Leaflet maps for each AgentStatus */
-export const TECHNICIAN_STATUS_HEX_COLORS: Record<AgentStatus, string> = {
+export const AGENT_STATUS_HEX_COLORS: Record<AgentStatus, string> = {
   [AgentStatus.AVAILABLE]: '#40c057',
   [AgentStatus.BUSY]: '#fd7e14',
   [AgentStatus.OFFLINE]: '#868e96'
@@ -44,8 +44,8 @@ export function getJobStatusColor(status: JobStatus | string): string {
 
 /** Helper to get Agent status color with fallback */
 export function getAgentStatusColor(status: AgentStatus | string): string {
-  if (status in TECHNICIAN_STATUS_COLORS) {
-    return TECHNICIAN_STATUS_COLORS[status as AgentStatus]
+  if (status in AGENT_STATUS_COLORS) {
+    return AGENT_STATUS_COLORS[status as AgentStatus]
   }
   return 'gray'
 }

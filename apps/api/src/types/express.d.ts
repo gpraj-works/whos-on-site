@@ -1,6 +1,6 @@
 import { UserRole } from '@whosonsite/shared'
 
-export interface AuthenticatedContext {
+interface AuthenticatedContext {
   userId: string
   companyId: string
   role: UserRole

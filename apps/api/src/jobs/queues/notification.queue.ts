@@ -8,7 +8,7 @@ export interface NotificationJobPayload {
   companyId: string
   jobId?: string
   type: 'job_created' | 'job_delayed' | 'tech_assigned' | 'job_status_changed' | 'daily_summary'
-  payload: Record<string, any>
+  payload: Record<string, unknown>
 }
 
 export const notificationQueue = new Queue<NotificationJobPayload>(NOTIFICATION_QUEUE_NAME, {

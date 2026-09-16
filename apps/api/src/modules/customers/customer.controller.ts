@@ -27,7 +27,7 @@ export const listCustomers: RequestHandler = asyncHandler(async (req: Request, r
 export const getCustomerById: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
-  const id = req.params.id as string
+  const id = req.params.id
 
   const customer = await customerService.getCustomerDetail(id, companyId)
   return sendSuccess(res, customer, 'Customer retrieved successfully', HttpStatus.OK)
@@ -52,7 +52,7 @@ export const updateCustomer: RequestHandler = asyncHandler(async (req: Request, 
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
   const userId = req.auth.userId
-  const id = req.params.id as string
+  const id = req.params.id
   const parsed = updateCustomerSchema.parse(req.body)
 
   const updated = await customerService.updateCustomerDetails(id, companyId, {
@@ -65,7 +65,7 @@ export const updateCustomer: RequestHandler = asyncHandler(async (req: Request, 
 export const deleteCustomer: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   if (!req.auth) throw new UnauthorizedError()
   const companyId = req.auth.companyId
-  const id = req.params.id as string
+  const id = req.params.id
 
   await customerService.deleteCustomer(id, companyId)
   return sendSuccess(res, null, 'Customer deleted successfully', HttpStatus.OK)

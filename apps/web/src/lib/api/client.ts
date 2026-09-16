@@ -49,8 +49,9 @@ export function setOnAuthFailure(callback: () => void) {
   onAuthFailureCallback = callback
 }
 
-interface RequestOptions extends RequestInit {
+interface RequestOptions extends Omit<RequestInit, 'headers'> {
   skipAuth?: boolean
+  headers?: Record<string, string>
 }
 
 /** Core HTTP Client wrapper around fetch with 401 single-flight auto-refresh queue */
@@ -64,7 +65,7 @@ export async function apiClient<T = unknown>(
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(customHeaders as Record<string, string>)
+    ...customHeaders
   }
 
   if (!skipAuth && memoryAccessToken) {
@@ -153,19 +154,13 @@ export async function apiClient<T = unknown>(
   }
 
   if (!response.ok || !json.success) {
-    const rawError = json.error as
-      { message?: string; code?: string; details?: unknown } | string | undefined
+    const rawError = json.error
     const errorMessage =
-      (typeof rawError === 'string' ? rawError : rawError?.message) ||
+      rawError?.message ||
       json.message ||
       'An error occurred during request execution.'
 
-    throw new ApiError(
-      errorMessage,
-      response.status,
-      typeof rawError === 'object' && rawError !== null ? rawError.code : undefined,
-      typeof rawError === 'object' && rawError !== null ? rawError.details : undefined
-    )
+    throw new ApiError(errorMessage, response.status, rawError?.code, rawError?.details)
   }
 
   return json.data as T

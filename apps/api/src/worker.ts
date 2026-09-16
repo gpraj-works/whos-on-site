@@ -1,6 +1,6 @@
 import { logger } from './infrastructure/logging/logger'
 import { registerDailySummaryJob } from './jobs/queues/notification.queue'
-import { closeNotificationWorker, notificationWorker } from './jobs/workers/notification.worker'
+import { closeNotificationWorker } from './jobs/workers/notification.worker'
 
 logger.info('WhosOnSite Worker process started. Listening for background jobs...')
 
@@ -22,6 +22,3 @@ async function shutdown(signal: string) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'))
 process.on('SIGINT', () => shutdown('SIGINT'))
-
-// Retain active worker instance reference
-export { notificationWorker }

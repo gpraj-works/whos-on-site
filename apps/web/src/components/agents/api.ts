@@ -5,10 +5,6 @@ export async function listAgents(): Promise<AgentDto[]> {
   return apiClient<AgentDto[]>('/agents')
 }
 
-export async function nearbyAgents(lat: number, lng: number): Promise<AgentDto[]> {
-  return apiClient<AgentDto[]>(`/agents/nearby?lat=${lat}&lng=${lng}`)
-}
-
 export async function updateAgentLocation(
   id: string,
   coords: { lat: number; lng: number }

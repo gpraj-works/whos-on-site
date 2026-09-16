@@ -31,7 +31,7 @@ const generalAuthLimiter = rateLimit({
   }
 })
 
-const router: Router = Router()
+const router = Router()
 
 router.use(generalAuthLimiter)
 
@@ -41,4 +41,4 @@ router.post('/refresh', authController.refresh)
 router.post('/logout', authController.logout)
 router.get('/me', authenticate, authController.me)
 
-export const authRouter: Router = router
+export const authRouter = router

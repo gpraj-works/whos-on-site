@@ -8,7 +8,7 @@ import { registerSocketHandlers } from './events'
  * Custom React hook subscribing to real-time Socket.io events
  * and feeding updates into the TanStack React Query cache.
  */
-export function useSocketEvents(enabled = true): void {
+export function useSocketEvents(enabled = true) {
   const queryClient = useQueryClient()
 
   useEffect(() => {

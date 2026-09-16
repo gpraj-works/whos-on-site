@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { JobDto, JobStatus, AgentDto, AgentStatus } from '@whosonsite/shared'
+import { JobDto, JobStatus, AgentDto, AgentStatus, Coordinates } from '@whosonsite/shared'
 import L from 'leaflet'
 import { Maximize2, Minimize2 } from 'lucide-react'
 
@@ -10,11 +10,12 @@ import 'leaflet/dist/leaflet.css'
 import {
   JOB_STATUS_COLORS,
   JOB_STATUS_HEX_COLORS,
-  TECHNICIAN_STATUS_COLORS,
-  TECHNICIAN_STATUS_HEX_COLORS
+  AGENT_STATUS_COLORS,
+  AGENT_STATUS_HEX_COLORS
 } from '../../app/theme'
 
 interface JobMapProps {
+  jobs: JobDto[]
   agents: AgentDto[]
   selectedJobId?: string | null
   selectedAgentId?: string | null
@@ -46,22 +47,11 @@ function hashStringToCoords(str: string): [number, number] {
   return [33.75 + normLat, -84.38 + normLng]
 }
 
-/** Safely extracts valid lat/lng array from various coordinate formats or address fallback */
-function extractCoords(raw: unknown, address?: string | null): [number, number] | null {
-  if (typeof raw === 'object' && raw !== null) {
-    const obj = raw as Record<string, unknown>
-    if (typeof obj.lat === 'number' && typeof obj.lng === 'number' && (obj.lat !== 0 || obj.lng !== 0)) {
-      return [obj.lat, obj.lng]
-    }
-    if (typeof obj.x === 'number' && typeof obj.y === 'number' && (obj.x !== 0 || obj.y !== 0)) {
-      return [obj.y, obj.x]
-    }
-    if (Array.isArray(obj.coordinates) && obj.coordinates.length >= 2) {
-      const lng = Number(obj.coordinates[0])
-      const lat = Number(obj.coordinates[1])
-      if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
-        return [lat, lng]
-      }
+/** Safely extracts valid lat/lng array from coordinate objects or address fallback */
+function extractCoords(raw: Coordinates | string | null, address?: string | null): [number, number] | null {
+  if (raw !== null && typeof raw === 'object') {
+    if (raw.lat !== 0 || raw.lng !== 0) {
+      return [raw.lat, raw.lng]
     }
   }
 
@@ -118,7 +108,7 @@ function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon 
 }
 
 function createAgentMarkerIcon(status: AgentStatus, isSelected: boolean): L.DivIcon {
-  const color = TECHNICIAN_STATUS_HEX_COLORS[status] || '#868e96'
+  const color = AGENT_STATUS_HEX_COLORS[status] || '#868e96'
   const scaleCss = isSelected ? 'transform: scale(1.2);' : ''
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
 
@@ -411,7 +401,7 @@ export const JobMap: React.FC<JobMapProps> = ({
               <Popup>
                 <Stack gap="xs">
                   <Group justify="space-between" align="center">
-                    <Badge color={TECHNICIAN_STATUS_COLORS[tech.status]} variant="filled" size="sm">
+                    <Badge color={AGENT_STATUS_COLORS[tech.status]} variant="filled" size="sm">
                       {tech.status.toUpperCase()}
                     </Badge>
                     <Text size="xs" c="dimmed">

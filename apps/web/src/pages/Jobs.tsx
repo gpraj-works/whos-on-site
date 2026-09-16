@@ -37,8 +37,8 @@ export const Jobs: React.FC = () => {
   const { data: jobs = [], isLoading: isLoadingJobs } = useJobs()
   const { data: agents = [] } = useAgents()
 
-  const [statusFilter, setStatusFilter] = useState<string>('ALL')
-  const [searchQuery, setSearchQuery] = useState<string>('')
+  const [statusFilter, setStatusFilter] = useState('ALL')
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null)
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null)
 
@@ -114,7 +114,7 @@ export const Jobs: React.FC = () => {
           >
               <Stack gap="xs" mb="sm">
                 <TextInput
-                  placeholder={t('dispatch.searchPlaceholder', 'Search customer, address, tech...')}
+                  placeholder={t('dispatch.searchPlaceholder', 'Search customer, address, agent...')}
                   leftSection={<Search size={16} />}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}

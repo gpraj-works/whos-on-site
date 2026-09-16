@@ -6,7 +6,7 @@ import jobRouter from '../modules/jobs/job.routes'
 import { publicStatusRouter } from '../modules/public-status/public-status.routes'
 import { agentRouter } from '../modules/agents/agent.routes'
 
-const apiRouter: Router = Router()
+const apiRouter = Router()
 
 apiRouter.use('/auth', authRouter)
 apiRouter.use('/agents', agentRouter)

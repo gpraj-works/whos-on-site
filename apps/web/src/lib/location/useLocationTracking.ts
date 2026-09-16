@@ -4,7 +4,7 @@ import { getSocket } from '../socket/client'
 
 const MIN_PING_INTERVAL_MS = 10000 // 10 seconds minimum throttle
 
-export function useLocationTracking(agentId: string | null, enabled: boolean): void {
+export function useLocationTracking(agentId: string | null, enabled: boolean) {
   const lastPingTimeRef = useRef<number>(0)
 
   useEffect(() => {
@@ -21,13 +21,13 @@ export function useLocationTracking(agentId: string | null, enabled: boolean): v
       const { latitude: lat, longitude: lng } = position.coords
       lastPingTimeRef.current = now
 
-      // 1. Send socket location ping for real-time dispatcher map updates
+      // Send socket location ping for real-time dispatcher map updates
       const socket = getSocket()
       if (socket?.connected) {
         socket.emit('location:ping', { lat, lng })
       }
 
-      // 2. Persist location to backend REST endpoint
+      // Persist location to backend REST endpoint
       updateAgentLocation(agentId, { lat, lng }).catch((err) => {
         console.warn('[LocationTracking] Failed to update location via REST:', err)
       })

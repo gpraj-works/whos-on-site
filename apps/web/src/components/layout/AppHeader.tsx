@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   ActionIcon,
   Badge,
@@ -29,17 +29,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
   const { colorScheme, toggleColorScheme, primaryColor } = useAppTheme()
   const { user, logout } = useAuth()
   const queryClient = useQueryClient()
-  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const companyName = useAuth().company?.name || 'WhosOnSite'
 
   const handleGlobalRefresh = async () => {
-    setIsRefreshing(true)
-    try {
-      await queryClient.invalidateQueries()
-    } finally {
-      setTimeout(() => setIsRefreshing(false), 600)
-    }
+    await queryClient.invalidateQueries()
   }
 
   return (

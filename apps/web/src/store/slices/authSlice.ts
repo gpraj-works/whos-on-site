@@ -44,9 +44,9 @@ export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | null>(
   }
 )
 
-export const loginThunk = createAsyncThunk<AuthResponse, LoginRequest>(
+export const loginThunk = createAsyncThunk<AuthResponse>(
   'auth/login',
-  async (credentials, { rejectWithValue }) => {
+  async (credentials: LoginRequest, { rejectWithValue }) => {
     try {
       const res = await authApi.loginApi(credentials)
       if (res.accessToken) {
@@ -59,9 +59,9 @@ export const loginThunk = createAsyncThunk<AuthResponse, LoginRequest>(
   }
 )
 
-export const registerThunk = createAsyncThunk<AuthResponse, RegisterRequest>(
+export const registerThunk = createAsyncThunk<AuthResponse>(
   'auth/register',
-  async (data, { rejectWithValue }) => {
+  async (data: RegisterRequest, { rejectWithValue }) => {
     try {
       const res = await authApi.registerApi(data)
       if (res.accessToken) {
@@ -74,7 +74,7 @@ export const registerThunk = createAsyncThunk<AuthResponse, RegisterRequest>(
   }
 )
 
-export const logoutThunk = createAsyncThunk<void>('auth/logout', async () => {
+export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   try {
     await authApi.logoutApi()
   } catch {
@@ -100,9 +100,6 @@ export const authSlice = createSlice({
       state.company = null
       state.isAuthenticated = false
       state.isLoading = false
-    },
-    setIsLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -148,5 +145,5 @@ export const authSlice = createSlice({
   }
 })
 
-export const { setCredentials, clearCredentials, setIsLoading } = authSlice.actions
+export const { setCredentials, clearCredentials } = authSlice.actions
 export default authSlice.reducer

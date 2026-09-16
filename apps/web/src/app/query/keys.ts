@@ -1,9 +1,4 @@
 /** Centralized React Query Keys Factory */
-export const authKeys = {
-  all: ['auth'] as const,
-  currentUser: () => [...authKeys.all, 'me'] as const
-}
-
 export const jobKeys = {
   all: ['jobs'] as const,
   lists: () => [...jobKeys.all, 'list'] as const,
@@ -15,15 +10,11 @@ export const jobKeys = {
 
 export const agentKeys = {
   all: ['agents'] as const,
-  list: () => [...agentKeys.all, 'list'] as const,
-  nearby: (coords: { lat: number; lng: number; radiusMeters?: number }) =>
-    [...agentKeys.all, 'nearby', coords] as const
+  list: () => [...agentKeys.all, 'list'] as const
 }
 
 export const customerKeys = {
   all: ['customers'] as const,
   lists: () => [...customerKeys.all, 'list'] as const,
-  list: (filters?: Record<string, unknown>) => [...customerKeys.lists(), filters] as const,
-  details: () => [...customerKeys.all, 'detail'] as const,
-  detail: (id: string) => [...customerKeys.details(), id] as const
+  list: (filters?: Record<string, unknown>) => [...customerKeys.lists(), filters] as const
 }

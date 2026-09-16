@@ -5,10 +5,8 @@ import { useTranslation } from 'react-i18next'
 
 import { getJobStatusColor, getAgentStatusColor } from '../../app/theme'
 
-type StatusType = JobStatus | AgentStatus | string
-
 interface StatusBadgeProps {
-  status: StatusType
+  status: string
   size?: 'xs' | 'sm' | 'md' | 'lg'
 }
 
