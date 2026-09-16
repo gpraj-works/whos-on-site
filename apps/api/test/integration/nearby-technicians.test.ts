@@ -22,14 +22,14 @@ describe('Technicians & Spatial Proximity Integration Tests', () => {
     techToken = techRes.body.data.accessToken
 
     const techListRes = await request(app)
-      .get('/api/technicians')
+      .get('/api/agents')
       .set('Authorization', `Bearer ${dispatcherToken}`)
     techId = techListRes.body.data[0].id
   })
 
   it('queries nearby available technicians ordered by PostGIS distance', async () => {
     const res = await request(app)
-      .get('/api/technicians/nearby')
+      .get('/api/agents/nearby')
       .query({ lat: 33.75, lng: -84.38, radiusKm: 25 })
       .set('Authorization', `Bearer ${dispatcherToken}`)
 
@@ -48,7 +48,7 @@ describe('Technicians & Spatial Proximity Integration Tests', () => {
 
   it('updates technician location via location-ping endpoint', async () => {
     const pingRes = await request(app)
-      .patch(`/api/technicians/${techId}/location`)
+      .patch(`/api/agents/${techId}/location`)
       .set('Authorization', `Bearer ${techToken}`)
       .send({ lat: 33.76, lng: -84.39 })
 

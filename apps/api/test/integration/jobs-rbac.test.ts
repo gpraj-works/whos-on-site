@@ -33,7 +33,7 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
 
     // Fetch technicians list to find technician linked to tech1@acmehvac.com
     const techListRes = await request(app)
-      .get('/api/technicians')
+      .get('/api/agents')
       .set('Authorization', `Bearer ${dispatcherToken}`)
     techId = techListRes.body.data[0].id
   })
@@ -89,12 +89,12 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
     const assignRes = await request(app)
       .post(`/api/jobs/${createdJobId}/assign`)
       .set('Authorization', `Bearer ${dispatcherToken}`)
-      .send({ technicianId: techId })
+      .send({ agentId: techId })
 
     expect(assignRes.status).toBe(200)
     expect(assignRes.body.success).toBe(true)
     expect(assignRes.body.data.status).toBe('assigned')
-    expect(assignRes.body.data.assignedTechnicianId).toBe(techId)
+    expect(assignRes.body.data.assignedAgentId).toBe(techId)
   })
 
   it('rejects illegal status transition e.g. ASSIGNED -> COMPLETE directly (returns 400)', async () => {

@@ -36,6 +36,13 @@
       "when": 1789502140967,
       "tag": "0005_long_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790000000000,
+      "tag": "0006_user_role_agent",
+      "breakpoints": true
     }
   ]
 }

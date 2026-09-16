@@ -1,0 +1,1 @@
+ALTER TYPE "public"."user_role" RENAME VALUE 'technician' TO 'agent';--> statement-breakpoint
