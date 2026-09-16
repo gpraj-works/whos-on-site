@@ -44,9 +44,9 @@ export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | null>(
   }
 )
 
-export const loginThunk = createAsyncThunk<AuthResponse>(
+export const loginThunk = createAsyncThunk<AuthResponse, LoginRequest>(
   'auth/login',
-  async (credentials: LoginRequest, { rejectWithValue }) => {
+  async (credentials, { rejectWithValue }) => {
     try {
       const res = await authApi.loginApi(credentials)
       if (res.accessToken) {
@@ -59,9 +59,9 @@ export const loginThunk = createAsyncThunk<AuthResponse>(
   }
 )
 
-export const registerThunk = createAsyncThunk<AuthResponse>(
+export const registerThunk = createAsyncThunk<AuthResponse, RegisterRequest>(
   'auth/register',
-  async (data: RegisterRequest, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       const res = await authApi.registerApi(data)
       if (res.accessToken) {

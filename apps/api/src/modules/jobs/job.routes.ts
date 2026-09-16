@@ -15,7 +15,7 @@ import {
   updateJobStatusController
 } from './job.controller'
 
-const router = Router()
+const router: Router = Router()
 
 // All job endpoints require authentication & company context scope
 router.use(authenticate, companyContext)

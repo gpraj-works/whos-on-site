@@ -41,4 +41,4 @@ router.post('/refresh', authController.refresh)
 router.post('/logout', authController.logout)
 router.get('/me', authenticate, authController.me)
 
-export const authRouter = router
+export const authRouter: Router = router

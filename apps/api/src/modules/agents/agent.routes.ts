@@ -30,4 +30,4 @@ router.patch(
   agentController.updateLocation
 )
 
-export const agentRouter = router
+export const agentRouter: Router = router

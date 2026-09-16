@@ -34,4 +34,4 @@ router.patch('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), updateCustomer)
 
 router.delete('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), deleteCustomer)
 
-export const customerRouter = router
+export const customerRouter: Router = router

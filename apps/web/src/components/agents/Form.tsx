@@ -22,7 +22,7 @@ export const CreateAgentModal: React.FC<CreateAgentModalProps> = ({
 
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
-  const [status, setStatus] = useState(AgentStatus.AVAILABLE)
+  const [status, setStatus] = useState<string>(AgentStatus.AVAILABLE)
   const [fieldErrors, setFieldErrors] = useState<{ name?: string; phone?: string }>({})
 
   const handleReset = () => {

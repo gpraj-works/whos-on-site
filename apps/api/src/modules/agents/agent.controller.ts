@@ -47,7 +47,7 @@ export const createAgent: RequestHandler = asyncHandler(
 
 export const updateLocation: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const companyId = req.auth!.companyId
-  const agentId = req.params.id
+  const agentId = req.params.id as string
   const coords = updateLocationSchema.parse(req.body)
 
   const updated = await agentService.updateAgentLocation(agentId, companyId, coords)

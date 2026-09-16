@@ -16,4 +16,4 @@ router.get(
   analyticsController.getAnalyticsSummary
 )
 
-export const analyticsRouter = router
+export const analyticsRouter: Router = router
