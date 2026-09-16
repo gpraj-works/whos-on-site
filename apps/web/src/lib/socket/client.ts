@@ -54,7 +54,7 @@ export function connectSocket(): Socket {
 /**
  * Disconnect and clear the global Socket.io client instance.
  */
-export function disconnectSocket(): void {
+export function disconnectSocket() {
   if (socket) {
     socket.disconnect()
     socket = null

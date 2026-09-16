@@ -76,7 +76,7 @@ export const LoginForm: React.FC = () => {
     <Center mih="100vh" bg="var(--mantine-color-body)" p="md">
       <Container size={420} w="100%">
         <Stack align="center" mb="lg">
-          <ActionIcon color="teal" size={54} radius="xl" variant="filled">
+          <ActionIcon size={54} radius="xl" variant="filled">
             <Logo size={32} color="currentColor" />
           </ActionIcon>
           <Title order={2} ta="center">

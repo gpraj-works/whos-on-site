@@ -74,7 +74,7 @@ export const registerThunk = createAsyncThunk<AuthResponse, RegisterRequest>(
   }
 )
 
-export const logoutThunk = createAsyncThunk<void>('auth/logout', async () => {
+export const logoutThunk = createAsyncThunk('auth/logout', async () => {
   try {
     await authApi.logoutApi()
   } catch {
@@ -100,9 +100,6 @@ export const authSlice = createSlice({
       state.company = null
       state.isAuthenticated = false
       state.isLoading = false
-    },
-    setIsLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload
     }
   },
   extraReducers: (builder) => {
@@ -148,5 +145,5 @@ export const authSlice = createSlice({
   }
 })
 
-export const { setCredentials, clearCredentials, setIsLoading } = authSlice.actions
+export const { setCredentials, clearCredentials } = authSlice.actions
 export default authSlice.reducer

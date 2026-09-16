@@ -26,7 +26,7 @@ export const AssignAgentModal: React.FC<AssignAgentModalProps> = ({
   const assignJobMutation = useAssignJob()
   const unassignJobMutation = useUnassignJob()
 
-  const [selectedTechId, setSelectedTechId] = useState<string>('')
+  const [selectedTechId, setSelectedTechId] = useState('')
   const [validationError, setValidationError] = useState<string | null>(null)
 
   const handleClose = () => {

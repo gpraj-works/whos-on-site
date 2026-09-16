@@ -31,7 +31,7 @@ const generalAuthLimiter = rateLimit({
   }
 })
 
-const router: Router = Router()
+const router = Router()
 
 router.use(generalAuthLimiter)
 

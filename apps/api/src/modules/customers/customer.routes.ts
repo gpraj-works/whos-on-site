@@ -18,13 +18,13 @@ router.use(authenticate, companyContext)
 
 router.get(
   '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
   listCustomers
 )
 
 router.get(
   '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.TEAM_MEMBER),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
   getCustomerById
 )
 

@@ -89,8 +89,8 @@ export const AgentJobs: React.FC = () => {
           delete next[jobId]
           return next
         })
-      } catch (err: any) {
-        const errorMsg = err?.message || 'Network sync error. Will retry automatically.'
+      } catch (err: unknown) {
+        const errorMsg = err instanceof Error ? err.message : 'Network sync error. Will retry automatically.'
         const nextAttempt = currentAttempt + 1
 
         setUnsyncedQueue((prev) => ({

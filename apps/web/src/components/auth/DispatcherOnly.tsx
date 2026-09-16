@@ -5,7 +5,7 @@ import { UserRole } from '@whosonsite/shared'
 import { LoadingState } from '../common/LoadingState'
 import { useAuth } from './AuthContext'
 
-export interface DispatcherOnlyProps {
+interface DispatcherOnlyProps {
   children: React.ReactNode
 }
 
@@ -21,7 +21,7 @@ export const DispatcherOnly: React.FC<DispatcherOnlyProps> = ({ children }) => {
   }
 
   const allowedRoles = [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
-  if (!user || !allowedRoles.includes(user.role as UserRole)) {
+  if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/dashboard" replace />
   }
 

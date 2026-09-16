@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { ThemeColorType } from '@whosonsite/shared'
 import { getLogoSvgString } from '../../components/common/Logo'
 
-export const SWATCH_HEX_MAP: Record<ThemeColorType, string> = {
+const SWATCH_HEX_MAP: Record<ThemeColorType, string> = {
   teal: '#12b886',
   indigo: '#4c6ef5',
   blue: '#228be6',
@@ -18,17 +18,21 @@ export function useFavicon(primaryColor: ThemeColorType, colorScheme: 'light' | 
   useEffect(() => {
     const hexColor = SWATCH_HEX_MAP[primaryColor] || '#12b886'
     const svgString = getLogoSvgString(hexColor)
-    const encodedSvg = `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`
+    // Removed legacy ;utf8 part from the data URI
+    const encodedSvg = `data:image/svg+xml,${encodeURIComponent(svgString)}`
 
+    // Recreate the link element to force the browser to update the favicon
     let faviconLink = document.getElementById('dynamic-favicon') as HTMLLinkElement | null
-    if (!faviconLink) {
-      faviconLink = document.createElement('link')
-      faviconLink.id = 'dynamic-favicon'
-      faviconLink.rel = 'icon'
-      faviconLink.type = 'image/svg+xml'
-      document.head.appendChild(faviconLink)
+    if (faviconLink) {
+      faviconLink.remove()
     }
-
+    
+    faviconLink = document.createElement('link')
+    faviconLink.id = 'dynamic-favicon'
+    faviconLink.rel = 'icon'
+    faviconLink.type = 'image/svg+xml'
     faviconLink.href = encodedSvg
+    
+    document.head.appendChild(faviconLink)
   }, [primaryColor, colorScheme])
 }

@@ -1,13 +1,7 @@
-import {
-  AuthResponse,
-  AuthUser,
-  CompanyDto,
-  LoginRequest,
-  RegisterRequest
-} from '@whosonsite/shared'
+import { AuthResponse, LoginRequest, RegisterRequest } from '@whosonsite/shared'
 import { apiClient } from '../../lib/api'
 
-export async function loginApi(data: LoginRequest): Promise<AuthResponse> {
+export async function loginApi(data: LoginRequest) {
   return apiClient<AuthResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -15,7 +9,7 @@ export async function loginApi(data: LoginRequest): Promise<AuthResponse> {
   })
 }
 
-export async function registerApi(data: RegisterRequest): Promise<AuthResponse> {
+export async function registerApi(data: RegisterRequest) {
   return apiClient<AuthResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -23,7 +17,7 @@ export async function registerApi(data: RegisterRequest): Promise<AuthResponse> 
   })
 }
 
-export async function logoutApi(): Promise<void> {
+export async function logoutApi() {
   return apiClient<void>('/auth/logout', {
     method: 'POST'
   })
@@ -31,7 +25,7 @@ export async function logoutApi(): Promise<void> {
 
 let inFlightRefreshPromise: Promise<AuthResponse> | null = null
 
-export async function refreshApi(): Promise<AuthResponse> {
+export async function refreshApi() {
   if (inFlightRefreshPromise) {
     return inFlightRefreshPromise
   }
@@ -44,8 +38,4 @@ export async function refreshApi(): Promise<AuthResponse> {
   })
 
   return inFlightRefreshPromise
-}
-
-export async function getMeApi(): Promise<{ user: AuthUser; company?: CompanyDto }> {
-  return apiClient<{ user: AuthUser; company?: CompanyDto }>('/auth/me')
 }

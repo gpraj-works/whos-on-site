@@ -88,7 +88,7 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
   describe('Technicians Isolation', () => {
     it('Company A receives ONLY Company A technicians on GET /api/technicians', async () => {
       const res = await request(app)
-        .get('/api/technicians')
+        .get('/api/agents')
         .set('Authorization', `Bearer ${tokenCompanyA}`)
 
       expect(res.status).toBe(200)
@@ -102,7 +102,7 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
 
     it('Company A nearby technician query returns ONLY Company A technicians', async () => {
       const res = await request(app)
-        .get('/api/technicians/nearby')
+        .get('/api/agents/nearby')
         .query({ lat: 33.75, lng: -84.38, radiusKm: 50 })
         .set('Authorization', `Bearer ${tokenCompanyA}`)
 

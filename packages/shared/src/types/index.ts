@@ -68,10 +68,6 @@ export interface LoginRequest {
   password: string
 }
 
-export interface TokenRefreshRequest {
-  refreshToken: string
-}
-
 export interface JobDto {
   id: string
   shareToken: string
@@ -82,7 +78,7 @@ export interface JobDto {
   status: JobStatus
   scheduledAt: string | null
   assignedAgentId: string | null
-  assignedAgentName?: string | null
+  assignedAgentName: string | null
   notes: string | null
   createdAt: string
   updatedAt: string
@@ -95,7 +91,7 @@ export interface JobStatusHistoryDto {
   fromStatus: JobStatus | null
   toStatus: JobStatus
   changedBy: string | null
-  changedByName?: string | null
+  changedByName: string | null
   changedAt: string
   note: string | null
 }

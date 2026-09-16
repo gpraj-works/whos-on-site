@@ -22,7 +22,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
   const { user } = useAuth()
   const location = useLocation()
 
-  const userRole = (user?.role as UserRole) || UserRole.DISPATCHER
+  const userRole = user?.role || UserRole.DISPATCHER
 
   const navItems = [
     {

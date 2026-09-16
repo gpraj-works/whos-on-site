@@ -26,6 +26,5 @@ const parsedEnv = envSchema.parse(process.env)
 export const env = {
   ...parsedEnv,
   isDevEnv: parsedEnv.NODE_ENV === 'development',
-  isTestEnv: parsedEnv.NODE_ENV === 'test',
   isProdEnv: parsedEnv.NODE_ENV === 'production'
 }

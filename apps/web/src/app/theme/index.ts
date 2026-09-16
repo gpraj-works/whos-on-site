@@ -1,9 +1,6 @@
 import { createTheme, MantineThemeOverride } from '@mantine/core'
 import { ThemeColorType } from '@whosonsite/shared'
-import { darkThemeTokens } from './dark'
-import { lightThemeTokens } from './light'
 
-export { darkThemeTokens, lightThemeTokens }
 export * from './statusColors'
 export * from './ThemeContext'
 

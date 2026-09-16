@@ -1,6 +1,6 @@
 import React from 'react'
 
-export interface LogoProps extends React.SVGProps<SVGSVGElement> {
+interface LogoProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string
   color?: string
 }
