@@ -166,8 +166,7 @@ export const en = {
     },
     agents: {
       title: 'Agents',
-      subtitle:
-        'Real-time agent availability, status tracking, and location readiness',
+      subtitle: 'Real-time agent availability, status tracking, and location readiness',
       createTitle: 'New Agent',
       name: 'Agent',
       status: 'Status',

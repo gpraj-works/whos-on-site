@@ -69,12 +69,12 @@ File: `apps/web/src/components/customers/List.tsx` (~line 21)
 
 ## Files touched
 
-| Action | File |
-| --- | --- |
-| Edit | `packages/shared/src/schemas/index.ts` |
-| Add | `apps/web/src/lib/format/phone.ts` |
-| Add | `apps/web/src/components/shared/PhoneInput.tsx` |
-| Edit | `apps/web/src/components/customers/Form.tsx` |
-| Edit | `apps/web/src/components/agents/Form.tsx` |
-| Edit | `apps/web/src/components/customers/List.tsx` |
-| Add | `apps/web/src/test/lib/format-phone.test.ts` |
+| Action | File                                            |
+| ------ | ----------------------------------------------- |
+| Edit   | `packages/shared/src/schemas/index.ts`          |
+| Add    | `apps/web/src/lib/format/phone.ts`              |
+| Add    | `apps/web/src/components/shared/PhoneInput.tsx` |
+| Edit   | `apps/web/src/components/customers/Form.tsx`    |
+| Edit   | `apps/web/src/components/agents/Form.tsx`       |
+| Edit   | `apps/web/src/components/customers/List.tsx`    |
+| Add    | `apps/web/src/test/lib/format-phone.test.ts`    |

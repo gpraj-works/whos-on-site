@@ -24,7 +24,8 @@ class ResizeObserverMock {
   disconnect() {}
 }
 
-window.ResizeObserver = window.ResizeObserver || (ResizeObserverMock as unknown as typeof ResizeObserver)
+window.ResizeObserver =
+  window.ResizeObserver || (ResizeObserverMock as unknown as typeof ResizeObserver)
 
 if (!i18n.isInitialized) {
   i18n.use(initReactI18next).init({

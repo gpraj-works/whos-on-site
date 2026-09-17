@@ -18,13 +18,11 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
   }
 
   it('registers a new company and owner user', async () => {
-    const res = await request(app)
-      .post('/api/auth/register')
-      .send({
-        companyName: 'Test HVAC Co',
-        email: 'newowner@testhvac.com',
-        password: 'password123'
-      })
+    const res = await request(app).post('/api/auth/register').send({
+      companyName: 'Test HVAC Co',
+      email: 'newowner@testhvac.com',
+      password: 'password123'
+    })
 
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
@@ -33,12 +31,10 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
   })
 
   it('authenticates user login and sets httpOnly refresh token cookie', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'dispatcher@acmehvac.com',
-        password: 'password123'
-      })
+    const res = await request(app).post('/api/auth/login').send({
+      email: 'dispatcher@acmehvac.com',
+      password: 'password123'
+    })
 
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
@@ -48,19 +44,15 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
   })
 
   it('rotates refresh token on /api/auth/refresh and revokes previous token after grace period', async () => {
-    const loginRes = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'admin@acmehvac.com',
-        password: 'password123'
-      })
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: 'admin@acmehvac.com',
+      password: 'password123'
+    })
 
     const cookie1 = getCookieHeader(loginRes)
 
     // First refresh: rotates token successfully
-    const refreshRes1 = await request(app)
-      .post('/api/auth/refresh')
-      .set('Cookie', cookie1)
+    const refreshRes1 = await request(app).post('/api/auth/refresh').set('Cookie', cookie1)
 
     expect(refreshRes1.status).toBe(200)
     expect(refreshRes1.body.success).toBe(true)
@@ -71,27 +63,21 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
     })
 
     // Reusing the old rotated refresh token past grace period MUST be rejected (401)
-    const reuseRes = await request(app)
-      .post('/api/auth/refresh')
-      .set('Cookie', cookie1)
+    const reuseRes = await request(app).post('/api/auth/refresh').set('Cookie', cookie1)
 
     expect(reuseRes.status).toBe(401)
     expect(reuseRes.body.success).toBe(false)
   })
 
   it('invalidates refresh token on logout', async () => {
-    const loginRes = await request(app)
-      .post('/api/auth/login')
-      .send({
-        email: 'owner@acmehvac.com',
-        password: 'password123'
-      })
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: 'owner@acmehvac.com',
+      password: 'password123'
+    })
 
     const cookie = getCookieHeader(loginRes)
 
-    const logoutRes = await request(app)
-      .post('/api/auth/logout')
-      .set('Cookie', cookie)
+    const logoutRes = await request(app).post('/api/auth/logout').set('Cookie', cookie)
 
     expect(logoutRes.status).toBe(200)
 
@@ -100,9 +86,7 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
       revokedAt: dayjs().subtract(30, 'second').toDate()
     })
 
-    const postLogoutRefresh = await request(app)
-      .post('/api/auth/refresh')
-      .set('Cookie', cookie)
+    const postLogoutRefresh = await request(app).post('/api/auth/refresh').set('Cookie', cookie)
 
     expect(postLogoutRefresh.status).toBe(401)
   })

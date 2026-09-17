@@ -121,8 +121,14 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
       const { notifications } = await import('../../src/infrastructure/database/schema/index')
       const { eq } = await import('drizzle-orm')
 
-      const notifsA = await db.select().from(notifications).where(eq(notifications.companyId, companyAId))
-      const notifsB = await db.select().from(notifications).where(eq(notifications.companyId, companyBId))
+      const notifsA = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.companyId, companyAId))
+      const notifsB = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.companyId, companyBId))
 
       for (const n of notifsA) {
         expect(n.companyId).toBe(companyAId)

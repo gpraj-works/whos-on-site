@@ -26,13 +26,13 @@ export function useFavicon(primaryColor: ThemeColorType, colorScheme: 'light' | 
     if (faviconLink) {
       faviconLink.remove()
     }
-    
+
     faviconLink = document.createElement('link')
     faviconLink.id = 'dynamic-favicon'
     faviconLink.rel = 'icon'
     faviconLink.type = 'image/svg+xml'
     faviconLink.href = encodedSvg
-    
+
     document.head.appendChild(faviconLink)
   }, [primaryColor, colorScheme])
 }

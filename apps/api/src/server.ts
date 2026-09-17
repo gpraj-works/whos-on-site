@@ -10,4 +10,3 @@ initSocketServer(httpServer)
 httpServer.listen(env.PORT, () => {
   logger.info(`WhosOnSite API server running on port ${env.PORT} in ${env.NODE_ENV} mode`)
 })
-

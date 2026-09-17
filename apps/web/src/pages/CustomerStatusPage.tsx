@@ -127,13 +127,24 @@ export const CustomerStatusPage: React.FC = () => {
     <Box style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }} py="lg">
       <Container size="sm">
         {/* Top Header Card */}
-        <Card radius="md" withBorder p="lg" mb="md" style={{ borderTop: `4px solid ${data.companyPrimaryColor}` }}>
+        <Card
+          radius="md"
+          withBorder
+          p="lg"
+          mb="md"
+          style={{ borderTop: `4px solid ${data.companyPrimaryColor}` }}
+        >
           <Group justify="space-between" align="center" mb="xs">
             <Group gap="xs">
               <Logo size={28} color={data.companyPrimaryColor} />
               <Title order={4}>{data.companyName}</Title>
             </Group>
-            <Badge size="lg" color={statusCfg.color} variant="filled" leftSection={<StatusIcon size={14} />}>
+            <Badge
+              size="lg"
+              color={statusCfg.color}
+              variant="filled"
+              leftSection={<StatusIcon size={14} />}
+            >
               {t(`status.${data.status}`, { defaultValue: statusCfg.label })}
             </Badge>
           </Group>
@@ -144,7 +155,14 @@ export const CustomerStatusPage: React.FC = () => {
 
         {/* Cancelled Alert if applicable */}
         {isCancelled && (
-          <Alert icon={<XCircle size={20} />} title={t('status.cancelled')} color="red" variant="filled" mb="md" radius="md">
+          <Alert
+            icon={<XCircle size={20} />}
+            title={t('status.cancelled')}
+            color="red"
+            variant="filled"
+            mb="md"
+            radius="md"
+          >
             {t('jobs.cancelConfirmMessage')}
           </Alert>
         )}
@@ -204,9 +222,7 @@ export const CustomerStatusPage: React.FC = () => {
               <Text size="sm" fw={500}>
                 {t('customerStatus.agent')}:
               </Text>
-              <Text size="sm">
-                {data.agentName || t('customerStatus.unassignedTech')}
-              </Text>
+              <Text size="sm">{data.agentName || t('customerStatus.unassignedTech')}</Text>
             </Group>
 
             {data.scheduledAt && (
@@ -228,7 +244,11 @@ export const CustomerStatusPage: React.FC = () => {
             </Group>
 
             {data.notes && (
-              <Box mt="xs" p="xs" style={{ borderRadius: 6, backgroundColor: 'var(--mantine-color-gray-0)' }}>
+              <Box
+                mt="xs"
+                p="xs"
+                style={{ borderRadius: 6, backgroundColor: 'var(--mantine-color-gray-0)' }}
+              >
                 <Text size="xs" c="dimmed" fw={600} mb={2}>
                   Notes:
                 </Text>
@@ -246,9 +266,21 @@ export const CustomerStatusPage: React.FC = () => {
             </Title>
             <Stack gap="xs">
               {data.history.map((item, idx) => (
-                <Group key={idx} justify="space-between" align="flex-start" style={{ borderBottom: '1px solid var(--mantine-color-gray-2)', paddingBottom: 6 }}>
+                <Group
+                  key={idx}
+                  justify="space-between"
+                  align="flex-start"
+                  style={{
+                    borderBottom: '1px solid var(--mantine-color-gray-2)',
+                    paddingBottom: 6
+                  }}
+                >
                   <Box>
-                    <Badge size="xs" color={STATUS_CONFIG[item.toStatus]?.color || 'gray'} variant="light">
+                    <Badge
+                      size="xs"
+                      color={STATUS_CONFIG[item.toStatus]?.color || 'gray'}
+                      variant="light"
+                    >
                       {t(`status.${item.toStatus}`, { defaultValue: item.toStatus })}
                     </Badge>
                     {item.note && (
@@ -270,7 +302,8 @@ export const CustomerStatusPage: React.FC = () => {
         <Group justify="center" align="center" gap={6} py="xs">
           <RefreshCw size={12} className="spin" style={{ color: 'var(--mantine-color-dimmed)' }} />
           <Text size="xs" c="dimmed">
-            {t('customerStatus.autoRefresh')} {lastRefreshedAt ? `(Updated ${lastRefreshedAt})` : ''}
+            {t('customerStatus.autoRefresh')}{' '}
+            {lastRefreshedAt ? `(Updated ${lastRefreshedAt})` : ''}
           </Text>
         </Group>
       </Container>

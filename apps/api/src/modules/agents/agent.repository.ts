@@ -3,11 +3,7 @@ import { and, eq, sql } from 'drizzle-orm'
 import { Coordinates, AgentStatus } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import { agents } from '../../infrastructure/database/schema/index'
-import {
-  CreateAgentData,
-  NearbyAgentQuery,
-  AgentQueryResult
-} from './agent.types'
+import { CreateAgentData, NearbyAgentQuery, AgentQueryResult } from './agent.types'
 
 export async function findCompanyAgents(
   companyId: string,
@@ -110,11 +106,7 @@ export async function updateAgentLocation(
   return updated || null
 }
 
-export async function findAgentById(
-  id: string,
-  companyId: string,
-  client: DatabaseClient = db
-) {
+export async function findAgentById(id: string, companyId: string, client: DatabaseClient = db) {
   const [row] = await client
     .select()
     .from(agents)
@@ -154,11 +146,7 @@ export async function updateAgent(
   return updated || null
 }
 
-export async function deleteAgent(
-  id: string,
-  companyId: string,
-  client: DatabaseClient = db
-) {
+export async function deleteAgent(id: string, companyId: string, client: DatabaseClient = db) {
   const [deleted] = await client
     .delete(agents)
     .where(and(eq(agents.id, id), eq(agents.companyId, companyId)))

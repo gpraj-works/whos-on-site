@@ -16,17 +16,9 @@ const router = Router()
 // All customer endpoints require authentication & company context scope
 router.use(authenticate, companyContext)
 
-router.get(
-  '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  listCustomers
-)
+router.get('/', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER), listCustomers)
 
-router.get(
-  '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  getCustomerById
-)
+router.get('/:id', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER), getCustomerById)
 
 router.post('/', authorize(UserRole.OWNER, UserRole.ADMIN), createCustomer)
 

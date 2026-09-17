@@ -985,27 +985,27 @@ _Only pursue these after all 9 phases are solid and deployed._
 
 Add subscription tracking columns to `apps/api/src/infrastructure/database/schema/companies.ts`:
 
-| Column | Type | Notes |
-|---|---|---|
-| `phone` | text, nullable | Company contact phone (nullable for existing companies) |
-| `address` | text, nullable | Street address |
-| `city` | text, nullable | City |
-| `state` | text, nullable | State/Province |
-| `zip_code` | text, nullable | Postal code |
-| `country` | text, default 'US' | Country code |
-| `trial_started_at` | timestamptz, nullable | When trial began |
-| `trial_ends_at` | timestamptz, nullable | Trial expiration date |
-| `subscription_status` | subscription_status enum | Current subscription status |
+| Column                | Type                     | Notes                                                   |
+| --------------------- | ------------------------ | ------------------------------------------------------- |
+| `phone`               | text, nullable           | Company contact phone (nullable for existing companies) |
+| `address`             | text, nullable           | Street address                                          |
+| `city`                | text, nullable           | City                                                    |
+| `state`               | text, nullable           | State/Province                                          |
+| `zip_code`            | text, nullable           | Postal code                                             |
+| `country`             | text, default 'US'       | Country code                                            |
+| `trial_started_at`    | timestamptz, nullable    | When trial began                                        |
+| `trial_ends_at`       | timestamptz, nullable    | Trial expiration date                                   |
+| `subscription_status` | subscription_status enum | Current subscription status                             |
 
 **Create Subscription Status Enum:**
 
 ```typescript
 export const subscriptionStatusEnum = pgEnum('subscription_status', [
-  'trial',      // Active 14-day trial
-  'active',     // Paid and active subscription
-  'past_due',   // Payment failed, grace period (future)
-  'cancelled',  // Subscription cancelled (future)
-  'expired'     // Trial or subscription expired
+  'trial', // Active 14-day trial
+  'active', // Paid and active subscription
+  'past_due', // Payment failed, grace period (future)
+  'cancelled', // Subscription cancelled (future)
+  'expired' // Trial or subscription expired
 ])
 ```
 
@@ -1027,7 +1027,9 @@ export const registerSchema = z.object({
   companyName: z.string().min(2, 'Company name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits')
+  phone: z
+    .string()
+    .min(10, 'Phone number must be at least 10 digits')
     .regex(/^\+?[\d\s-()]+$/, 'Invalid phone format'),
   address: z.string().min(5, 'Address is required'),
   city: z.string().min(2, 'City is required'),
@@ -1090,6 +1092,7 @@ export interface SubscriptionInfo {
 **Update Auth Service Registration (`apps/api/src/modules/auth/auth.service.ts`):**
 
 Modify `register()` function to:
+
 1. Accept new fields (phone, address, city, state, zipCode, country)
 2. Calculate trial period: `trialStartedAt = new Date()`, `trialEndsAt = dayjs().add(14, 'day').toDate()`
 3. Set `subscriptionStatus = 'trial'`
@@ -1102,6 +1105,7 @@ Update `createCompany()` to accept and persist all new fields.
 **Create Subscription Module (`apps/api/src/modules/subscription/`):**
 
 New module with:
+
 - `subscription.routes.ts` - API routes
 - `subscription.controller.ts` - Request handlers
 - `subscription.service.ts` - Business logic
@@ -1109,6 +1113,7 @@ New module with:
 - `subscription.types.ts` - TypeScript interfaces
 
 **Key Endpoints:**
+
 - `GET /subscription/status` - Get current subscription status for authenticated company
 - `POST /subscription/checkout` - Create checkout session (placeholder for future Stripe integration)
 - `POST /subscription/webhook` - Handle payment webhooks (placeholder)
@@ -1119,18 +1124,21 @@ New module with:
 ```typescript
 export async function getSubscriptionStatus(companyId: string): Promise<SubscriptionInfo> {
   const company = await subscriptionRepo.findCompanyById(companyId)
-  
+
   const now = new Date()
   const isTrialExpired = company.trialEndsAt ? now > company.trialEndsAt : false
-  const daysRemaining = company.trialEndsAt 
-    ? Math.max(0, Math.ceil((company.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+  const daysRemaining = company.trialEndsAt
+    ? Math.max(
+        0,
+        Math.ceil((company.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      )
     : 0
-  
+
   let requiresCheckout = false
   if (isTrialExpired && company.subscriptionStatus === 'trial') {
     requiresCheckout = true
   }
-  
+
   return {
     status: company.subscriptionStatus,
     trialStartedAt: company.trialStartedAt?.toISOString(),
@@ -1152,7 +1160,7 @@ export interface AuthResponse {
   refreshToken: string
   user: AuthUser
   company: CompanyDto
-  subscription: SubscriptionInfo  // NEW: include subscription status
+  subscription: SubscriptionInfo // NEW: include subscription status
 }
 ```
 
@@ -1161,30 +1169,30 @@ export interface AuthResponse {
 ```typescript
 export function requireActiveSubscription(req, res, next): void {
   const company = req.company
-  
+
   if (!company) {
     sendError(res, 'Company context required', 401)
     return
   }
-  
+
   // Allow trial users
   if (company.subscriptionStatus === 'trial') {
     const now = new Date()
     if (company.trialEndsAt && now > company.trialEndsAt) {
-      sendError(res, 'Trial expired. Please subscribe to continue.', 403, { 
+      sendError(res, 'Trial expired. Please subscribe to continue.', 403, {
         code: 'TRIAL_EXPIRED',
-        requiresCheckout: true 
+        requiresCheckout: true
       })
       return
     }
     return next()
   }
-  
+
   // Allow active subscriptions
   if (company.subscriptionStatus === 'active') {
     return next()
   }
-  
+
   // Block other statuses (past_due, cancelled, expired)
   sendError(res, 'Subscription required. Please update your billing.', 403, {
     code: 'SUBSCRIPTION_REQUIRED',
@@ -1208,6 +1216,7 @@ router.use('/subscription', subscriptionRouter)
 **Create Registration Page (`apps/web/src/pages/Register.tsx`):**
 
 Single-page registration form with:
+
 - Company name
 - Email
 - Password
@@ -1229,7 +1238,7 @@ Update `registerApi()` to accept new fields and return subscription info.
 ```tsx
 export const TrialBadge: React.FC<{ daysRemaining: number }> = ({ daysRemaining }) => {
   if (daysRemaining <= 0) return null
-  
+
   return (
     <Badge color="yellow" variant="filled" size="lg">
       Trial: {daysRemaining} days remaining
@@ -1243,6 +1252,7 @@ export const TrialBadge: React.FC<{ daysRemaining: number }> = ({ daysRemaining 
 **Add Subscription Info to Auth Context (`apps/web/src/components/auth/AuthContext.tsx`):**
 
 Extend context to include subscription info:
+
 ```typescript
 interface AuthContextType {
   user: AuthUser | null
@@ -1259,6 +1269,7 @@ interface AuthContextType {
 **Create Checkout Page (`apps/web/src/pages/Checkout.tsx`):**
 
 Redirect page after trial expiration with:
+
 - Trial expired message
 - Pricing plan display (placeholder for future)
 - "Subscribe Now" button (placeholder for future Stripe integration)
@@ -1267,6 +1278,7 @@ Redirect page after trial expiration with:
 **Update Routing (`apps/web/src/app/app.tsx`):**
 
 Add new routes:
+
 ```tsx
 <Route element={<PublicRoute />}>
   <Route path="/login" element={<Login />} />
@@ -1281,13 +1293,13 @@ Add new routes:
 ```tsx
 export const SubscriptionGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { subscription, isLoading } = useAuth()
-  
+
   if (isLoading) return <LoadingState />
-  
+
   if (subscription?.requiresCheckout) {
     return <Navigate to="/checkout" replace />
   }
-  
+
   return <>{children}</>
 }
 ```
@@ -1295,6 +1307,7 @@ export const SubscriptionGuard: React.FC<{ children: React.ReactNode }> = ({ chi
 **Update Protected Route (`apps/web/src/components/auth/ProtectedRoute.tsx`):**
 
 Add subscription check after authentication:
+
 ```typescript
 // Check subscription status
 if (subscription?.requiresCheckout) {
@@ -1314,32 +1327,38 @@ if (subscription?.requiresCheckout) {
 #### 9.5 Design Decisions
 
 **Performance:**
+
 - Keep `companyContext` middleware lightweight (just validate `req.auth.companyId`)
 - Subscription status fetched only when needed (login response, dedicated endpoint)
 - Avoid DB query on every authenticated request
 
 **Stripe Integration:**
+
 - Defer full Stripe integration to Phase 10
 - Create placeholder checkout page with "Coming Soon" messaging
 - Reserve `stripeCustomerId` and `stripeSubscriptionId` columns for future use
 
 **Migration:**
+
 - Make `phone` nullable in DB with default empty string
 - Existing seed companies get backdated trial dates from `created_at`
 - Zod schema enforces phone as required only on new registrations
 
 **Trial Badge:**
+
 - Display in AppLayout header/toolbar
 - Visible on every page for trial users
 - Shows days remaining (e.g., "Trial: 12 days remaining")
 - Disappears when trial expires or subscription becomes active
 
 **Registration Form:**
+
 - Single page with all fields (not multi-step wizard)
 - Zod validation on submit (no HTML5 validation)
 - Controlled state with error messages from Zod
 
 **Email Verification:**
+
 - Skip for now (can be added in future phase)
 - Focus on registration flow and trial period
 

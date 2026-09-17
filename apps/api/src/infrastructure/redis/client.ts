@@ -14,7 +14,10 @@ export const redis = new Redis(env.REDIS_URL, {
 })
 
 redis.on('error', (err) => {
-  logger.warn({ err: err.message }, 'Redis connection warning (Redis server is offline or unreachable)')
+  logger.warn(
+    { err: err.message },
+    'Redis connection warning (Redis server is offline or unreachable)'
+  )
 })
 
 redis.on('connect', () => {

@@ -36,10 +36,6 @@ router.patch(
   agentController.updateAgent
 )
 
-router.delete(
-  '/:id',
-  authorize([UserRole.OWNER, UserRole.ADMIN]),
-  agentController.deleteAgent
-)
+router.delete('/:id', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.deleteAgent)
 
 export const agentRouter: Router = router

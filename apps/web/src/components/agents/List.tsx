@@ -1,5 +1,17 @@
 import React, { useState } from 'react'
-import { ActionIcon, Avatar, Badge, Card, Group, Paper, Stack, Table, Text, Title, Tooltip } from '@mantine/core'
+import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Card,
+  Group,
+  Paper,
+  Stack,
+  Table,
+  Text,
+  Title,
+  Tooltip
+} from '@mantine/core'
 import { AgentDto, AgentStatus } from '@whosonsite/shared'
 import { Edit2, MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +28,7 @@ export const AgentList: React.FC = () => {
   const { primaryColor } = useAppTheme()
   const { data: agents = [], isLoading, error } = useAgents()
   const deleteAgentMutation = useDeleteAgent()
-  
+
   const [editingAgent, setEditingAgent] = useState<AgentDto | null>(null)
   const [agentToDelete, setAgentToDelete] = useState<AgentDto | null>(null)
 
@@ -44,9 +56,7 @@ export const AgentList: React.FC = () => {
   }
 
   const activeCount = agents.filter((tech) => tech.status !== AgentStatus.OFFLINE).length
-  const availableCount = agents.filter(
-    (tech) => tech.status === AgentStatus.AVAILABLE
-  ).length
+  const availableCount = agents.filter((tech) => tech.status === AgentStatus.AVAILABLE).length
 
   return (
     <Stack gap="sm">
@@ -168,12 +178,22 @@ export const AgentList: React.FC = () => {
                     <Table.Td ta="right">
                       <Group gap="xs" justify="flex-end" wrap="nowrap">
                         <Tooltip label={t('common.edit', 'Edit')}>
-                          <ActionIcon variant="light" color="blue" size="sm" onClick={() => setEditingAgent(tech)}>
+                          <ActionIcon
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            onClick={() => setEditingAgent(tech)}
+                          >
                             <Edit2 size={14} />
                           </ActionIcon>
                         </Tooltip>
                         <Tooltip label={t('common.delete', 'Delete')}>
-                          <ActionIcon variant="light" color="red" size="sm" onClick={() => setAgentToDelete(tech)}>
+                          <ActionIcon
+                            variant="light"
+                            color="red"
+                            size="sm"
+                            onClick={() => setAgentToDelete(tech)}
+                          >
                             <Trash2 size={14} />
                           </ActionIcon>
                         </Tooltip>
@@ -186,7 +206,7 @@ export const AgentList: React.FC = () => {
           </Table>
         </Table.ScrollContainer>
       </Card>
-      
+
       <AgentFormModal
         opened={!!editingAgent}
         onClose={() => setEditingAgent(null)}

@@ -12,8 +12,7 @@ import {
 } from '../../src/jobs/workers/notification.worker'
 import { createJob } from '../../src/modules/jobs/job.repository'
 
-const makeJob = (data: NotificationJobPayload) =>
-  ({ id: 'test-job', name: data.type, data }) as any
+const makeJob = (data: NotificationJobPayload) => ({ id: 'test-job', name: data.type, data }) as any
 
 describe('Notification Worker Processor Integration Tests', () => {
   let dispatcherToken: string
@@ -62,9 +61,7 @@ describe('Notification Worker Processor Integration Tests', () => {
     const rows = await db
       .select()
       .from(notifications)
-      .where(
-        and(eq(notifications.jobId, job.id), eq(notifications.type, 'job_created' as any))
-      )
+      .where(and(eq(notifications.jobId, job.id), eq(notifications.type, 'job_created' as any)))
     expect(rows).toHaveLength(1)
     expect(rows[0].sentAt).toBeDefined()
   })

@@ -14,8 +14,14 @@ export async function processNotificationJob(job: Job<NotificationJobPayload>): 
   logger.info({ jobId: job.id, type, companyId }, 'Processing notification job')
 
   if (type === 'job_delayed' && jobId) {
-    const [existingJob] = await db.select({ status: jobs.status }).from(jobs).where(eq(jobs.id, jobId))
-    if (!existingJob || (existingJob.status !== 'unassigned' && existingJob.status !== 'assigned')) {
+    const [existingJob] = await db
+      .select({ status: jobs.status })
+      .from(jobs)
+      .where(eq(jobs.id, jobId))
+    if (
+      !existingJob ||
+      (existingJob.status !== 'unassigned' && existingJob.status !== 'assigned')
+    ) {
       logger.info(
         { jobId, status: existingJob?.status },
         'Job is no longer delayed or unstarted. Skipping job_delayed notification.'
@@ -38,7 +44,10 @@ export async function processNotificationJob(job: Job<NotificationJobPayload>): 
         sentAt: dayjs().toDate()
       })
     }
-    logger.info({ companyCount: allCompanies.length }, 'Recorded daily summary notifications for all companies')
+    logger.info(
+      { companyCount: allCompanies.length },
+      'Recorded daily summary notifications for all companies'
+    )
     return
   }
 

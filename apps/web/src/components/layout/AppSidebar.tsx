@@ -1,13 +1,7 @@
 import React from 'react'
 import { NavLink, Stack } from '@mantine/core'
 import { UserRole } from '@whosonsite/shared'
-import {
-  BarChart3,
-  LayoutDashboard,
-  Briefcase,
-  UserCheck,
-  Users
-} from 'lucide-react'
+import { BarChart3, LayoutDashboard, Briefcase, UserCheck, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router-dom'
 

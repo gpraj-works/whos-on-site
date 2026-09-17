@@ -34,72 +34,69 @@ export const Settings: React.FC = () => {
   return (
     <Container fluid p={0}>
       <Stack gap="sm">
-      <PageHeader
-        title={t('nav.settings')}
-        subtitle="Theme colors and application preferences"
-      />
+        <PageHeader title={t('nav.settings')} subtitle="Theme colors and application preferences" />
 
-      <Card radius="md" withBorder p="lg">
-        <Stack gap="md">
-          <Title order={4}>{t('theme.title')}</Title>
-          <Text size="sm" c="dimmed">
-            Customize WhosOnSite visual mode and brand color palette
-          </Text>
-
-          <Divider my="xs" />
-
-          <div>
-            <Text size="sm" fw={600} mb="xs">
-              {t('theme.colorScheme')}
+        <Card radius="md" withBorder p="lg">
+          <Stack gap="md">
+            <Title order={4}>{t('theme.title')}</Title>
+            <Text size="sm" c="dimmed">
+              Customize WhosOnSite visual mode and brand color palette
             </Text>
-            <Group gap="md">
-              <Button
-                variant={colorScheme === 'light' ? 'filled' : 'default'}
-                color={primaryColor}
-                leftSection={<Sun size={18} />}
-                onClick={toggleColorScheme}
-              >
-                {t('theme.lightMode')}
-              </Button>
 
-              <Button
-                variant={colorScheme === 'dark' ? 'filled' : 'default'}
-                color={primaryColor}
-                leftSection={<Moon size={18} />}
-                onClick={toggleColorScheme}
-              >
-                {t('theme.darkMode')}
-              </Button>
-            </Group>
-          </div>
+            <Divider my="xs" />
 
-          <Divider my="xs" />
-
-          <div>
-            <Text size="sm" fw={600} mb="xs">
-              {t('theme.primaryColor')}
-            </Text>
-            <Group gap="sm" mt="xs">
-              {themeColors.map((color) => (
-                <ColorSwatch
-                  key={color}
-                  color={SWATCH_HEX_MAP[color]}
-                  component="button"
-                  type="button"
-                  onClick={() => setPrimaryColor(color)}
-                  style={{ color: '#fff', cursor: 'pointer', border: 'none' }}
-                  aria-label={`${color} color swatch`}
+            <div>
+              <Text size="sm" fw={600} mb="xs">
+                {t('theme.colorScheme')}
+              </Text>
+              <Group gap="md">
+                <Button
+                  variant={colorScheme === 'light' ? 'filled' : 'default'}
+                  color={primaryColor}
+                  leftSection={<Sun size={18} />}
+                  onClick={toggleColorScheme}
                 >
-                  {primaryColor === color && <Check size={16} />}
-                </ColorSwatch>
-              ))}
-            </Group>
-          </div>
-        </Stack>
-      </Card>
-    </Stack>
-  </Container>
-)
+                  {t('theme.lightMode')}
+                </Button>
+
+                <Button
+                  variant={colorScheme === 'dark' ? 'filled' : 'default'}
+                  color={primaryColor}
+                  leftSection={<Moon size={18} />}
+                  onClick={toggleColorScheme}
+                >
+                  {t('theme.darkMode')}
+                </Button>
+              </Group>
+            </div>
+
+            <Divider my="xs" />
+
+            <div>
+              <Text size="sm" fw={600} mb="xs">
+                {t('theme.primaryColor')}
+              </Text>
+              <Group gap="sm" mt="xs">
+                {themeColors.map((color) => (
+                  <ColorSwatch
+                    key={color}
+                    color={SWATCH_HEX_MAP[color]}
+                    component="button"
+                    type="button"
+                    onClick={() => setPrimaryColor(color)}
+                    style={{ color: '#fff', cursor: 'pointer', border: 'none' }}
+                    aria-label={`${color} color swatch`}
+                  >
+                    {primaryColor === color && <Check size={16} />}
+                  </ColorSwatch>
+                ))}
+              </Group>
+            </div>
+          </Stack>
+        </Card>
+      </Stack>
+    </Container>
+  )
 }
 
 export default Settings

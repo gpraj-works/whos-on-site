@@ -36,10 +36,7 @@ export const Customers: React.FC = () => {
 
         <CustomerList />
 
-        <CustomerFormModal
-          opened={createModalOpened}
-          onClose={() => setCreateModalOpened(false)}
-        />
+        <CustomerFormModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
       </Stack>
     </Container>
   )

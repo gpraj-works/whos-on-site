@@ -1,5 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Box, Button, Group, Loader, Modal, Popover, Stack, Text, Textarea, TextInput } from '@mantine/core'
+import {
+  Box,
+  Button,
+  Group,
+  Loader,
+  Modal,
+  Popover,
+  Stack,
+  Text,
+  Textarea,
+  TextInput
+} from '@mantine/core'
 import { createCustomerSchema, CustomerDto } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet'
@@ -24,8 +35,7 @@ const DEFAULT_MAP_CENTER: [number, number] = [40.7128, -74.006]
 
 const PIN_ICON = L.divIcon({
   className: '',
-  html:
-    '<div style="width:22px;height:22px;border-radius:50%;background:var(--mantine-color-blue-6);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);"></div>',
+  html: '<div style="width:22px;height:22px;border-radius:50%;background:var(--mantine-color-blue-6);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);"></div>',
   iconSize: [22, 22],
   iconAnchor: [11, 11]
 })
@@ -87,12 +97,7 @@ interface CustomerFormContentProps {
   zIndex?: number
 }
 
-function CustomerFormContent({
-  customer,
-  onClose,
-  onSuccess,
-  zIndex
-}: CustomerFormContentProps) {
+function CustomerFormContent({ customer, onClose, onSuccess, zIndex }: CustomerFormContentProps) {
   const { t } = useTranslation()
   const createCustomerMutation = useCreateCustomer()
   const updateCustomerMutation = useUpdateCustomer()
@@ -223,7 +228,10 @@ function CustomerFormContent({
     try {
       let result
       if (isEditing) {
-        result = await updateCustomerMutation.mutateAsync({ id: customer.id, input: parseResult.data })
+        result = await updateCustomerMutation.mutateAsync({
+          id: customer.id,
+          input: parseResult.data
+        })
       } else {
         result = await createCustomerMutation.mutateAsync(parseResult.data)
       }
@@ -240,164 +248,171 @@ function CustomerFormContent({
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-        <Stack gap="md">
-          <ApiErrorAlert error={isEditing ? updateCustomerMutation.error : createCustomerMutation.error} />
+      <Stack gap="md">
+        <ApiErrorAlert
+          error={isEditing ? updateCustomerMutation.error : createCustomerMutation.error}
+        />
 
-          <TextInput
-            label={t('customers.name', 'Customer Name')}
-            placeholder="Acme Corp"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }))
+        <TextInput
+          label={t('customers.name', 'Customer Name')}
+          placeholder="Acme Corp"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value)
+            if (fieldErrors.name) setFieldErrors((prev) => ({ ...prev, name: undefined }))
+          }}
+          withAsterisk
+          error={fieldErrors.name}
+        />
+
+        <TextInput
+          label={t('customers.phone', 'Phone Number')}
+          placeholder="+1 555-0192"
+          value={mobile}
+          onChange={(e) => {
+            setMobile(e.target.value)
+            if (fieldErrors.mobile) setFieldErrors((prev) => ({ ...prev, mobile: undefined }))
+          }}
+          withAsterisk
+          error={fieldErrors.mobile}
+        />
+
+        <Box>
+          <Popover
+            width="target"
+            position="bottom"
+            shadow="md"
+            zIndex={zIndex ? zIndex + 1 : 300}
+            opened={isAddressSearching || suggestions.length > 0}
+            onChange={(open) => {
+              if (!open) {
+                setSuggestions([])
+                setIsAddressSearching(false)
+                if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+              }
             }}
-            withAsterisk
-            error={fieldErrors.name}
-          />
-
-          <TextInput
-            label={t('customers.phone', 'Phone Number')}
-            placeholder="+1 555-0192"
-            value={mobile}
-            onChange={(e) => {
-              setMobile(e.target.value)
-              if (fieldErrors.mobile) setFieldErrors((prev) => ({ ...prev, mobile: undefined }))
-            }}
-            withAsterisk
-            error={fieldErrors.mobile}
-          />
-
-          <Box>
-            <Popover
-              width="target"
-              position="bottom"
-              shadow="md"
-              zIndex={zIndex ? zIndex + 1 : 300}
-              opened={isAddressSearching || suggestions.length > 0}
-              onChange={(open) => {
-                if (!open) {
-                  setSuggestions([])
-                  setIsAddressSearching(false)
-                  if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
-                }
-              }}
-              styles={{ dropdown: { maxHeight: 260, overflowY: 'auto', padding: 4 } }}
-            >
-              <Popover.Target>
-                <div>
-                  <Textarea
-                    label={t('customers.address', 'Service Address')}
-                    placeholder="Start typing to search addresses, or pin a location on the map"
-                    value={address}
-                    onChange={(e) => handleAddressChange(e.target.value)}
-                    autosize
-                    minRows={2}
-                    maxRows={5}
-                    withAsterisk
-                    error={fieldErrors.address}
-                  />
-                </div>
-              </Popover.Target>
-
-              <Popover.Dropdown>
-                {isAddressSearching ? (
-                  <Group gap="xs" px={6} py={6}>
-                    <Loader size="xs" />
-                    <Text size="xs" c="dimmed">
-                      {t('customers.searchAddress', 'Searching addresses...')}
-                    </Text>
-                  </Group>
-                ) : (
-                  <Stack gap={2}>
-                    {suggestions.map((item) => (
-                      <Button
-                        key={`${item.latitude},${item.longitude}`}
-                        variant="subtle"
-                        size="xs"
-                        justify="flex-start"
-                        fw={400}
-                        tt="none"
-                        onClick={() => handleSuggestionSelect(item)}
-                        leftSection={<MapPin size={14} />}
-                        styles={{
-                          root: {
-                            height: 'auto',
-                            minHeight: 28,
-                            whiteSpace: 'normal',
-                            textAlign: 'left'
-                          },
-                          inner: {
-                            justifyContent: 'flex-start'
-                          }
-                        }}
-                      >
-                        {item.displayName}
-                      </Button>
-                    ))}
-                  </Stack>
-                )}
-              </Popover.Dropdown>
-            </Popover>
-
-            <Group justify="space-between" align="center" mt={6}>
-              <Text size="xs" c={locationPinned ? 'teal' : 'dimmed'}>
-                {locationPinned
-                  ? t('customers.locationSet', 'Location pinned')
-                  : t('customers.addressHint', 'Type to search or pick a location on the map')}
-              </Text>
-              <Button
-                variant="light"
-                size="compact-xs"
-                leftSection={<Crosshair size={14} />}
-                onClick={() => setShowMap((prev) => !prev)}
-              >
-                {showMap
-                  ? t('customers.hideMap', 'Hide map')
-                  : t('customers.pickOnMap', 'Pick on map')}
-              </Button>
-            </Group>
-
-            {showMap && (
-              <Box pos="relative" mt={6}>
-                <CustomerLocationPicker
-                  latitude={latitude}
-                  longitude={longitude}
-                  onPick={handleMapPick}
+            styles={{ dropdown: { maxHeight: 260, overflowY: 'auto', padding: 4 } }}
+          >
+            <Popover.Target>
+              <div>
+                <Textarea
+                  label={t('customers.address', 'Service Address')}
+                  placeholder="Start typing to search addresses, or pin a location on the map"
+                  value={address}
+                  onChange={(e) => handleAddressChange(e.target.value)}
+                  autosize
+                  minRows={2}
+                  maxRows={5}
+                  withAsterisk
+                  error={fieldErrors.address}
                 />
-                {isReverseGeocoding && (
-                  <Loader
-                    size="sm"
-                    pos="absolute"
-                    top="50%"
-                    left="50%"
-                    style={{ transform: 'translate(-50%, -50%)' }}
-                  />
-                )}
-              </Box>
-            )}
-          </Box>
+              </div>
+            </Popover.Target>
 
-          <TextInput
-            label={t('customers.email', 'Email Address (Optional)')}
-            placeholder="contact@acme.com"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-              if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
-            }}
-            error={fieldErrors.email}
-          />
+            <Popover.Dropdown>
+              {isAddressSearching ? (
+                <Group gap="xs" px={6} py={6}>
+                  <Loader size="xs" />
+                  <Text size="xs" c="dimmed">
+                    {t('customers.searchAddress', 'Searching addresses...')}
+                  </Text>
+                </Group>
+              ) : (
+                <Stack gap={2}>
+                  {suggestions.map((item) => (
+                    <Button
+                      key={`${item.latitude},${item.longitude}`}
+                      variant="subtle"
+                      size="xs"
+                      justify="flex-start"
+                      fw={400}
+                      tt="none"
+                      onClick={() => handleSuggestionSelect(item)}
+                      leftSection={<MapPin size={14} />}
+                      styles={{
+                        root: {
+                          height: 'auto',
+                          minHeight: 28,
+                          whiteSpace: 'normal',
+                          textAlign: 'left'
+                        },
+                        inner: {
+                          justifyContent: 'flex-start'
+                        }
+                      }}
+                    >
+                      {item.displayName}
+                    </Button>
+                  ))}
+                </Stack>
+              )}
+            </Popover.Dropdown>
+          </Popover>
 
-          <Group justify="flex-end" gap="xs" mt="sm">
-            <Button variant="default" onClick={handleClose}>
-              {t('common.cancel', 'Cancel')}
-            </Button>
-            <Button type="submit" loading={isEditing ? updateCustomerMutation.isPending : createCustomerMutation.isPending}>
-              {isEditing ? t('common.save', 'Save') : t('customers.saveSubmit', 'Add')}
+          <Group justify="space-between" align="center" mt={6}>
+            <Text size="xs" c={locationPinned ? 'teal' : 'dimmed'}>
+              {locationPinned
+                ? t('customers.locationSet', 'Location pinned')
+                : t('customers.addressHint', 'Type to search or pick a location on the map')}
+            </Text>
+            <Button
+              variant="light"
+              size="compact-xs"
+              leftSection={<Crosshair size={14} />}
+              onClick={() => setShowMap((prev) => !prev)}
+            >
+              {showMap
+                ? t('customers.hideMap', 'Hide map')
+                : t('customers.pickOnMap', 'Pick on map')}
             </Button>
           </Group>
-        </Stack>
-      </form>
+
+          {showMap && (
+            <Box pos="relative" mt={6}>
+              <CustomerLocationPicker
+                latitude={latitude}
+                longitude={longitude}
+                onPick={handleMapPick}
+              />
+              {isReverseGeocoding && (
+                <Loader
+                  size="sm"
+                  pos="absolute"
+                  top="50%"
+                  left="50%"
+                  style={{ transform: 'translate(-50%, -50%)' }}
+                />
+              )}
+            </Box>
+          )}
+        </Box>
+
+        <TextInput
+          label={t('customers.email', 'Email Address (Optional)')}
+          placeholder="contact@acme.com"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value)
+            if (fieldErrors.email) setFieldErrors((prev) => ({ ...prev, email: undefined }))
+          }}
+          error={fieldErrors.email}
+        />
+
+        <Group justify="flex-end" gap="xs" mt="sm">
+          <Button variant="default" onClick={handleClose}>
+            {t('common.cancel', 'Cancel')}
+          </Button>
+          <Button
+            type="submit"
+            loading={
+              isEditing ? updateCustomerMutation.isPending : createCustomerMutation.isPending
+            }
+          >
+            {isEditing ? t('common.save', 'Save') : t('customers.saveSubmit', 'Add')}
+          </Button>
+        </Group>
+      </Stack>
+    </form>
   )
 }
 
@@ -415,7 +430,11 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     <Modal
       opened={opened}
       onClose={onClose}
-      title={isEditing ? t('customers.editTitle', 'Edit Customer') : t('customers.createTitle', 'New Customer')}
+      title={
+        isEditing
+          ? t('customers.editTitle', 'Edit Customer')
+          : t('customers.createTitle', 'New Customer')
+      }
       centered
       radius="md"
       zIndex={zIndex}

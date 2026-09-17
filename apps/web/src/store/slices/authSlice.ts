@@ -26,10 +26,23 @@ const initialState: AuthState = {
 }
 
 export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | MeResponse | null, void>(
-  'auth/bootstrapSession', async (_, { rejectWithValue }) => {
-  if (getAccessToken()) {
+  'auth/bootstrapSession',
+  async (_, { rejectWithValue }) => {
+    if (getAccessToken()) {
+      try {
+        const res = await authApi.meApi()
+        return res
+      } catch (err: unknown) {
+        setAccessToken(null)
+        queryClient.clear()
+        return rejectWithValue(err instanceof Error ? err.message : 'Session restore failed')
+      }
+    }
     try {
-      const res = await authApi.meApi()
+      const res = await authApi.refreshApi()
+      if (res.accessToken) {
+        setAccessToken(res.accessToken)
+      }
       return res
     } catch (err: unknown) {
       setAccessToken(null)
@@ -37,18 +50,7 @@ export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | MeResponse 
       return rejectWithValue(err instanceof Error ? err.message : 'Session restore failed')
     }
   }
-  try {
-    const res = await authApi.refreshApi()
-    if (res.accessToken) {
-      setAccessToken(res.accessToken)
-    }
-    return res
-  } catch (err: unknown) {
-    setAccessToken(null)
-    queryClient.clear()
-    return rejectWithValue(err instanceof Error ? err.message : 'Session restore failed')
-  }
-})
+)
 
 export const loginThunk = createAsyncThunk<AuthResponse, LoginRequest>(
   'auth/login',

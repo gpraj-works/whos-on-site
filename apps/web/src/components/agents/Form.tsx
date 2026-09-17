@@ -93,7 +93,7 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
       } else {
         saved = await createTechMutation.mutateAsync(parseResult.data)
       }
-      
+
       handleClose()
       if (onSuccess) {
         onSuccess(saved)

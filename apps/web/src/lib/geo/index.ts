@@ -45,7 +45,10 @@ export async function searchAddress(query: string): Promise<GeocodeResult[]> {
     }))
 }
 
-export async function reverseGeocode(latitude: number, longitude: number): Promise<GeocodeResult | null> {
+export async function reverseGeocode(
+  latitude: number,
+  longitude: number
+): Promise<GeocodeResult | null> {
   const data = await fetchNominatim('/reverse', {
     lat: String(latitude),
     lon: String(longitude),

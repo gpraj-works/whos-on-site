@@ -25,16 +25,25 @@ export const notificationQueue = new Queue<NotificationJobPayload>(NOTIFICATION_
 })
 
 notificationQueue.on('error', (err) => {
-  logger.warn({ err: err.message }, 'Notification queue Redis connection warning (Redis is offline)')
+  logger.warn(
+    { err: err.message },
+    'Notification queue Redis connection warning (Redis is offline)'
+  )
 })
 
 /** Enqueue a background notification job */
 export async function enqueueNotificationJob(data: NotificationJobPayload): Promise<void> {
   try {
     await notificationQueue.add(data.type, data)
-    logger.debug({ type: data.type, companyId: data.companyId, jobId: data.jobId }, 'Enqueued notification job')
+    logger.debug(
+      { type: data.type, companyId: data.companyId, jobId: data.jobId },
+      'Enqueued notification job'
+    )
   } catch (err) {
-    logger.warn({ err, type: data.type, companyId: data.companyId }, 'Failed to enqueue notification job')
+    logger.warn(
+      { err, type: data.type, companyId: data.companyId },
+      'Failed to enqueue notification job'
+    )
   }
 }
 
@@ -100,4 +109,3 @@ export async function registerDailySummaryJob(): Promise<void> {
     logger.warn({ err }, 'Failed to register repeatable daily summary job')
   }
 }
-

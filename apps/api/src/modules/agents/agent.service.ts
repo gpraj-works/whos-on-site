@@ -2,11 +2,7 @@ import { dayjs } from '@whosonsite/shared'
 import { Coordinates, AgentLocationUpdatedEvent } from '@whosonsite/shared'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import * as agentRepo from './agent.repository'
-import {
-  CreateAgentData,
-  NearbyAgentQuery,
-  AgentQueryResult
-} from './agent.types'
+import { CreateAgentData, NearbyAgentQuery, AgentQueryResult } from './agent.types'
 
 import * as jobRepo from '../jobs/job.repository'
 
@@ -18,9 +14,7 @@ export async function getAgentByUserId(userId: string, companyId: string) {
   return agentRepo.findAgentByUserId(userId, companyId)
 }
 
-export async function getNearbyAgents(
-  query: NearbyAgentQuery
-): Promise<AgentQueryResult[]> {
+export async function getNearbyAgents(query: NearbyAgentQuery): Promise<AgentQueryResult[]> {
   return agentRepo.findNearbyAvailableAgents(query)
 }
 
@@ -65,7 +59,9 @@ export async function deleteAgent(id: string, companyId: string) {
   // Option A: Prevent deletion if there are associated jobs
   const agentJobs = await jobRepo.findJobs({ assignedAgentId: id, companyId, limit: 1 })
   if (agentJobs.length > 0) {
-    throw new Error('Agent cannot be deleted because they have associated jobs. Unassign the jobs first.')
+    throw new Error(
+      'Agent cannot be deleted because they have associated jobs. Unassign the jobs first.'
+    )
   }
 
   const deleted = await agentRepo.deleteAgent(id, companyId)

@@ -13,16 +13,8 @@ import {
   Tooltip
 } from '@mantine/core'
 import { BarChart, DonutChart } from '@mantine/charts'
-import { JobStatus, AgentStatus , formatJobStatus } from '@whosonsite/shared'
-import {
-  BarChart2,
-  Briefcase,
-  CheckCircle2,
-  Clock,
-  Timer,
-  UserCheck,
-  Users
-} from 'lucide-react'
+import { JobStatus, AgentStatus, formatJobStatus } from '@whosonsite/shared'
+import { BarChart2, Briefcase, CheckCircle2, Clock, Timer, UserCheck, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
@@ -219,7 +211,13 @@ export const Analytics: React.FC = () => {
                   <Stack gap="md">
                     <Grid gutter="sm">
                       <Grid.Col span={4}>
-                        <Paper p="sm" withBorder radius="md" ta="center" bg="var(--mantine-color-green-0)">
+                        <Paper
+                          p="sm"
+                          withBorder
+                          radius="md"
+                          ta="center"
+                          bg="var(--mantine-color-green-0)"
+                        >
                           <Badge color="green" size="sm" mb={4}>
                             AVAILABLE
                           </Badge>
@@ -230,7 +228,13 @@ export const Analytics: React.FC = () => {
                       </Grid.Col>
 
                       <Grid.Col span={4}>
-                        <Paper p="sm" withBorder radius="md" ta="center" bg="var(--mantine-color-orange-0)">
+                        <Paper
+                          p="sm"
+                          withBorder
+                          radius="md"
+                          ta="center"
+                          bg="var(--mantine-color-orange-0)"
+                        >
                           <Badge color="orange" size="sm" mb={4}>
                             BUSY
                           </Badge>
@@ -241,7 +245,13 @@ export const Analytics: React.FC = () => {
                       </Grid.Col>
 
                       <Grid.Col span={4}>
-                        <Paper p="sm" withBorder radius="md" ta="center" bg="var(--mantine-color-gray-0)">
+                        <Paper
+                          p="sm"
+                          withBorder
+                          radius="md"
+                          ta="center"
+                          bg="var(--mantine-color-gray-0)"
+                        >
                           <Badge color="gray" size="sm" mb={4}>
                             OFFLINE
                           </Badge>
@@ -257,7 +267,9 @@ export const Analytics: React.FC = () => {
                         Overall Capacity Split
                       </Text>
                       <Progress.Root size="xl" radius="xl">
-                        <Tooltip label={`Available: ${summary?.agentAvailability[AgentStatus.AVAILABLE] || 0}`}>
+                        <Tooltip
+                          label={`Available: ${summary?.agentAvailability[AgentStatus.AVAILABLE] || 0}`}
+                        >
                           <Progress.Section
                             value={
                               ((summary?.agentAvailability[AgentStatus.AVAILABLE] || 0) /
@@ -269,7 +281,9 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Available</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Busy: ${summary?.agentAvailability[AgentStatus.BUSY] || 0}`}>
+                        <Tooltip
+                          label={`Busy: ${summary?.agentAvailability[AgentStatus.BUSY] || 0}`}
+                        >
                           <Progress.Section
                             value={
                               ((summary?.agentAvailability[AgentStatus.BUSY] || 0) /
@@ -281,7 +295,9 @@ export const Analytics: React.FC = () => {
                             <Progress.Label>Busy</Progress.Label>
                           </Progress.Section>
                         </Tooltip>
-                        <Tooltip label={`Offline: ${summary?.agentAvailability[AgentStatus.OFFLINE] || 0}`}>
+                        <Tooltip
+                          label={`Offline: ${summary?.agentAvailability[AgentStatus.OFFLINE] || 0}`}
+                        >
                           <Progress.Section
                             value={
                               ((summary?.agentAvailability[AgentStatus.OFFLINE] || 0) /

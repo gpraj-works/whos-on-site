@@ -81,7 +81,11 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   }
 
   const submitStatusChange = async (nextStatus: JobStatus) => {
-    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
+    if (
+      !currentJob ||
+      currentJob.status === JobStatus.COMPLETE ||
+      currentJob.status === JobStatus.CANCELLED
+    ) {
       return
     }
 
@@ -99,7 +103,11 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   }
 
   const handleStatusTransition = (nextStatus: JobStatus) => {
-    if (!currentJob || currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED) {
+    if (
+      !currentJob ||
+      currentJob.status === JobStatus.COMPLETE ||
+      currentJob.status === JobStatus.CANCELLED
+    ) {
       return
     }
     if (showNoteInput === nextStatus) {
@@ -239,7 +247,8 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
     )
   }
 
-  const isTerminal = currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED
+  const isTerminal =
+    currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED
 
   return (
     <>
@@ -287,12 +296,18 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                       leftSection={copied ? <Check size={14} /> : <Share2 size={14} />}
                       onClick={handleCopyShareLink}
                     >
-                      {copied ? t('jobs.linkCopied', 'Copied') : t('jobs.copyShareLink', 'Copy Share Link')}
+                      {copied
+                        ? t('jobs.linkCopied', 'Copied')
+                        : t('jobs.copyShareLink', 'Copy Share Link')}
                     </Button>
                   )}
                   {!isTerminal && (
                     <Tooltip label={t('common.edit', 'Edit')}>
-                      <ActionIcon variant="light" color="gray" onClick={() => setEditJobOpened(true)}>
+                      <ActionIcon
+                        variant="light"
+                        color="gray"
+                        onClick={() => setEditJobOpened(true)}
+                      >
                         <Edit2 size={16} />
                       </ActionIcon>
                     </Tooltip>

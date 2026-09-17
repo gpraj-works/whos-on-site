@@ -42,10 +42,7 @@ export const Agents: React.FC = () => {
 
         <AgentList />
 
-        <AgentFormModal
-          opened={createModalOpened}
-          onClose={() => setCreateModalOpened(false)}
-        />
+        <AgentFormModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
       </Stack>
     </Container>
   )

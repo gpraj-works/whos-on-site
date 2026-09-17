@@ -53,10 +53,10 @@ export const Jobs: React.FC = () => {
         statusFilter === 'ALL'
           ? true
           : statusFilter === 'ACTIVE'
-          ? job.status === JobStatus.ASSIGNED ||
-            job.status === JobStatus.EN_ROUTE ||
-            job.status === JobStatus.ON_SITE
-          : job.status === statusFilter
+            ? job.status === JobStatus.ASSIGNED ||
+              job.status === JobStatus.EN_ROUTE ||
+              job.status === JobStatus.ON_SITE
+            : job.status === statusFilter
 
       const q = searchQuery.toLowerCase().trim()
       const matchesSearch =
@@ -77,21 +77,26 @@ export const Jobs: React.FC = () => {
       all: jobs.length,
       unassigned: jobs.filter((j) => j.status === JobStatus.UNASSIGNED).length,
       inProgress: jobs.filter(
-        (j) => j.status === JobStatus.ASSIGNED || j.status === JobStatus.EN_ROUTE || j.status === JobStatus.ON_SITE
+        (j) =>
+          j.status === JobStatus.ASSIGNED ||
+          j.status === JobStatus.EN_ROUTE ||
+          j.status === JobStatus.ON_SITE
       ).length,
       complete: jobs.filter((j) => j.status === JobStatus.COMPLETE).length
     }
   }, [jobs])
 
   return (
-    <Container fluid p={0} h={{ base: 'auto', md: 'calc(100vh - 80px)' }} style={{ display: 'flex', flexDirection: 'column' }}>
+    <Container
+      fluid
+      p={0}
+      h={{ base: 'auto', md: 'calc(100vh - 80px)' }}
+      style={{ display: 'flex', flexDirection: 'column' }}
+    >
       <Stack gap="sm" style={{ height: '100%' }}>
         <PageHeader
           title={t('jobs.title', 'Jobs')}
-          subtitle={t(
-            'jobs.subtitle',
-            'Manage job assignments, status, and tracking'
-          )}
+          subtitle={t('jobs.subtitle', 'Manage job assignments, status, and tracking')}
           actions={
             <Button
               leftSection={<Plus size={16} />}
@@ -112,179 +117,179 @@ export const Jobs: React.FC = () => {
             withBorder
             style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%' }}
           >
-              <Stack gap="xs" mb="sm">
-                <TextInput
-                  placeholder={t('dispatch.searchPlaceholder', 'Search customer, address, agent...')}
-                  leftSection={<Search size={16} />}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  size="xs"
-                />
+            <Stack gap="xs" mb="sm">
+              <TextInput
+                placeholder={t('dispatch.searchPlaceholder', 'Search customer, address, agent...')}
+                leftSection={<Search size={16} />}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                size="xs"
+              />
 
-                <ScrollArea type="never" style={{ width: '100%' }}>
-                  <Group gap={4} wrap="nowrap" style={{ width: '100%' }}>
-                    <Button
-                      size="compact-xs"
-                      radius="md"
-                      variant={statusFilter === 'ALL' ? 'filled' : 'light'}
-                      color="gray"
-                      onClick={() => setStatusFilter('ALL')}
-                      style={{ flex: 1, minWidth: 'max-content' }}
-                    >
-                      All ({counts.all})
-                    </Button>
-                    <Button
-                      size="compact-xs"
-                      radius="md"
-                      variant={statusFilter === JobStatus.UNASSIGNED ? 'filled' : 'light'}
-                      color={JOB_STATUS_COLORS[JobStatus.UNASSIGNED]}
-                      onClick={() => setStatusFilter(JobStatus.UNASSIGNED)}
-                      style={{ flex: 1, minWidth: 'max-content' }}
-                    >
-                      Unassigned ({counts.unassigned})
-                    </Button>
-                    <Button
-                      size="compact-xs"
-                      radius="md"
-                      variant={statusFilter === 'ACTIVE' ? 'filled' : 'light'}
-                      color={JOB_STATUS_COLORS[JobStatus.ASSIGNED]}
-                      onClick={() => setStatusFilter('ACTIVE')}
-                      style={{ flex: 1, minWidth: 'max-content' }}
-                    >
-                      Active ({counts.inProgress})
-                    </Button>
-                    <Button
-                      size="compact-xs"
-                      radius="md"
-                      variant={statusFilter === JobStatus.COMPLETE ? 'filled' : 'light'}
-                      color={JOB_STATUS_COLORS[JobStatus.COMPLETE]}
-                      onClick={() => setStatusFilter(JobStatus.COMPLETE)}
-                      style={{ flex: 1, minWidth: 'max-content' }}
-                    >
-                      Done ({counts.complete})
-                    </Button>
-                  </Group>
-                </ScrollArea>
-              </Stack>
+              <ScrollArea type="never" style={{ width: '100%' }}>
+                <Group gap={4} wrap="nowrap" style={{ width: '100%' }}>
+                  <Button
+                    size="compact-xs"
+                    radius="md"
+                    variant={statusFilter === 'ALL' ? 'filled' : 'light'}
+                    color="gray"
+                    onClick={() => setStatusFilter('ALL')}
+                    style={{ flex: 1, minWidth: 'max-content' }}
+                  >
+                    All ({counts.all})
+                  </Button>
+                  <Button
+                    size="compact-xs"
+                    radius="md"
+                    variant={statusFilter === JobStatus.UNASSIGNED ? 'filled' : 'light'}
+                    color={JOB_STATUS_COLORS[JobStatus.UNASSIGNED]}
+                    onClick={() => setStatusFilter(JobStatus.UNASSIGNED)}
+                    style={{ flex: 1, minWidth: 'max-content' }}
+                  >
+                    Unassigned ({counts.unassigned})
+                  </Button>
+                  <Button
+                    size="compact-xs"
+                    radius="md"
+                    variant={statusFilter === 'ACTIVE' ? 'filled' : 'light'}
+                    color={JOB_STATUS_COLORS[JobStatus.ASSIGNED]}
+                    onClick={() => setStatusFilter('ACTIVE')}
+                    style={{ flex: 1, minWidth: 'max-content' }}
+                  >
+                    Active ({counts.inProgress})
+                  </Button>
+                  <Button
+                    size="compact-xs"
+                    radius="md"
+                    variant={statusFilter === JobStatus.COMPLETE ? 'filled' : 'light'}
+                    color={JOB_STATUS_COLORS[JobStatus.COMPLETE]}
+                    onClick={() => setStatusFilter(JobStatus.COMPLETE)}
+                    style={{ flex: 1, minWidth: 'max-content' }}
+                  >
+                    Done ({counts.complete})
+                  </Button>
+                </Group>
+              </ScrollArea>
+            </Stack>
 
-              {/* Job List Cards */}
-              <ScrollArea style={{ flex: 1 }} scrollbars="y">
-                {isLoadingJobs ? (
-                  <Text size="xs" c="dimmed" ta="center" py="xl">
-                    {t('common.loading', 'Loading jobs...')}
-                  </Text>
-                ) : filteredJobs.length === 0 ? (
-                  <Text size="xs" c="dimmed" ta="center" py="xl">
-                    {t('dispatch.noJobsFound', 'No jobs match the current filters.')}
-                  </Text>
-                ) : (
-                  <Stack gap="xs">
-                    {filteredJobs.map((job) => {
-                      const isSelected = selectedJobId === job.id
-                      const hasLocation = Boolean(job.location)
+            {/* Job List Cards */}
+            <ScrollArea style={{ flex: 1 }} scrollbars="y">
+              {isLoadingJobs ? (
+                <Text size="xs" c="dimmed" ta="center" py="xl">
+                  {t('common.loading', 'Loading jobs...')}
+                </Text>
+              ) : filteredJobs.length === 0 ? (
+                <Text size="xs" c="dimmed" ta="center" py="xl">
+                  {t('dispatch.noJobsFound', 'No jobs match the current filters.')}
+                </Text>
+              ) : (
+                <Stack gap="xs">
+                  {filteredJobs.map((job) => {
+                    const isSelected = selectedJobId === job.id
+                    const hasLocation = Boolean(job.location)
 
-                      return (
-                        <Card
-                          key={job.id}
-                          withBorder
-                          padding="xs"
-                          radius="md"
-                          style={{
-                            cursor: 'pointer',
-                            borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
-                            backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined
-                          }}
-                          onClick={() => {
-                            setSelectedJobId(job.id)
-                            setSelectedAgentId(null)
-                          }}
-                        >
-                          <Stack gap={4}>
-                            <Group justify="space-between" align="center">
-                              <StatusBadge status={job.status} />
-                              <Group gap={4}>
-                                {hasLocation && (
-                                  <Tooltip label={t('dispatch.focusOnMap', 'Focus on Map')}>
-                                    <ActionIcon
-                                      size="xs"
-                                      variant="subtle"
-                                      color="blue"
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        setSelectedJobId(job.id)
-                                        setSelectedAgentId(null)
-                                      }}
-                                    >
-                                      <Navigation size={14} />
-                                    </ActionIcon>
-                                  </Tooltip>
-                                )}
-                                <Button
-                                  size="xs"
-                                  variant="subtle"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    setDetailDrawerJob(job)
-                                  }}
-                                >
-                                  {t('common.details', 'Details')}
-                                </Button>
-                              </Group>
-                            </Group>
-
-                            <Text fw={600} size="sm" lineClamp={1}>
-                              {job.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
-                            </Text>
-
-                            {job.customer?.address && (
-                              <Group gap={4} wrap="nowrap">
-                                <MapPin size={12} style={{ flexShrink: 0, color: 'gray' }} />
-                                <Text size="xs" c="dimmed" lineClamp={1}>
-                                  {job.customer.address}
-                                </Text>
-                              </Group>
-                            )}
-
-                            <Group justify="space-between" align="center" mt={4}>
-                              {job.assignedAgentName ? (
-                                <Badge size="xs" variant="light" color="indigo">
-                                  {job.assignedAgentName}
-                                </Badge>
-                              ) : (
-                                <Badge size="xs" variant="light" color="orange">
-                                  Unassigned
-                                </Badge>
+                    return (
+                      <Card
+                        key={job.id}
+                        withBorder
+                        padding="xs"
+                        radius="md"
+                        style={{
+                          cursor: 'pointer',
+                          borderColor: isSelected ? 'var(--mantine-color-blue-6)' : undefined,
+                          backgroundColor: isSelected ? 'var(--mantine-color-blue-0)' : undefined
+                        }}
+                        onClick={() => {
+                          setSelectedJobId(job.id)
+                          setSelectedAgentId(null)
+                        }}
+                      >
+                        <Stack gap={4}>
+                          <Group justify="space-between" align="center">
+                            <StatusBadge status={job.status} />
+                            <Group gap={4}>
+                              {hasLocation && (
+                                <Tooltip label={t('dispatch.focusOnMap', 'Focus on Map')}>
+                                  <ActionIcon
+                                    size="xs"
+                                    variant="subtle"
+                                    color="blue"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSelectedJobId(job.id)
+                                      setSelectedAgentId(null)
+                                    }}
+                                  >
+                                    <Navigation size={14} />
+                                  </ActionIcon>
+                                </Tooltip>
                               )}
-
-                              <Text size="xs" c="dimmed">
-                                {formatDateTime(job.scheduledAt || job.createdAt)}
-                              </Text>
-                            </Group>
-
-                            {job.status === JobStatus.UNASSIGNED && (
                               <Button
                                 size="xs"
-                                variant="light"
-                                color="teal"
-                                fullWidth
-                                mt={4}
-                                leftSection={<UserCheck size={12} />}
+                                variant="subtle"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  setAssignModalJob(job)
+                                  setDetailDrawerJob(job)
                                 }}
                               >
-                                {t('jobs.assign', 'Assign Agent')}
+                                {t('common.details', 'Details')}
                               </Button>
+                            </Group>
+                          </Group>
+
+                          <Text fw={600} size="sm" lineClamp={1}>
+                            {job.customer?.name || t('jobs.noCustomer', 'Unknown Customer')}
+                          </Text>
+
+                          {job.customer?.address && (
+                            <Group gap={4} wrap="nowrap">
+                              <MapPin size={12} style={{ flexShrink: 0, color: 'gray' }} />
+                              <Text size="xs" c="dimmed" lineClamp={1}>
+                                {job.customer.address}
+                              </Text>
+                            </Group>
+                          )}
+
+                          <Group justify="space-between" align="center" mt={4}>
+                            {job.assignedAgentName ? (
+                              <Badge size="xs" variant="light" color="indigo">
+                                {job.assignedAgentName}
+                              </Badge>
+                            ) : (
+                              <Badge size="xs" variant="light" color="orange">
+                                Unassigned
+                              </Badge>
                             )}
-                          </Stack>
-                        </Card>
-                      )
-                    })}
-                  </Stack>
-                )}
-              </ScrollArea>
-            </Paper>
+
+                            <Text size="xs" c="dimmed">
+                              {formatDateTime(job.scheduledAt || job.createdAt)}
+                            </Text>
+                          </Group>
+
+                          {job.status === JobStatus.UNASSIGNED && (
+                            <Button
+                              size="xs"
+                              variant="light"
+                              color="teal"
+                              fullWidth
+                              mt={4}
+                              leftSection={<UserCheck size={12} />}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setAssignModalJob(job)
+                              }}
+                            >
+                              {t('jobs.assign', 'Assign Agent')}
+                            </Button>
+                          )}
+                        </Stack>
+                      </Card>
+                    )
+                  })}
+                </Stack>
+              )}
+            </ScrollArea>
+          </Paper>
 
           {/* Right Column: Live Leaflet Map */}
           <Box h={{ base: 400, md: '100%' }} style={{ flex: 1 }}>
@@ -307,10 +312,7 @@ export const Jobs: React.FC = () => {
         </Flex>
 
         {/* Modals & Drawers */}
-        <JobFormModal
-          opened={createModalOpened}
-          onClose={() => setCreateModalOpened(false)}
-        />
+        <JobFormModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
 
         <AssignAgentModal
           opened={Boolean(assignModalJob)}

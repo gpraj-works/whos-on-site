@@ -11,13 +11,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: [
-        'src/main.tsx',
-        'src/app/**',
-        'src/vite-env.d.ts',
-        'src/pages/**',
-        'src/test/**'
-      ]
+      exclude: ['src/main.tsx', 'src/app/**', 'src/vite-env.d.ts', 'src/pages/**', 'src/test/**']
     }
   },
   resolve: {

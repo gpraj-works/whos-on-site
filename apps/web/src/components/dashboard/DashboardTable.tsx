@@ -69,7 +69,10 @@ export const DashboardTable: React.FC<DashboardTableProps> = ({
         <Table.Thead>
           <Table.Tr>
             {columns.map((col) => (
-              <Table.Th key={col} hiddenFrom={col === 'agent' || col === 'scheduledAt' ? 'sm' : undefined}>
+              <Table.Th
+                key={col}
+                hiddenFrom={col === 'agent' || col === 'scheduledAt' ? 'sm' : undefined}
+              >
                 {headings[col]}
               </Table.Th>
             ))}

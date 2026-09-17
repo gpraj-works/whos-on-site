@@ -59,7 +59,14 @@ export const TimeInput: React.FC<TimeInputProps> = ({
   const [opened, setOpened] = useState(false)
 
   return (
-    <Popover opened={opened} onChange={setOpened} position="bottom-start" withArrow shadow="md" zIndex={zIndex}>
+    <Popover
+      opened={opened}
+      onChange={setOpened}
+      position="bottom-start"
+      withArrow
+      shadow="md"
+      zIndex={zIndex}
+    >
       <Popover.Target>
         <TextInput
           label={label}

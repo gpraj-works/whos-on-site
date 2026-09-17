@@ -16,35 +16,31 @@ export const listAgents: RequestHandler = asyncHandler(async (req: Request, res:
   sendSuccess(res, agents)
 })
 
-export const nearbyAgents: RequestHandler = asyncHandler(
-  async (req: Request, res: Response) => {
-    const companyId = req.auth!.companyId
-    const query = nearbyQuerySchema.parse(req.query)
-    const results = await agentService.getNearbyAgents({
-      companyId,
-      lat: query.lat,
-      lng: query.lng,
-      radiusMeters: query.radiusMeters
-    })
-    sendSuccess(res, results)
-  }
-)
+export const nearbyAgents: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const query = nearbyQuerySchema.parse(req.query)
+  const results = await agentService.getNearbyAgents({
+    companyId,
+    lat: query.lat,
+    lng: query.lng,
+    radiusMeters: query.radiusMeters
+  })
+  sendSuccess(res, results)
+})
 
-export const createAgent: RequestHandler = asyncHandler(
-  async (req: Request, res: Response) => {
-    const companyId = req.auth!.companyId
-    const userId = req.auth!.userId
-    const parsed = createAgentSchema.parse(req.body)
+export const createAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const userId = req.auth!.userId
+  const parsed = createAgentSchema.parse(req.body)
 
-    const agent = await agentService.createAgent({
-      ...parsed,
-      companyId,
-      createdBy: userId
-    })
+  const agent = await agentService.createAgent({
+    ...parsed,
+    companyId,
+    createdBy: userId
+  })
 
-    sendSuccess(res, agent, 'Agent created successfully.', HttpStatus.CREATED)
-  }
-)
+  sendSuccess(res, agent, 'Agent created successfully.', HttpStatus.CREATED)
+})
 
 export const updateLocation: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const companyId = req.auth!.companyId

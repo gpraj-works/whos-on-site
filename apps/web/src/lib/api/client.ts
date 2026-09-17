@@ -19,9 +19,7 @@ const ACCESS_TOKEN_STORAGE_KEY = 'whosonsite_access_token'
 // Seed from shared storage so duplicated/new tabs inherit the current session
 // instead of racing a refresh rotation from a cold start.
 let memoryAccessToken: string | null =
-  typeof window !== 'undefined'
-    ? window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
-    : null
+  typeof window !== 'undefined' ? window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY) : null
 
 // Keep every open tab in sync when one tab rotates its access token
 if (typeof window !== 'undefined') {
@@ -182,9 +180,7 @@ export async function apiClient<T = unknown>(
   if (!response.ok || !json.success) {
     const rawError = json.error
     const errorMessage =
-      rawError?.message ||
-      json.message ||
-      'An error occurred during request execution.'
+      rawError?.message || json.message || 'An error occurred during request execution.'
 
     throw new ApiError(errorMessage, response.status, rawError?.code, rawError?.details)
   }

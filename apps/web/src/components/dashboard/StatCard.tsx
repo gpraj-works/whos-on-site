@@ -10,7 +10,13 @@ interface StatCardProps {
   description?: React.ReactNode
 }
 
-export const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, description }) => {
+export const StatCard: React.FC<StatCardProps> = ({
+  title,
+  value,
+  icon: Icon,
+  color,
+  description
+}) => {
   return (
     <Card p="md" radius="md" withBorder shadow="xs">
       <Group justify="space-between" align="center">

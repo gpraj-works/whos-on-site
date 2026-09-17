@@ -1,13 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Modal,
-  Select,
-  Stack,
-  Textarea
-} from '@mantine/core'
+import { ActionIcon, Button, Group, Modal, Select, Stack, Textarea } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { createJobSchema, CustomerDto, JobDto } from '@whosonsite/shared'
 import { dayjs } from '@whosonsite/shared'

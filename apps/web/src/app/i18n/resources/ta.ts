@@ -97,7 +97,7 @@ export const ta = {
       completionRate: 'நிறைவு விகிதம்',
       completedOf: 'இல்',
       jobsCompleted: 'வேலைகள் நிறைவடைந்தன',
-      todaySchedule: "இன்றைய அட்டவணை",
+      todaySchedule: 'இன்றைய அட்டவணை',
       todayScheduleSubtitle: 'இன்று திட்டமிடப்பட்ட ஒதுக்கப்பட்ட வேலைகள்',
       noTodayJobs: 'இன்று திட்டமிடப்பட்ட வேலைகள் இல்லை.'
     },

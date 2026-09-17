@@ -31,7 +31,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     <Modal opened={opened} onClose={onClose} title={title} centered radius="md">
       <Stack gap="md">
         {error && <ApiErrorAlert error={error} />}
-        
+
         <Text size="sm">{message}</Text>
 
         <Group justify="flex-end" gap="xs" mt="sm">
