@@ -157,7 +157,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 color="indigo"
                 onClick={() => onOpenAssignModal(currentJob)}
               >
-                {t('jobs.reassignAgent', 'Reassign Tech')}
+                {t('jobs.reassignAgent', 'Reassign Agent')}
               </Button>
             </>
           )}
@@ -267,7 +267,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                 <Group gap="xs">
                   {currentJob.assignedAgentName && (
                     <Badge variant="light" color="blue" size="md">
-                      Tech: {currentJob.assignedAgentName}
+                      Agent: {currentJob.assignedAgentName}
                     </Badge>
                   )}
                   {currentJob.shareToken && (

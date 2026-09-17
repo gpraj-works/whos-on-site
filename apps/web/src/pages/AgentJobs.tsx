@@ -11,7 +11,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { JobDto, JobStatus } from '@whosonsite/shared'
+import { JobDto, JobStatus , formatJobStatus } from '@whosonsite/shared'
 import {
   AlertCircle,
   Calendar,
@@ -268,7 +268,7 @@ export const AgentJobs: React.FC = () => {
                         <Alert color="red" p="xs">
                           <Group justify="space-between" align="center">
                             <Text size="xs">
-                              Target: <strong>{unsynced.targetStatus.toUpperCase()}</strong> ({unsynced.errorMsg})
+                              Target: <strong>{formatJobStatus(unsynced.targetStatus).toUpperCase()}</strong> ({unsynced.errorMsg})
                             </Text>
                             <Button
                               size="xs"

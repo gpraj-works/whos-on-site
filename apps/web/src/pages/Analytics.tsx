@@ -13,7 +13,7 @@ import {
   Tooltip
 } from '@mantine/core'
 import { BarChart, DonutChart } from '@mantine/charts'
-import { JobStatus, AgentStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus , formatJobStatus } from '@whosonsite/shared'
 import {
   BarChart2,
   Briefcase,
@@ -41,7 +41,7 @@ export const Analytics: React.FC = () => {
 
   const statusData = Object.values(JobStatus)
     .map((status) => ({
-      name: status.toUpperCase().replace('_', ' '),
+      name: formatJobStatus(status).toUpperCase(),
       value: summary?.jobsByStatus[status] || 0,
       color: JOB_STATUS_COLORS[status]
     }))

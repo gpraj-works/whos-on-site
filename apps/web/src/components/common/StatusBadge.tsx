@@ -1,6 +1,6 @@
 import React from 'react'
 import { Badge, MantineColor } from '@mantine/core'
-import { JobStatus, AgentStatus } from '@whosonsite/shared'
+import { JobStatus, AgentStatus, formatJobStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
 import { getJobStatusColor, getAgentStatusColor } from '../../app/theme'
@@ -23,7 +23,13 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'sm' })
     color = getJobStatusColor(status)
   }
 
-  const translatedLabel = t(`status.${status}`, status)
+  // Use formatter for job statuses if missing from translations
+  let fallbackLabel = status
+  if (Object.values(JobStatus).includes(status as JobStatus)) {
+    fallbackLabel = formatJobStatus(status)
+  }
+
+  const translatedLabel = t(`status.${status}`, fallbackLabel)
 
   return (
     <Badge color={color} size={size} variant="light" tt="capitalize">
