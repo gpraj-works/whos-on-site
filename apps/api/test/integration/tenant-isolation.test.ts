@@ -86,7 +86,7 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
   })
 
   describe('Technicians Isolation', () => {
-    it('Company A receives ONLY Company A technicians on GET /api/technicians', async () => {
+    it('Company A receives ONLY Company A technicians on GET /api/agents', async () => {
       const res = await request(app)
         .get('/api/agents')
         .set('Authorization', `Bearer ${tokenCompanyA}`)
