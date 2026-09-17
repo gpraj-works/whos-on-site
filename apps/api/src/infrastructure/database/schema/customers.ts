@@ -1,4 +1,4 @@
-import { index, jsonb, pgTable, text, uuid } from 'drizzle-orm/pg-core'
+import { doublePrecision, index, jsonb, pgTable, text, uuid } from 'drizzle-orm/pg-core'
 import { timestamps } from './common'
 import { companyId } from './company'
 import { auditUserFields } from './audit'
@@ -12,6 +12,8 @@ export const customers = pgTable(
     email: text('email'),
     mobile: text('mobile').notNull(),
     address: text('address').notNull(),
+    latitude: doublePrecision('latitude'),
+    longitude: doublePrecision('longitude'),
     additionalInfo: jsonb('additional_info'),
     ...timestamps(),
     ...auditUserFields()

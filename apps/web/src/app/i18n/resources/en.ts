@@ -185,7 +185,12 @@ export const en = {
       address: 'Address',
       email: 'Email',
       createdAt: 'Created At',
-      saveSubmit: 'Add'
+      saveSubmit: 'Add',
+      pickOnMap: 'Pick on map',
+      hideMap: 'Hide map',
+      searchAddress: 'Searching addresses...',
+      addressHint: 'Type to search or pick a location on the map',
+      locationSet: 'Location pinned'
     }
   }
 }

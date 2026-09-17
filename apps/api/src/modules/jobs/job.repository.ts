@@ -42,6 +42,8 @@ function mapJobRow(row: Record<string, unknown>): JobDto {
         email: (row.customerEmail as string | null) || null,
         mobile: row.customerMobile as string,
         address: row.customerAddress as string,
+        latitude: (row.customerLatitude as number | null) ?? null,
+        longitude: (row.customerLongitude as number | null) ?? null,
         additionalInfo,
         createdAt: dayjs(row.customerCreatedAt as Date | string).toISOString(),
         updatedAt: dayjs(row.customerUpdatedAt as Date | string).toISOString()
@@ -113,6 +115,8 @@ export async function findJobById(
       customerEmail: customers.email,
       customerMobile: customers.mobile,
       customerAddress: customers.address,
+      customerLatitude: customers.latitude,
+      customerLongitude: customers.longitude,
       customerAdditionalInfo: customers.additionalInfo,
       customerCreatedAt: customers.createdAt,
       customerUpdatedAt: customers.updatedAt
@@ -173,6 +177,8 @@ export async function findJobs(
       customerEmail: customers.email,
       customerMobile: customers.mobile,
       customerAddress: customers.address,
+      customerLatitude: customers.latitude,
+      customerLongitude: customers.longitude,
       customerAdditionalInfo: customers.additionalInfo,
       customerCreatedAt: customers.createdAt,
       customerUpdatedAt: customers.updatedAt

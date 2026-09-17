@@ -84,7 +84,14 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
     const rawInput = {
       customerId,
       scheduledAt: isoScheduledAt,
-      notes: notes.trim() || undefined
+      notes: notes.trim() || undefined,
+      location: (() => {
+        const customer = customers.find((c) => c.id === customerId)
+        if (customer?.latitude != null && customer?.longitude != null) {
+          return { lat: customer.latitude, lng: customer.longitude }
+        }
+        return undefined
+      })()
     }
 
     const parseResult = createJobSchema.safeParse(rawInput)

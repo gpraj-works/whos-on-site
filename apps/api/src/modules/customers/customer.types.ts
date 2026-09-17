@@ -4,6 +4,8 @@ export interface CreateCustomerData {
   email?: string | null
   mobile: string
   address: string
+  latitude?: number | null
+  longitude?: number | null
   additionalInfo?: Record<string, unknown> | null
   createdBy?: string
 }
@@ -13,6 +15,8 @@ export interface UpdateCustomerData {
   email?: string | null
   mobile?: string
   address?: string
+  latitude?: number | null
+  longitude?: number | null
   additionalInfo?: Record<string, unknown> | null
   updatedBy?: string
 }

@@ -37,6 +37,8 @@ export interface CustomerDto {
   email: string | null
   mobile: string
   address: string
+  latitude: number | null
+  longitude: number | null
   additionalInfo: Record<string, unknown> | null
   createdAt: string
   updatedAt: string

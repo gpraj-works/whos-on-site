@@ -72,6 +72,8 @@ export const createCustomerSchema = z.object({
   email: z.union([z.string().email('Invalid email address'), z.literal('')]).optional(),
   mobile: z.string().min(7, 'Customer phone number is required'),
   address: z.string().min(5, 'Address is required'),
+  latitude: z.number().min(-90).max(90).optional().or(z.literal(null)),
+  longitude: z.number().min(-180).max(180).optional().or(z.literal(null)),
   additionalInfo: z.record(z.string(), z.unknown()).optional()
 })
 

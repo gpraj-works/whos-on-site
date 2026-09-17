@@ -49,7 +49,12 @@ function hashStringToCoords(str: string): [number, number] {
 }
 
 /** Safely extracts valid lat/lng array from coordinate objects or address fallback */
-function extractCoords(raw: Coordinates | string | null, address?: string | null): [number, number] | null {
+function extractCoords(
+  raw: Coordinates | string | null,
+  address?: string | null,
+  customerLatitude?: number | null,
+  customerLongitude?: number | null
+): [number, number] | null {
   if (raw !== null && typeof raw === 'object') {
     if (raw.lat !== 0 || raw.lng !== 0) {
       return [raw.lat, raw.lng]
@@ -61,6 +66,10 @@ function extractCoords(raw: Coordinates | string | null, address?: string | null
     if (match) {
       return [parseFloat(match[2]), parseFloat(match[1])]
     }
+  }
+
+  if (customerLatitude != null && customerLongitude != null) {
+    return [customerLatitude, customerLongitude]
   }
 
   // Address fallback: generate coordinates from customer address
@@ -198,7 +207,10 @@ export const JobMap: React.FC<JobMapProps> = ({
   }, [isMaximized])
 
   const jobsWithCoords = jobs
-    .map((j) => ({ job: j, coords: extractCoords(j.location, j.customer?.address) }))
+    .map((j) => ({
+      job: j,
+      coords: extractCoords(j.location, j.customer?.address, j.customer?.latitude, j.customer?.longitude)
+    }))
     .filter((item): item is { job: JobDto; coords: [number, number] } => item.coords !== null)
 
   const agentsWithCoords = agents
