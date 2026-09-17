@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
   Alert,
   Badge,
@@ -14,6 +14,7 @@ import {
   Timeline,
   Title
 } from '@mantine/core'
+import { useQuery } from '@tanstack/react-query'
 import { CustomerStatusDto, JobStatus } from '@whosonsite/shared'
 import { dayjs } from '@whosonsite/shared'
 import {
@@ -58,36 +59,19 @@ export const CustomerStatusPage: React.FC = () => {
   const { token } = useParams<{ token: string }>()
   const { t } = useTranslation()
 
-  const [data, setData] = useState<CustomerStatusDto | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null)
+  const { data, isLoading, isError, error, dataUpdatedAt } = useQuery({
+    queryKey: ['publicJobStatus', token],
+    queryFn: () => apiClient<CustomerStatusDto>(`/public/jobs/${token}`, { skipAuth: true }),
+    enabled: !!token,
+    refetchInterval: 30000,
+    retry: 1
+  })
 
-  const fetchStatus = async (isPoll = false) => {
-    if (!token) return
-    if (!isPoll) setLoading(true)
-    try {
-      const res = await apiClient<CustomerStatusDto>(`/public/jobs/${token}`, { skipAuth: true })
-      setData(res)
-      setError(null)
-      setLastRefreshedAt(dayjs().format('HH:mm:ss'))
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t('customerStatus.notFoundSubtitle')
-      setError(msg)
-    } finally {
-      if (!isPoll) setLoading(false)
-    }
-  }
+  const errorMessage =
+    error instanceof Error ? error.message : error ? t('customerStatus.notFoundSubtitle') : null
+  const lastRefreshedAt = dataUpdatedAt ? dayjs(dataUpdatedAt).format('HH:mm:ss') : null
 
-  useEffect(() => {
-    fetchStatus()
-    const interval = setInterval(() => {
-      fetchStatus(true)
-    }, 30000)
-    return () => clearInterval(interval)
-  }, [token])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Container size="sm" py="xl">
         <Paper p="xl" radius="md" withBorder style={{ textAlign: 'center' }}>
@@ -100,7 +84,7 @@ export const CustomerStatusPage: React.FC = () => {
     )
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     return (
       <Container size="sm" py="xl">
         <Paper p="xl" radius="md" withBorder style={{ textAlign: 'center' }}>
@@ -111,7 +95,7 @@ export const CustomerStatusPage: React.FC = () => {
             {t('customerStatus.notFoundTitle')}
           </Title>
           <Text c="dimmed" size="sm" mb="lg">
-            {error || t('customerStatus.notFoundSubtitle')}
+            {errorMessage || t('customerStatus.notFoundSubtitle')}
           </Text>
         </Paper>
       </Container>

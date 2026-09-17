@@ -4,9 +4,19 @@ export interface GeocodeResult {
   longitude: number
 }
 
+interface NominatimItem {
+  display_name?: string
+  lat?: string
+  lon?: string
+  [key: string]: unknown
+}
+
 const NOMINATIM_BASE = 'https://nominatim.openstreetmap.org'
 
-async function fetchNominatim(endpoint: string, params: Record<string, string>): Promise<any> {
+async function fetchNominatim<T = unknown>(
+  endpoint: string,
+  params: Record<string, string>
+): Promise<T> {
   const url = new URL(`${NOMINATIM_BASE}${endpoint}`)
   Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value))
 
@@ -21,13 +31,13 @@ async function fetchNominatim(endpoint: string, params: Record<string, string>):
     throw new Error('Address lookup service unavailable.')
   }
 
-  return res.json()
+  return (await res.json()) as T
 }
 
 export async function searchAddress(query: string): Promise<GeocodeResult[]> {
   if (!query.trim()) return []
 
-  const data = await fetchNominatim('/search', {
+  const data = await fetchNominatim<NominatimItem[]>('/search', {
     q: query.trim(),
     format: 'jsonv2',
     addressdetails: '1',
@@ -39,7 +49,7 @@ export async function searchAddress(query: string): Promise<GeocodeResult[]> {
   return data
     .filter((item) => typeof item?.lat === 'string' && typeof item?.lon === 'string')
     .map((item) => ({
-      displayName: item.display_name as string,
+      displayName: String(item.display_name ?? ''),
       latitude: Number(item.lat),
       longitude: Number(item.lon)
     }))
@@ -49,7 +59,7 @@ export async function reverseGeocode(
   latitude: number,
   longitude: number
 ): Promise<GeocodeResult | null> {
-  const data = await fetchNominatim('/reverse', {
+  const data = await fetchNominatim<NominatimItem>('/reverse', {
     lat: String(latitude),
     lon: String(longitude),
     format: 'jsonv2',
@@ -61,7 +71,7 @@ export async function reverseGeocode(
   }
 
   return {
-    displayName: data.display_name as string,
+    displayName: data.display_name,
     latitude: Number(data.lat),
     longitude: Number(data.lon)
   }

@@ -76,34 +76,18 @@ export async function enqueueDelayedReminderJob(
 /** Register repeatable daily summary cron job */
 export async function registerDailySummaryJob(): Promise<void> {
   try {
-    const queueAny = notificationQueue as any
-    if (typeof queueAny.upsertJobScheduler === 'function') {
-      await queueAny.upsertJobScheduler(
-        'repeatable:daily_summary',
-        { pattern: '0 8 * * *' },
-        {
-          name: 'daily_summary',
-          data: {
-            companyId: 'system',
-            type: 'daily_summary',
-            payload: {}
-          }
-        }
-      )
-    } else {
-      await notificationQueue.add(
-        'daily_summary',
-        {
+    await notificationQueue.upsertJobScheduler(
+      'repeatable:daily_summary',
+      { pattern: '0 8 * * *' },
+      {
+        name: 'daily_summary',
+        data: {
           companyId: 'system',
           type: 'daily_summary',
           payload: {}
-        },
-        {
-          repeat: { pattern: '0 8 * * *' },
-          jobId: 'repeatable:daily_summary'
-        } as any
-      )
-    }
+        }
+      }
+    )
     logger.info('Registered repeatable daily summary cron job')
   } catch (err) {
     logger.warn({ err }, 'Failed to register repeatable daily summary job')

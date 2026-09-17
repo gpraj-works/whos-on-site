@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Badge,
   Button,
@@ -65,10 +65,15 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   const [showNoteInput, setShowNoteInput] = useState<JobStatus | null>(null)
   const [copied, setCopied] = useState(false)
 
-  useEffect(() => {
+  const [prevJobId, setPrevJobId] = useState(currentJob?.id)
+  const [prevJobStatus, setPrevJobStatus] = useState(currentJob?.status)
+
+  if (currentJob?.id !== prevJobId || currentJob?.status !== prevJobStatus) {
+    setPrevJobId(currentJob?.id)
+    setPrevJobStatus(currentJob?.status)
     setShowNoteInput(null)
     setStatusNote('')
-  }, [currentJob?.id, currentJob?.status])
+  }
 
   if (!currentJob) return null
 

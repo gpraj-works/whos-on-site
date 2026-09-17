@@ -1,9 +1,14 @@
 import { and, eq } from 'drizzle-orm'
+import { Job } from 'bullmq'
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/app'
 import { db } from '../../src/infrastructure/database/client'
-import { jobs, notifications } from '../../src/infrastructure/database/schema'
+import {
+  jobs,
+  notificationTypeEnum,
+  notifications
+} from '../../src/infrastructure/database/schema'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 import { NotificationJobPayload } from '../../src/jobs/queues/notification.queue'
 import {
@@ -12,7 +17,10 @@ import {
 } from '../../src/jobs/workers/notification.worker'
 import { createJob } from '../../src/modules/jobs/job.repository'
 
-const makeJob = (data: NotificationJobPayload) => ({ id: 'test-job', name: data.type, data }) as any
+type NotificationType = (typeof notificationTypeEnum)['enumValues'][number]
+
+const makeJob = (data: NotificationJobPayload): Job<NotificationJobPayload> =>
+  ({ id: 'test-job', name: data.type, data }) as unknown as Job<NotificationJobPayload>
 
 describe('Notification Worker Processor Integration Tests', () => {
   let dispatcherToken: string
@@ -43,11 +51,11 @@ describe('Notification Worker Processor Integration Tests', () => {
     return job
   }
 
-  const countByJobAndType = async (jobId: string, type: string) => {
+  const countByJobAndType = async (jobId: string, type: NotificationType) => {
     const rows = await db
       .select()
       .from(notifications)
-      .where(and(eq(notifications.jobId, jobId), eq(notifications.type, type as any)))
+      .where(and(eq(notifications.jobId, jobId), eq(notifications.type, type)))
     return rows.length
   }
 
@@ -61,7 +69,7 @@ describe('Notification Worker Processor Integration Tests', () => {
     const rows = await db
       .select()
       .from(notifications)
-      .where(and(eq(notifications.jobId, job.id), eq(notifications.type, 'job_created' as any)))
+      .where(and(eq(notifications.jobId, job.id), eq(notifications.type, 'job_created')))
     expect(rows).toHaveLength(1)
     expect(rows[0].sentAt).toBeDefined()
   })
@@ -95,7 +103,7 @@ describe('Notification Worker Processor Integration Tests', () => {
     const rows = await db
       .select()
       .from(notifications)
-      .where(eq(notifications.type, 'daily_summary' as any))
+      .where(eq(notifications.type, 'daily_summary'))
 
     expect(rows.length).toBeGreaterThanOrEqual(2)
     for (const row of rows) {

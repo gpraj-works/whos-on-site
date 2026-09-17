@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ActionIcon, Button, Group, Modal, Select, Stack, Textarea } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { createJobSchema, CustomerDto, JobDto } from '@whosonsite/shared'
@@ -20,94 +20,60 @@ export interface JobFormModalProps {
   zIndex?: number
 }
 
+interface JobFormBodyProps {
+  job?: JobDto
+  onClose: () => void
+  zIndex?: number
+}
+
 export const JobFormModal: React.FC<JobFormModalProps> = ({ opened, onClose, job, zIndex }) => {
+  const { t } = useTranslation()
+  const isEditing = !!job
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={isEditing ? t('jobs.editTitle', 'Edit Job') : t('jobs.createTitle', 'New Job')}
+      size="md"
+      centered
+      radius="md"
+      zIndex={zIndex}
+    >
+      <JobFormBody key={opened ? 'open' : 'closed'} job={job} onClose={onClose} zIndex={zIndex} />
+    </Modal>
+  )
+}
+
+const JobFormBody: React.FC<JobFormBodyProps> = ({ job, onClose, zIndex }) => {
   const { t } = useTranslation()
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers()
   const createJobMutation = useCreateJob()
   const updateJobMutation = useUpdateJob()
 
-  const [customerId, setCustomerId] = useState('')
-  const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
+  const isEditing = !!job
+  const scheduledAt = job?.scheduledAt ? dayjs(job.scheduledAt) : null
 
-  // Custom Time Picker State
-  const [hour, setHour] = useState<string>('09')
-  const [minute, setMinute] = useState<string>('00')
-  const [ampm, setAmpm] = useState<string>('AM')
-  const [notes, setNotes] = useState('')
+  const [customerId, setCustomerId] = useState(job?.customerId ?? '')
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(
+    scheduledAt?.isValid() ? scheduledAt.toDate() : null
+  )
+
+  const [hour, setHour] = useState(() => {
+    const h = scheduledAt?.isValid() ? scheduledAt.hour() : 9
+    const h12 = h % 12 === 0 ? 12 : h % 12
+    return h12.toString().padStart(2, '0')
+  })
+  const [minute, setMinute] = useState(() =>
+    (scheduledAt?.isValid() ? scheduledAt.minute() : 0).toString().padStart(2, '0')
+  )
+  const [ampm, setAmpm] = useState(() =>
+    scheduledAt?.isValid() ? (scheduledAt.hour() >= 12 ? 'PM' : 'AM') : 'AM'
+  )
+  const [notes, setNotes] = useState(job?.notes || '')
 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{ customerId?: string; scheduledAt?: string }>({})
-
-  const isEditing = !!job
-
-  useEffect(() => {
-    if (opened) {
-      if (job) {
-        setCustomerId(job.customerId)
-        setNotes(job.notes || '')
-        if (job.scheduledAt) {
-          const d = dayjs(job.scheduledAt)
-          setScheduledDate(d.toDate())
-          let h = d.hour()
-          const a = h >= 12 ? 'PM' : 'AM'
-          if (h > 12) h -= 12
-          if (h === 0) h = 12
-          setHour(h.toString().padStart(2, '0'))
-          setMinute(d.minute().toString().padStart(2, '0'))
-          setAmpm(a)
-        } else {
-          setScheduledDate(null)
-          setHour('09')
-          setMinute('00')
-          setAmpm('AM')
-        }
-      } else {
-        setCustomerId('')
-        setScheduledDate(null)
-        setHour('09')
-        setMinute('00')
-        setAmpm('AM')
-        setNotes('')
-      }
-      setFieldErrors({})
-    }
-  }, [opened, job])
-
-  const handleReset = () => {
-    if (job) {
-      setCustomerId(job.customerId)
-      setNotes(job.notes || '')
-      if (job.scheduledAt) {
-        const d = dayjs(job.scheduledAt)
-        setScheduledDate(d.toDate())
-        let h = d.hour()
-        const a = h >= 12 ? 'PM' : 'AM'
-        if (h > 12) h -= 12
-        if (h === 0) h = 12
-        setHour(h.toString().padStart(2, '0'))
-        setMinute(d.minute().toString().padStart(2, '0'))
-        setAmpm(a)
-      } else {
-        setScheduledDate(null)
-        setHour('09')
-        setMinute('00')
-        setAmpm('AM')
-      }
-    } else {
-      setCustomerId('')
-      setScheduledDate(null)
-      setHour('09')
-      setMinute('00')
-      setAmpm('AM')
-      setNotes('')
-    }
-    setFieldErrors({})
-  }
-
-  const handleClose = () => {
-    handleReset()
-    onClose()
-  }
 
   const handleCustomerCreated = (newCustomer: CustomerDto) => {
     setCustomerId(newCustomer.id)
@@ -162,7 +128,7 @@ export const JobFormModal: React.FC<JobFormModalProps> = ({ opened, onClose, job
       } else {
         await createJobMutation.mutateAsync(parseResult.data)
       }
-      handleClose()
+      onClose()
     } catch {
       // Error handled by mutation.error
     }
@@ -178,104 +144,94 @@ export const JobFormModal: React.FC<JobFormModalProps> = ({ opened, onClose, job
 
   return (
     <>
-      <Modal
-        opened={opened}
-        onClose={handleClose}
-        title={isEditing ? t('jobs.editTitle', 'Edit Job') : t('jobs.createTitle', 'New Job')}
-        size="md"
-        centered
-        radius="md"
-        zIndex={zIndex}
-      >
-        <form onSubmit={handleSubmit} noValidate>
-          <Stack gap="md">
-            <ApiErrorAlert error={error} />
+      <form onSubmit={handleSubmit} noValidate>
+        <Stack gap="md">
+          <ApiErrorAlert error={error} />
 
-            {/* Customer selection */}
-            <Group gap="xs" align="flex-end" wrap="nowrap">
-              <Select
-                label={t('jobs.customer', 'Customer')}
-                placeholder={
-                  isLoadingCustomers
-                    ? t('common.loading', 'Loading customers...')
-                    : t('jobs.selectCustomer', 'Select a customer')
-                }
-                data={customerSelectData}
-                value={customerId}
-                onChange={(val: string | null) => {
-                  setCustomerId(val || '')
-                  if (fieldErrors.customerId)
-                    setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
-                }}
-                searchable
-                clearable
-                withAsterisk
-                error={fieldErrors.customerId}
-                style={{ flex: 1 }}
-                comboboxProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
-              />
-              {!isEditing && (
-                <ActionIcon
-                  variant="light"
-                  color="teal"
-                  size="lg"
-                  title={t('jobs.addCustomer', 'Add Customer')}
-                  onClick={() => setCreateCustomerModalOpened(true)}
-                >
-                  <Plus size={18} />
-                </ActionIcon>
-              )}
-            </Group>
-
-            {/* Schedule Date */}
-            <DatePickerInput
-              label="Schedule Date"
-              placeholder="Pick date"
-              leftSection={<Calendar size={16} />}
-              value={scheduledDate}
-              onChange={(val: Date | null) => {
-                setScheduledDate(val)
-                if (fieldErrors.scheduledAt)
-                  setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+          {/* Customer selection */}
+          <Group gap="xs" align="flex-end" wrap="nowrap">
+            <Select
+              label={t('jobs.customer', 'Customer')}
+              placeholder={
+                isLoadingCustomers
+                  ? t('common.loading', 'Loading customers...')
+                  : t('jobs.selectCustomer', 'Select a customer')
+              }
+              data={customerSelectData}
+              value={customerId}
+              onChange={(val: string | null) => {
+                setCustomerId(val || '')
+                if (fieldErrors.customerId)
+                  setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
               }}
-              error={fieldErrors.scheduledAt}
+              searchable
               clearable
-              popoverProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
+              withAsterisk
+              error={fieldErrors.customerId}
+              style={{ flex: 1 }}
+              comboboxProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
             />
+            {!isEditing && (
+              <ActionIcon
+                variant="light"
+                color="teal"
+                size="lg"
+                title={t('jobs.addCustomer', 'Add Customer')}
+                onClick={() => setCreateCustomerModalOpened(true)}
+              >
+                <Plus size={18} />
+              </ActionIcon>
+            )}
+          </Group>
 
-            {/* Schedule Time */}
-            <TimeInput
-              label="Schedule Time"
-              hour={hour}
-              minute={minute}
-              ampm={ampm}
-              onHourChange={setHour}
-              onMinuteChange={setMinute}
-              onAmpmChange={setAmpm}
-              error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
-              zIndex={zIndex ? zIndex + 1 : undefined}
-            />
+          {/* Schedule Date */}
+          <DatePickerInput
+            label="Schedule Date"
+            placeholder="Pick date"
+            leftSection={<Calendar size={16} />}
+            value={scheduledDate}
+            onChange={(val: Date | null) => {
+              setScheduledDate(val)
+              if (fieldErrors.scheduledAt)
+                setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+            }}
+            error={fieldErrors.scheduledAt}
+            clearable
+            popoverProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
+          />
 
-            {/* Description */}
-            <Textarea
-              label="Description"
-              placeholder={t('jobs.notesPlaceholder', 'Enter job service details or instructions')}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              rows={3}
-            />
+          {/* Schedule Time */}
+          <TimeInput
+            label="Schedule Time"
+            hour={hour}
+            minute={minute}
+            ampm={ampm}
+            onHourChange={setHour}
+            onMinuteChange={setMinute}
+            onAmpmChange={setAmpm}
+            error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
+            zIndex={zIndex ? zIndex + 1 : undefined}
+          />
 
-            <Group justify="flex-end" gap="xs" mt="sm">
-              <Button variant="default" onClick={handleClose} disabled={isPending}>
-                {t('common.cancel', 'Cancel')}
-              </Button>
-              <Button type="submit" loading={isPending}>
-                {isEditing ? t('common.save', 'Save Changes') : t('jobs.createSubmit', 'Add')}
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Modal>
+          {/* Description */}
+          <Textarea
+            label="Description"
+            placeholder={t('jobs.notesPlaceholder', 'Enter job service details or instructions')}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={3}
+          />
+
+          <Group justify="flex-end" gap="xs" mt="sm">
+            <Button variant="default" onClick={onClose} disabled={isPending}>
+              {t('common.cancel', 'Cancel')}
+            </Button>
+            <Button type="submit" loading={isPending}>
+              {isEditing ? t('common.save', 'Save Changes') : t('jobs.createSubmit', 'Add')}
+            </Button>
+          </Group>
+        </Stack>
+      </form>
 
       <CustomerFormModal
         opened={createCustomerModalOpened}

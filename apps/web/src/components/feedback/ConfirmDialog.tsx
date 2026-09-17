@@ -12,7 +12,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string
   confirmColor?: string
   isLoading?: boolean
-  error?: any
+  error?: Error | string | null | undefined
 }
 
 export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({

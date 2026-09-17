@@ -11,8 +11,9 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
     await seedDatabase()
   })
 
-  const getCookieHeader = (res: any) => {
-    const cookies = res.headers['set-cookie'] || []
+  const getCookieHeader = (res: { headers: Record<string, string | string[] | undefined> }) => {
+    const setCookies = res.headers['set-cookie']
+    const cookies = Array.isArray(setCookies) ? setCookies : setCookies ? [setCookies] : []
     const match = cookies.find((c: string) => c.includes('whosonsite_refresh_token'))
     return match ? match.split(';')[0] : ''
   }

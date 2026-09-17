@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -54,6 +54,14 @@ export const AgentJobs: React.FC = () => {
   // Track failed status transitions for retry-with-backoff (Flow B)
   const [unsyncedQueue, setUnsyncedQueue] = useState<Record<string, UnsyncedUpdate>>({})
   const retryingJobsRef = useRef<Set<string>>(new Set())
+  const executeStatusTransitionRef = useRef<
+    (
+      jobId: string,
+      targetStatus: JobStatus,
+      note?: string,
+      currentAttempt?: number
+    ) => Promise<void>
+  >(() => Promise.resolve())
 
   // Find logged-in agent record
   const currentAgent = useMemo(() => {
@@ -109,7 +117,7 @@ export const AgentJobs: React.FC = () => {
         const delayMs = Math.min(1000 * Math.pow(2, nextAttempt), 30000)
         setTimeout(() => {
           retryingJobsRef.current.delete(jobId)
-          executeStatusTransition(jobId, targetStatus, note, nextAttempt)
+          executeStatusTransitionRef.current(jobId, targetStatus, note, nextAttempt)
         }, delayMs)
       } finally {
         retryingJobsRef.current.delete(jobId)
@@ -117,6 +125,10 @@ export const AgentJobs: React.FC = () => {
     },
     [updateStatusMutation]
   )
+
+  useEffect(() => {
+    executeStatusTransitionRef.current = executeStatusTransition
+  }, [executeStatusTransition])
 
   const handleManualRetry = (jobId: string) => {
     const item = unsyncedQueue[jobId]
