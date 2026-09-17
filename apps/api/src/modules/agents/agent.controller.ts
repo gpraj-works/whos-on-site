@@ -3,7 +3,8 @@ import * as agentService from './agent.service'
 import {
   createAgentSchema,
   nearbyQuerySchema,
-  updateLocationSchema
+  updateLocationSchema,
+  updateAgentSchema
 } from './agent.schema'
 import { asyncHandler } from '../../middleware/error-handler'
 import { sendSuccess } from '../../common/response-handler'
@@ -52,4 +53,13 @@ export const updateLocation: RequestHandler = asyncHandler(async (req: Request, 
 
   const updated = await agentService.updateAgentLocation(agentId, companyId, coords)
   sendSuccess(res, updated, 'Agent location updated successfully.')
+})
+
+export const updateAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const agentId = req.params.id as string
+  const parsed = updateAgentSchema.parse(req.body)
+
+  const updated = await agentService.updateAgent(agentId, companyId, parsed)
+  sendSuccess(res, updated, 'Agent updated successfully.')
 })

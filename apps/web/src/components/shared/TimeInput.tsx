@@ -11,6 +11,7 @@ export interface TimeInputProps {
   onHourChange: (v: string) => void
   onMinuteChange: (v: string) => void
   onAmpmChange: (v: string) => void
+  zIndex?: number
 }
 
 const hoursList = Array.from({ length: 12 }).map((_, i) => (i + 1).toString().padStart(2, '0'))
@@ -52,12 +53,13 @@ export const TimeInput: React.FC<TimeInputProps> = ({
   ampm,
   onHourChange,
   onMinuteChange,
-  onAmpmChange
+  onAmpmChange,
+  zIndex
 }) => {
   const [opened, setOpened] = useState(false)
 
   return (
-    <Popover opened={opened} onChange={setOpened} position="bottom-start" withArrow shadow="md">
+    <Popover opened={opened} onChange={setOpened} position="bottom-start" withArrow shadow="md" zIndex={zIndex}>
       <Popover.Target>
         <TextInput
           label={label}

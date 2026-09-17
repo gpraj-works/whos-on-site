@@ -1,18 +1,20 @@
-import React from 'react'
-import { Avatar, Badge, Card, Group, Paper, Stack, Table, Text, Title } from '@mantine/core'
-import { AgentStatus } from '@whosonsite/shared'
-import { MapPin, Phone } from 'lucide-react'
+import React, { useState } from 'react'
+import { ActionIcon, Avatar, Badge, Card, Group, Paper, Stack, Table, Text, Title, Tooltip } from '@mantine/core'
+import { AgentDto, AgentStatus } from '@whosonsite/shared'
+import { Edit2, MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { formatDateTime, formatRelative } from '@whosonsite/shared'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useAgents } from './queries'
+import { AgentFormModal } from './Form'
 
 export const AgentList: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
   const { data: agents = [], isLoading, error } = useAgents()
+  const [editingAgent, setEditingAgent] = useState<AgentDto | null>(null)
 
   const getStatusColor = (status: AgentStatus) => {
     switch (status) {
@@ -77,12 +79,13 @@ export const AgentList: React.FC = () => {
                 <Table.Th>{t('agents.phone', 'Phone Number')}</Table.Th>
                 <Table.Th>{t('agents.location', 'Last Known Location')}</Table.Th>
                 <Table.Th>{t('agents.lastUpdated', 'Last Updated')}</Table.Th>
+                <Table.Th></Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {isLoading ? (
                 <Table.Tr>
-                  <Table.Td colSpan={5} ta="center" py="xl">
+                  <Table.Td colSpan={6} ta="center" py="xl">
                     <Text size="sm" c="dimmed">
                       {t('common.loading', 'Loading agents...')}
                     </Text>
@@ -90,7 +93,7 @@ export const AgentList: React.FC = () => {
                 </Table.Tr>
               ) : agents.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={5} ta="center" py="xl">
+                  <Table.Td colSpan={6} ta="center" py="xl">
                     <Text size="sm" c="dimmed">
                       {t('common.noData', 'No agents registered in company.')}
                     </Text>
@@ -146,6 +149,13 @@ export const AgentList: React.FC = () => {
                           : 'N/A'}
                       </Text>
                     </Table.Td>
+                    <Table.Td>
+                      <Tooltip label={t('common.edit', 'Edit')}>
+                        <ActionIcon variant="subtle" color="gray" onClick={() => setEditingAgent(tech)}>
+                          <Edit2 size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Table.Td>
                   </Table.Tr>
                 ))
               )}
@@ -153,6 +163,12 @@ export const AgentList: React.FC = () => {
           </Table>
         </Table.ScrollContainer>
       </Card>
+      
+      <AgentFormModal
+        opened={!!editingAgent}
+        onClose={() => setEditingAgent(null)}
+        agent={editingAgent || undefined}
+      />
     </Stack>
   )
 }

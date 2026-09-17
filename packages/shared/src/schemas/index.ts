@@ -94,3 +94,9 @@ export const createAgentSchema = z.object({
   phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
   status: agentStatusSchema.optional()
 })
+
+export type CreateAgentInput = z.infer<typeof createAgentSchema>
+
+export const updateAgentSchema = createAgentSchema.partial()
+
+export type UpdateAgentInput = z.infer<typeof updateAgentSchema>

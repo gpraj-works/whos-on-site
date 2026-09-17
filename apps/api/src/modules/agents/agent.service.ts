@@ -45,3 +45,11 @@ export async function updateAgentLocation(id: string, companyId: string, coords:
 
   return updated
 }
+
+export async function updateAgent(id: string, companyId: string, data: Partial<CreateAgentData>) {
+  const updated = await agentRepo.updateAgent(id, companyId, data)
+  if (!updated) {
+    throw new Error('Agent not found or does not belong to your company.')
+  }
+  return updated
+}

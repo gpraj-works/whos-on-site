@@ -11,7 +11,9 @@ import {
   Text,
   Textarea,
   Timeline,
-  Title
+  Title,
+  Tooltip,
+  ActionIcon
 } from '@mantine/core'
 import { JobDto, JobStatus } from '@whosonsite/shared'
 import {
@@ -19,6 +21,7 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  Edit2,
   MapPin,
   MessageSquare,
   Navigation,
@@ -33,12 +36,13 @@ import { ConfirmDialog } from '../common/ConfirmDialog'
 import { StatusBadge } from '../common/StatusBadge'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useCancelJob, useJob, useJobHistory, useUpdateJobStatus } from './queries'
+import { JobFormModal } from './Form'
 
 interface JobDetailDrawerProps {
   opened: boolean
   onClose: () => void
   job: JobDto | null
-  onOpenAssignModal: (job: JobDto) => void
+  onOpenAssignModal?: (job: JobDto) => void
 }
 
 export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
@@ -56,6 +60,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
   const cancelJobMutation = useCancelJob()
 
   const [confirmCancelOpened, setConfirmCancelOpened] = useState(false)
+  const [editJobOpened, setEditJobOpened] = useState(false)
   const [statusNote, setStatusNote] = useState('')
   const [showNoteInput, setShowNoteInput] = useState<JobStatus | null>(null)
   const [copied, setCopied] = useState(false)
@@ -129,7 +134,7 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         </Text>
 
         <Group gap="xs">
-          {currentJob.status === JobStatus.UNASSIGNED && (
+          {currentJob.status === JobStatus.UNASSIGNED && onOpenAssignModal && (
             <Button
               size="xs"
               color="indigo"
@@ -151,14 +156,16 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
               >
                 {t('jobs.markEnRoute', 'Start En Route')}
               </Button>
-              <Button
-                size="xs"
-                variant="light"
-                color="indigo"
-                onClick={() => onOpenAssignModal(currentJob)}
-              >
-                {t('jobs.reassignAgent', 'Reassign Agent')}
-              </Button>
+              {onOpenAssignModal && (
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="indigo"
+                  onClick={() => onOpenAssignModal(currentJob)}
+                >
+                  {t('jobs.reassignAgent', 'Reassign Agent')}
+                </Button>
+              )}
             </>
           )}
 
@@ -232,6 +239,8 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
     )
   }
 
+  const isTerminal = currentJob.status === JobStatus.COMPLETE || currentJob.status === JobStatus.CANCELLED
+
   return (
     <>
       <Drawer
@@ -280,6 +289,13 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
                     >
                       {copied ? t('jobs.linkCopied', 'Copied') : t('jobs.copyShareLink', 'Copy Share Link')}
                     </Button>
+                  )}
+                  {!isTerminal && (
+                    <Tooltip label={t('common.edit', 'Edit')}>
+                      <ActionIcon variant="light" color="gray" onClick={() => setEditJobOpened(true)}>
+                        <Edit2 size={16} />
+                      </ActionIcon>
+                    </Tooltip>
                   )}
                 </Group>
               </Group>
@@ -406,6 +422,13 @@ export const JobDetailDrawer: React.FC<JobDetailDrawerProps> = ({
         )}
         loading={cancelJobMutation.isPending}
         color="red"
+      />
+
+      <JobFormModal
+        opened={editJobOpened}
+        onClose={() => setEditJobOpened(false)}
+        job={currentJob}
+        zIndex={1001}
       />
     </>
   )

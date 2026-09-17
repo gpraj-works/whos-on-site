@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ActionIcon,
   Button,
@@ -9,7 +9,7 @@ import {
   Textarea
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
-import { createJobSchema, CustomerDto } from '@whosonsite/shared'
+import { createJobSchema, CustomerDto, JobDto } from '@whosonsite/shared'
 import { dayjs } from '@whosonsite/shared'
 import { Calendar, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -19,17 +19,20 @@ import { TimeInput } from '../shared/TimeInput'
 import { useCustomers } from '../customers/queries'
 import { CreateCustomerModal } from '../customers/Form'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCreateJob } from './queries'
+import { useCreateJob, useUpdateJob } from './queries'
 
-interface CreateJobModalProps {
+export interface JobFormModalProps {
   opened: boolean
   onClose: () => void
+  job?: JobDto
+  zIndex?: number
 }
 
-export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose }) => {
+export const JobFormModal: React.FC<JobFormModalProps> = ({ opened, onClose, job, zIndex }) => {
   const { t } = useTranslation()
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers()
   const createJobMutation = useCreateJob()
+  const updateJobMutation = useUpdateJob()
 
   const [customerId, setCustomerId] = useState('')
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
@@ -43,13 +46,69 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<{ customerId?: string; scheduledAt?: string }>({})
 
+  const isEditing = !!job
+
+  useEffect(() => {
+    if (opened) {
+      if (job) {
+        setCustomerId(job.customerId)
+        setNotes(job.notes || '')
+        if (job.scheduledAt) {
+          const d = dayjs(job.scheduledAt)
+          setScheduledDate(d.toDate())
+          let h = d.hour()
+          const a = h >= 12 ? 'PM' : 'AM'
+          if (h > 12) h -= 12
+          if (h === 0) h = 12
+          setHour(h.toString().padStart(2, '0'))
+          setMinute(d.minute().toString().padStart(2, '0'))
+          setAmpm(a)
+        } else {
+          setScheduledDate(null)
+          setHour('09')
+          setMinute('00')
+          setAmpm('AM')
+        }
+      } else {
+        setCustomerId('')
+        setScheduledDate(null)
+        setHour('09')
+        setMinute('00')
+        setAmpm('AM')
+        setNotes('')
+      }
+      setFieldErrors({})
+    }
+  }, [opened, job])
+
   const handleReset = () => {
-    setCustomerId('')
-    setScheduledDate(null)
-    setHour('09')
-    setMinute('00')
-    setAmpm('AM')
-    setNotes('')
+    if (job) {
+      setCustomerId(job.customerId)
+      setNotes(job.notes || '')
+      if (job.scheduledAt) {
+        const d = dayjs(job.scheduledAt)
+        setScheduledDate(d.toDate())
+        let h = d.hour()
+        const a = h >= 12 ? 'PM' : 'AM'
+        if (h > 12) h -= 12
+        if (h === 0) h = 12
+        setHour(h.toString().padStart(2, '0'))
+        setMinute(d.minute().toString().padStart(2, '0'))
+        setAmpm(a)
+      } else {
+        setScheduledDate(null)
+        setHour('09')
+        setMinute('00')
+        setAmpm('AM')
+      }
+    } else {
+      setCustomerId('')
+      setScheduledDate(null)
+      setHour('09')
+      setMinute('00')
+      setAmpm('AM')
+      setNotes('')
+    }
     setFieldErrors({})
   }
 
@@ -106,10 +165,14 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
     }
 
     try {
-      await createJobMutation.mutateAsync(parseResult.data)
+      if (isEditing) {
+        await updateJobMutation.mutateAsync({ id: job!.id, input: parseResult.data })
+      } else {
+        await createJobMutation.mutateAsync(parseResult.data)
+      }
       handleClose()
     } catch {
-      // Error handled by createJobMutation.error
+      // Error handled by mutation.error
     }
   }
 
@@ -118,19 +181,23 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
     label: `${c.name} (${c.address})`
   }))
 
+  const isPending = createJobMutation.isPending || updateJobMutation.isPending
+  const error = isEditing ? updateJobMutation.error : createJobMutation.error
+
   return (
     <>
       <Modal
         opened={opened}
         onClose={handleClose}
-        title={t('jobs.createTitle', 'New Job')}
+        title={isEditing ? t('jobs.editTitle', 'Edit Job') : t('jobs.createTitle', 'New Job')}
         size="md"
         centered
         radius="md"
+        zIndex={zIndex}
       >
         <form onSubmit={handleSubmit} noValidate>
           <Stack gap="md">
-            <ApiErrorAlert error={createJobMutation.error} />
+            <ApiErrorAlert error={error} />
 
             {/* Customer selection */}
             <Group gap="xs" align="flex-end" wrap="nowrap">
@@ -153,16 +220,19 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
                 withAsterisk
                 error={fieldErrors.customerId}
                 style={{ flex: 1 }}
+                comboboxProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
               />
-              <ActionIcon
-                variant="light"
-                color="teal"
-                size="lg"
-                title={t('jobs.addCustomer', 'Add Customer')}
-                onClick={() => setCreateCustomerModalOpened(true)}
-              >
-                <Plus size={18} />
-              </ActionIcon>
+              {!isEditing && (
+                <ActionIcon
+                  variant="light"
+                  color="teal"
+                  size="lg"
+                  title={t('jobs.addCustomer', 'Add Customer')}
+                  onClick={() => setCreateCustomerModalOpened(true)}
+                >
+                  <Plus size={18} />
+                </ActionIcon>
+              )}
             </Group>
 
             {/* Schedule Date */}
@@ -178,6 +248,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
               }}
               error={fieldErrors.scheduledAt}
               clearable
+              popoverProps={{ zIndex: zIndex ? zIndex + 1 : undefined }}
             />
 
             {/* Schedule Time */}
@@ -190,6 +261,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
               onMinuteChange={setMinute}
               onAmpmChange={setAmpm}
               error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
+              zIndex={zIndex ? zIndex + 1 : undefined}
             />
 
             {/* Description */}
@@ -202,11 +274,11 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
             />
 
             <Group justify="flex-end" gap="xs" mt="sm">
-              <Button variant="default" onClick={handleClose}>
+              <Button variant="default" onClick={handleClose} disabled={isPending}>
                 {t('common.cancel', 'Cancel')}
               </Button>
-              <Button type="submit" loading={createJobMutation.isPending}>
-                {t('jobs.createSubmit', 'Add')}
+              <Button type="submit" loading={isPending}>
+                {isEditing ? t('common.save', 'Save Changes') : t('jobs.createSubmit', 'Add')}
               </Button>
             </Group>
           </Stack>
@@ -217,6 +289,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
         opened={createCustomerModalOpened}
         onClose={() => setCreateCustomerModalOpened(false)}
         onSuccess={handleCustomerCreated}
+        zIndex={zIndex ? zIndex + 1 : undefined}
       />
     </>
   )

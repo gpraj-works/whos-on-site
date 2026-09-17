@@ -25,7 +25,7 @@ import { StatusBadge } from '../components/common/StatusBadge'
 import { JobMap } from '../components/jobs/JobMap'
 import { AssignAgentModal } from '../components/jobs/AssignModal'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
-import { CreateJobModal } from '../components/jobs/Form'
+import { JobFormModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
 import { useAgents } from '../components/agents/queries'
 import { formatDateTime } from '@whosonsite/shared'
@@ -307,7 +307,10 @@ export const Jobs: React.FC = () => {
         </Flex>
 
         {/* Modals & Drawers */}
-        <CreateJobModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
+        <JobFormModal
+          opened={createModalOpened}
+          onClose={() => setCreateModalOpened(false)}
+        />
 
         <AssignAgentModal
           opened={Boolean(assignModalJob)}
@@ -318,11 +321,10 @@ export const Jobs: React.FC = () => {
         />
 
         <JobDetailDrawer
-          opened={Boolean(detailDrawerJob)}
+          opened={!!detailDrawerJob}
           onClose={() => setDetailDrawerJob(null)}
           job={detailDrawerJob}
           onOpenAssignModal={(j) => {
-            setDetailDrawerJob(null)
             setAssignModalJob(j)
           }}
         />

@@ -133,3 +133,23 @@ export async function findAgentByUserId(
     .where(and(eq(agents.userId, userId), eq(agents.companyId, companyId)))
   return row || null
 }
+
+export async function updateAgent(
+  id: string,
+  companyId: string,
+  data: Partial<CreateAgentData>,
+  client: DatabaseClient = db
+) {
+  const [updated] = await client
+    .update(agents)
+    .set({
+      name: data.name,
+      phone: data.phone,
+      status: data.status,
+      updatedAt: dayjs().toDate()
+    })
+    .where(and(eq(agents.id, id), eq(agents.companyId, companyId)))
+    .returning()
+
+  return updated || null
+}

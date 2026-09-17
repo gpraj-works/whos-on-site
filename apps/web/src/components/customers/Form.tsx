@@ -16,6 +16,7 @@ interface CreateCustomerModalProps {
   opened: boolean
   onClose: () => void
   onSuccess?: (customer: CustomerDto) => void
+  zIndex?: number
 }
 
 const DEFAULT_MAP_CENTER: [number, number] = [40.7128, -74.006]
@@ -81,7 +82,8 @@ function CustomerLocationPicker({ latitude, longitude, onPick }: CustomerLocatio
 export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   opened,
   onClose,
-  onSuccess
+  onSuccess,
+  zIndex
 }) => {
   const { t } = useTranslation()
   const createCustomerMutation = useCreateCustomer()
@@ -244,6 +246,7 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
       title={t('customers.createTitle', 'New Customer')}
       centered
       radius="md"
+      zIndex={zIndex}
     >
       <form onSubmit={handleSubmit} noValidate>
         <Stack gap="md">
@@ -278,7 +281,7 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
               width="target"
               position="bottom"
               shadow="md"
-              zIndex={300}
+              zIndex={zIndex ? zIndex + 1 : 300}
               opened={isAddressSearching || suggestions.length > 0}
               onChange={(open) => {
                 if (!open) {
