@@ -30,4 +30,12 @@ router.patch(
   agentController.updateLocation
 )
 
+router.patch(
+  '/:id',
+  authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
+  agentController.updateAgent
+)
+
+router.delete('/:id', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.deleteAgent)
+
 export const agentRouter: Router = router

@@ -25,3 +25,23 @@ export async function createAgent(data: {
     body: JSON.stringify(data)
   })
 }
+
+export async function updateAgent(
+  id: string,
+  data: {
+    name?: string
+    phone?: string
+    status?: string
+  }
+): Promise<AgentDto> {
+  return apiClient<AgentDto>(`/agents/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data)
+  })
+}
+
+export async function deleteAgent(id: string): Promise<void> {
+  return apiClient<void>(`/agents/${id}`, {
+    method: 'DELETE'
+  })
+}

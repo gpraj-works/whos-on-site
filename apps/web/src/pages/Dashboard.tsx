@@ -25,10 +25,7 @@ export const Dashboard: React.FC = () => {
           }
           subtitle={
             isAgent
-              ? t(
-                  'dashboard.agentSubtitle',
-                  'Your job schedule and performance at a glance'
-                )
+              ? t('dashboard.agentSubtitle', 'Your job schedule and performance at a glance')
               : t(
                   'dashboard.managementSubtitle',
                   'Company-wide dispatch and field operations overview'

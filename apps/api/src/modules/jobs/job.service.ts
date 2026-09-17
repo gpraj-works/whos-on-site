@@ -12,7 +12,10 @@ import {
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../common/app-error'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
-import { enqueueDelayedReminderJob, enqueueNotificationJob } from '../../jobs/queues/notification.queue'
+import {
+  enqueueDelayedReminderJob,
+  enqueueNotificationJob
+} from '../../jobs/queues/notification.queue'
 import { dayjs } from '@whosonsite/shared'
 import { findCustomerById } from '../customers/customer.repository'
 import { findCompanyAgents } from '../agents/agent.repository'

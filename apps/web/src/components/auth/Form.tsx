@@ -116,7 +116,8 @@ export const LoginForm: React.FC = () => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.currentTarget.value)
-                  if (fieldErrors.password) setFieldErrors((prev) => ({ ...prev, password: undefined }))
+                  if (fieldErrors.password)
+                    setFieldErrors((prev) => ({ ...prev, password: undefined }))
                 }}
                 withAsterisk
                 error={fieldErrors.password}

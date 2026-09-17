@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { JobDto, JobStatus, AgentDto, AgentStatus, Coordinates , formatJobStatus } from '@whosonsite/shared'
+import {
+  JobDto,
+  JobStatus,
+  AgentDto,
+  AgentStatus,
+  Coordinates,
+  formatJobStatus
+} from '@whosonsite/shared'
 import L from 'leaflet'
 import { dayjs } from '@whosonsite/shared'
 import { Maximize2, Minimize2 } from 'lucide-react'
@@ -42,14 +49,24 @@ function hashStringToCoords(str: string): [number, number] {
   if (lower.includes('atlanta') || lower.includes('ga')) {
     return [33.749 + normLat, -84.388 + normLng]
   }
-  if (lower.includes('ny') || lower.includes('york') || lower.includes('brooklyn') || lower.includes('queens')) {
+  if (
+    lower.includes('ny') ||
+    lower.includes('york') ||
+    lower.includes('brooklyn') ||
+    lower.includes('queens')
+  ) {
     return [40.7128 + normLat, -74.006 + normLng]
   }
   return [33.75 + normLat, -84.38 + normLng]
 }
 
 /** Safely extracts valid lat/lng array from coordinate objects or address fallback */
-function extractCoords(raw: Coordinates | string | null, address?: string | null): [number, number] | null {
+function extractCoords(
+  raw: Coordinates | string | null,
+  address?: string | null,
+  customerLatitude?: number | null,
+  customerLongitude?: number | null
+): [number, number] | null {
   if (raw !== null && typeof raw === 'object') {
     if (raw.lat !== 0 || raw.lng !== 0) {
       return [raw.lat, raw.lng]
@@ -61,6 +78,10 @@ function extractCoords(raw: Coordinates | string | null, address?: string | null
     if (match) {
       return [parseFloat(match[2]), parseFloat(match[1])]
     }
+  }
+
+  if (customerLatitude != null && customerLongitude != null) {
+    return [customerLatitude, customerLongitude]
   }
 
   // Address fallback: generate coordinates from customer address
@@ -75,7 +96,9 @@ function createJobMarkerIcon(status: JobStatus, isSelected: boolean): L.DivIcon 
   const color = JOB_STATUS_HEX_COLORS[status] || '#228be6'
   const borderWidth = isSelected ? '3px' : '2px'
   const borderColor = isSelected ? '#1c7ed6' : '#ffffff'
-  const scaleCss = isSelected ? 'transform: rotate(-45deg) scale(1.25);' : 'transform: rotate(-45deg);'
+  const scaleCss = isSelected
+    ? 'transform: rotate(-45deg) scale(1.25);'
+    : 'transform: rotate(-45deg);'
 
   return L.divIcon({
     className: 'custom-job-pin',
@@ -198,7 +221,15 @@ export const JobMap: React.FC<JobMapProps> = ({
   }, [isMaximized])
 
   const jobsWithCoords = jobs
-    .map((j) => ({ job: j, coords: extractCoords(j.location, j.customer?.address) }))
+    .map((j) => ({
+      job: j,
+      coords: extractCoords(
+        j.location,
+        j.customer?.address,
+        j.customer?.latitude,
+        j.customer?.longitude
+      )
+    }))
     .filter((item): item is { job: JobDto; coords: [number, number] } => item.coords !== null)
 
   const agentsWithCoords = agents
@@ -371,12 +402,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                   )}
 
                   {onAssignJob && job.status === JobStatus.UNASSIGNED && (
-                    <Button
-                      size="xs"
-                      color="teal"
-                      fullWidth
-                      onClick={() => onAssignJob(job)}
-                    >
+                    <Button size="xs" color="teal" fullWidth onClick={() => onAssignJob(job)}>
                       Assign Agent
                     </Button>
                   )}

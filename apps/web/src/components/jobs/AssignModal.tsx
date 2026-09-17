@@ -76,6 +76,7 @@ export const AssignAgentModal: React.FC<AssignAgentModalProps> = ({
       title={t('jobs.assignTitle', 'Assign Agent')}
       centered
       radius="md"
+      zIndex={1001}
     >
       <Stack gap="md">
         <ApiErrorAlert error={assignJobMutation.error || unassignJobMutation.error} />
@@ -106,6 +107,7 @@ export const AssignAgentModal: React.FC<AssignAgentModalProps> = ({
           clearable
           withAsterisk
           error={validationError}
+          comboboxProps={{ zIndex: 1002 }}
         />
 
         <Group justify="space-between" mt="sm">

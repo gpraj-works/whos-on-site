@@ -20,6 +20,8 @@ function mapCustomerRow(row: typeof customers.$inferSelect): CustomerDto {
     email: row.email || null,
     mobile: row.mobile,
     address: row.address,
+    latitude: row.latitude ?? null,
+    longitude: row.longitude ?? null,
     additionalInfo: additionalInfo || null,
     createdAt: dayjs(row.createdAt).toISOString(),
     updatedAt: dayjs(row.updatedAt).toISOString()
@@ -85,6 +87,8 @@ export async function createCustomer(
       email: data.email || null,
       mobile: data.mobile,
       address: data.address,
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
       additionalInfo: data.additionalInfo || null,
       createdBy: data.createdBy || null
     })
@@ -108,6 +112,8 @@ export async function updateCustomer(
   if (data.email !== undefined) updatePayload.email = data.email || null
   if (data.mobile !== undefined) updatePayload.mobile = data.mobile
   if (data.address !== undefined) updatePayload.address = data.address
+  if (data.latitude !== undefined) updatePayload.latitude = data.latitude
+  if (data.longitude !== undefined) updatePayload.longitude = data.longitude
   if (data.additionalInfo !== undefined) updatePayload.additionalInfo = data.additionalInfo
   if (data.updatedBy !== undefined) updatePayload.updatedBy = data.updatedBy
 

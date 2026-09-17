@@ -12,3 +12,19 @@ export async function createCustomer(input: CreateCustomerInput): Promise<Custom
     body: JSON.stringify(input)
   })
 }
+
+export async function updateCustomer(
+  id: string,
+  input: Partial<CreateCustomerInput>
+): Promise<CustomerDto> {
+  return apiClient<CustomerDto>(`/customers/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input)
+  })
+}
+
+export async function deleteCustomer(id: string): Promise<void> {
+  return apiClient<void>(`/customers/${id}`, {
+    method: 'DELETE'
+  })
+}

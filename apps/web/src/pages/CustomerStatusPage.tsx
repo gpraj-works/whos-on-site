@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
   Alert,
   Badge,
@@ -14,6 +14,7 @@ import {
   Timeline,
   Title
 } from '@mantine/core'
+import { useQuery } from '@tanstack/react-query'
 import { CustomerStatusDto, JobStatus } from '@whosonsite/shared'
 import { dayjs } from '@whosonsite/shared'
 import {
@@ -58,36 +59,19 @@ export const CustomerStatusPage: React.FC = () => {
   const { token } = useParams<{ token: string }>()
   const { t } = useTranslation()
 
-  const [data, setData] = useState<CustomerStatusDto | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [lastRefreshedAt, setLastRefreshedAt] = useState<string | null>(null)
+  const { data, isLoading, isError, error, dataUpdatedAt } = useQuery({
+    queryKey: ['publicJobStatus', token],
+    queryFn: () => apiClient<CustomerStatusDto>(`/public/jobs/${token}`, { skipAuth: true }),
+    enabled: !!token,
+    refetchInterval: 30000,
+    retry: 1
+  })
 
-  const fetchStatus = async (isPoll = false) => {
-    if (!token) return
-    if (!isPoll) setLoading(true)
-    try {
-      const res = await apiClient<CustomerStatusDto>(`/public/jobs/${token}`, { skipAuth: true })
-      setData(res)
-      setError(null)
-      setLastRefreshedAt(dayjs().format('HH:mm:ss'))
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t('customerStatus.notFoundSubtitle')
-      setError(msg)
-    } finally {
-      if (!isPoll) setLoading(false)
-    }
-  }
+  const errorMessage =
+    error instanceof Error ? error.message : error ? t('customerStatus.notFoundSubtitle') : null
+  const lastRefreshedAt = dataUpdatedAt ? dayjs(dataUpdatedAt).format('HH:mm:ss') : null
 
-  useEffect(() => {
-    fetchStatus()
-    const interval = setInterval(() => {
-      fetchStatus(true)
-    }, 30000)
-    return () => clearInterval(interval)
-  }, [token])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <Container size="sm" py="xl">
         <Paper p="xl" radius="md" withBorder style={{ textAlign: 'center' }}>
@@ -100,7 +84,7 @@ export const CustomerStatusPage: React.FC = () => {
     )
   }
 
-  if (error || !data) {
+  if (isError || !data) {
     return (
       <Container size="sm" py="xl">
         <Paper p="xl" radius="md" withBorder style={{ textAlign: 'center' }}>
@@ -111,7 +95,7 @@ export const CustomerStatusPage: React.FC = () => {
             {t('customerStatus.notFoundTitle')}
           </Title>
           <Text c="dimmed" size="sm" mb="lg">
-            {error || t('customerStatus.notFoundSubtitle')}
+            {errorMessage || t('customerStatus.notFoundSubtitle')}
           </Text>
         </Paper>
       </Container>
@@ -127,13 +111,24 @@ export const CustomerStatusPage: React.FC = () => {
     <Box style={{ minHeight: '100vh', backgroundColor: 'var(--mantine-color-body)' }} py="lg">
       <Container size="sm">
         {/* Top Header Card */}
-        <Card radius="md" withBorder p="lg" mb="md" style={{ borderTop: `4px solid ${data.companyPrimaryColor}` }}>
+        <Card
+          radius="md"
+          withBorder
+          p="lg"
+          mb="md"
+          style={{ borderTop: `4px solid ${data.companyPrimaryColor}` }}
+        >
           <Group justify="space-between" align="center" mb="xs">
             <Group gap="xs">
               <Logo size={28} color={data.companyPrimaryColor} />
               <Title order={4}>{data.companyName}</Title>
             </Group>
-            <Badge size="lg" color={statusCfg.color} variant="filled" leftSection={<StatusIcon size={14} />}>
+            <Badge
+              size="lg"
+              color={statusCfg.color}
+              variant="filled"
+              leftSection={<StatusIcon size={14} />}
+            >
               {t(`status.${data.status}`, { defaultValue: statusCfg.label })}
             </Badge>
           </Group>
@@ -144,7 +139,14 @@ export const CustomerStatusPage: React.FC = () => {
 
         {/* Cancelled Alert if applicable */}
         {isCancelled && (
-          <Alert icon={<XCircle size={20} />} title={t('status.cancelled')} color="red" variant="filled" mb="md" radius="md">
+          <Alert
+            icon={<XCircle size={20} />}
+            title={t('status.cancelled')}
+            color="red"
+            variant="filled"
+            mb="md"
+            radius="md"
+          >
             {t('jobs.cancelConfirmMessage')}
           </Alert>
         )}
@@ -204,9 +206,7 @@ export const CustomerStatusPage: React.FC = () => {
               <Text size="sm" fw={500}>
                 {t('customerStatus.agent')}:
               </Text>
-              <Text size="sm">
-                {data.agentName || t('customerStatus.unassignedTech')}
-              </Text>
+              <Text size="sm">{data.agentName || t('customerStatus.unassignedTech')}</Text>
             </Group>
 
             {data.scheduledAt && (
@@ -228,7 +228,11 @@ export const CustomerStatusPage: React.FC = () => {
             </Group>
 
             {data.notes && (
-              <Box mt="xs" p="xs" style={{ borderRadius: 6, backgroundColor: 'var(--mantine-color-gray-0)' }}>
+              <Box
+                mt="xs"
+                p="xs"
+                style={{ borderRadius: 6, backgroundColor: 'var(--mantine-color-gray-0)' }}
+              >
                 <Text size="xs" c="dimmed" fw={600} mb={2}>
                   Notes:
                 </Text>
@@ -246,9 +250,21 @@ export const CustomerStatusPage: React.FC = () => {
             </Title>
             <Stack gap="xs">
               {data.history.map((item, idx) => (
-                <Group key={idx} justify="space-between" align="flex-start" style={{ borderBottom: '1px solid var(--mantine-color-gray-2)', paddingBottom: 6 }}>
+                <Group
+                  key={idx}
+                  justify="space-between"
+                  align="flex-start"
+                  style={{
+                    borderBottom: '1px solid var(--mantine-color-gray-2)',
+                    paddingBottom: 6
+                  }}
+                >
                   <Box>
-                    <Badge size="xs" color={STATUS_CONFIG[item.toStatus]?.color || 'gray'} variant="light">
+                    <Badge
+                      size="xs"
+                      color={STATUS_CONFIG[item.toStatus]?.color || 'gray'}
+                      variant="light"
+                    >
                       {t(`status.${item.toStatus}`, { defaultValue: item.toStatus })}
                     </Badge>
                     {item.note && (
@@ -270,7 +286,8 @@ export const CustomerStatusPage: React.FC = () => {
         <Group justify="center" align="center" gap={6} py="xs">
           <RefreshCw size={12} className="spin" style={{ color: 'var(--mantine-color-dimmed)' }} />
           <Text size="xs" c="dimmed">
-            {t('customerStatus.autoRefresh')} {lastRefreshedAt ? `(Updated ${lastRefreshedAt})` : ''}
+            {t('customerStatus.autoRefresh')}{' '}
+            {lastRefreshedAt ? `(Updated ${lastRefreshedAt})` : ''}
           </Text>
         </Group>
       </Container>

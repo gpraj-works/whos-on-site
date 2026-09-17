@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   Badge,
@@ -11,7 +11,7 @@ import {
   Text,
   Title
 } from '@mantine/core'
-import { JobDto, JobStatus , formatJobStatus } from '@whosonsite/shared'
+import { JobDto, JobStatus, formatJobStatus } from '@whosonsite/shared'
 import {
   AlertCircle,
   Calendar,
@@ -54,6 +54,14 @@ export const AgentJobs: React.FC = () => {
   // Track failed status transitions for retry-with-backoff (Flow B)
   const [unsyncedQueue, setUnsyncedQueue] = useState<Record<string, UnsyncedUpdate>>({})
   const retryingJobsRef = useRef<Set<string>>(new Set())
+  const executeStatusTransitionRef = useRef<
+    (
+      jobId: string,
+      targetStatus: JobStatus,
+      note?: string,
+      currentAttempt?: number
+    ) => Promise<void>
+  >(() => Promise.resolve())
 
   // Find logged-in agent record
   const currentAgent = useMemo(() => {
@@ -90,7 +98,8 @@ export const AgentJobs: React.FC = () => {
           return next
         })
       } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : 'Network sync error. Will retry automatically.'
+        const errorMsg =
+          err instanceof Error ? err.message : 'Network sync error. Will retry automatically.'
         const nextAttempt = currentAttempt + 1
 
         setUnsyncedQueue((prev) => ({
@@ -108,7 +117,7 @@ export const AgentJobs: React.FC = () => {
         const delayMs = Math.min(1000 * Math.pow(2, nextAttempt), 30000)
         setTimeout(() => {
           retryingJobsRef.current.delete(jobId)
-          executeStatusTransition(jobId, targetStatus, note, nextAttempt)
+          executeStatusTransitionRef.current(jobId, targetStatus, note, nextAttempt)
         }, delayMs)
       } finally {
         retryingJobsRef.current.delete(jobId)
@@ -116,6 +125,10 @@ export const AgentJobs: React.FC = () => {
     },
     [updateStatusMutation]
   )
+
+  useEffect(() => {
+    executeStatusTransitionRef.current = executeStatusTransition
+  }, [executeStatusTransition])
 
   const handleManualRetry = (jobId: string) => {
     const item = unsyncedQueue[jobId]
@@ -127,7 +140,10 @@ export const AgentJobs: React.FC = () => {
   // Active & Pending Jobs vs Completed Jobs
   const activeQueue = useMemo(() => {
     return jobs.filter(
-      (j) => j.status === JobStatus.ASSIGNED || j.status === JobStatus.EN_ROUTE || j.status === JobStatus.ON_SITE
+      (j) =>
+        j.status === JobStatus.ASSIGNED ||
+        j.status === JobStatus.EN_ROUTE ||
+        j.status === JobStatus.ON_SITE
     )
   }, [jobs])
 
@@ -140,10 +156,7 @@ export const AgentJobs: React.FC = () => {
       <Stack gap="sm">
         <PageHeader
           title={t('agent.myJobs', 'My Job Queue')}
-          subtitle={t(
-            'agent.subtitle',
-            'Today’s assigned field jobs and one-tap status updates'
-          )}
+          subtitle={t('agent.subtitle', 'Today’s assigned field jobs and one-tap status updates')}
         />
 
         {currentAgent && (
@@ -170,7 +183,8 @@ export const AgentJobs: React.FC = () => {
         {Object.keys(unsyncedQueue).length > 0 && (
           <Alert color="red" icon={<AlertCircle size={18} />} title="Unsynced Updates Pending">
             <Text size="xs" mb="xs">
-              Some status updates could not be sent to the server. Automatic retries are active in the background.
+              Some status updates could not be sent to the server. Automatic retries are active in
+              the background.
             </Text>
           </Alert>
         )}
@@ -203,16 +217,17 @@ export const AgentJobs: React.FC = () => {
                         <Group gap="xs">
                           <StatusBadge status={job.status} />
                           {unsynced && (
-                            <Badge color="red" variant="filled" size="xs" leftSection={<AlertCircle size={10} />}>
+                            <Badge
+                              color="red"
+                              variant="filled"
+                              size="xs"
+                              leftSection={<AlertCircle size={10} />}
+                            >
                               Not Synced (Attempt #{unsynced.attempt})
                             </Badge>
                           )}
                         </Group>
-                        <Button
-                          size="xs"
-                          variant="subtle"
-                          onClick={() => setDetailDrawerJob(job)}
-                        >
+                        <Button size="xs" variant="subtle" onClick={() => setDetailDrawerJob(job)}>
                           {t('common.details', 'Details')}
                         </Button>
                       </Group>
@@ -268,7 +283,11 @@ export const AgentJobs: React.FC = () => {
                         <Alert color="red" p="xs">
                           <Group justify="space-between" align="center">
                             <Text size="xs">
-                              Target: <strong>{formatJobStatus(unsynced.targetStatus).toUpperCase()}</strong> ({unsynced.errorMsg})
+                              Target:{' '}
+                              <strong>
+                                {formatJobStatus(unsynced.targetStatus).toUpperCase()}
+                              </strong>{' '}
+                              ({unsynced.errorMsg})
                             </Text>
                             <Button
                               size="xs"
@@ -348,11 +367,7 @@ export const AgentJobs: React.FC = () => {
                         {job.customer?.name || 'Customer'}
                       </Text>
                     </Group>
-                    <Button
-                      size="xs"
-                      variant="subtle"
-                      onClick={() => setDetailDrawerJob(job)}
-                    >
+                    <Button size="xs" variant="subtle" onClick={() => setDetailDrawerJob(job)}>
                       {t('common.details', 'Details')}
                     </Button>
                   </Group>

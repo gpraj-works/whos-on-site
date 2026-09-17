@@ -1,4 +1,10 @@
-import { AuthResponse, AuthUser, CompanyDto, LoginRequest, RegisterRequest } from '@whosonsite/shared'
+import {
+  AuthResponse,
+  AuthUser,
+  CompanyDto,
+  LoginRequest,
+  RegisterRequest
+} from '@whosonsite/shared'
 import { apiClient } from '../../lib/api'
 
 export type MeResponse = { user: AuthUser; company?: CompanyDto }

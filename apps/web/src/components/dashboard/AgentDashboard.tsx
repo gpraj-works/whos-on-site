@@ -18,10 +18,7 @@ export const AgentDashboard: React.FC = () => {
 
   const today = dayjs().format('YYYY-MM-DD')
 
-  const {
-    data: allJobs = [],
-    error: allError
-  } = useJobs({ limit: 100 })
+  const { data: allJobs = [], error: allError } = useJobs({ limit: 100 })
   const {
     data: todayJobs = [],
     isLoading: isLoadingToday,
@@ -45,10 +42,8 @@ export const AgentDashboard: React.FC = () => {
           j.scheduledAt &&
           dayjs(j.scheduledAt).isAfter(dayjs())
       )
-      .sort(
-        (a, b) =>
-          dayjs(a.scheduledAt as string).diff(dayjs(b.scheduledAt as string))
-      )[0] ?? null
+      .sort((a, b) => dayjs(a.scheduledAt as string).diff(dayjs(b.scheduledAt as string)))[0] ??
+    null
 
   return (
     <Stack gap="xs">
@@ -74,7 +69,7 @@ export const AgentDashboard: React.FC = () => {
             color="blue"
             description={
               nextAppointment
-                ? (nextAppointment.customer?.name || t('jobs.noCustomer', 'Assigned Customer'))
+                ? nextAppointment.customer?.name || t('jobs.noCustomer', 'Assigned Customer')
                 : t('dashboard.noneScheduled', 'No upcoming appointments')
             }
           />

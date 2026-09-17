@@ -37,16 +37,8 @@ export const ManagementDashboard: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
 
-  const {
-    data: jobs = [],
-    isLoading: isLoadingJobs,
-    error: jobsError
-  } = useJobs()
-  const {
-    data: agents = [],
-    isLoading: isLoadingTechs,
-    error: techsError
-  } = useAgents()
+  const { data: jobs = [], isLoading: isLoadingJobs, error: jobsError } = useJobs()
+  const { data: agents = [], isLoading: isLoadingTechs, error: techsError } = useAgents()
 
   const activeJobs = jobs.filter(
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
@@ -61,8 +53,7 @@ export const ManagementDashboard: React.FC = () => {
   const busyTechs = agents.filter((a) => a.status === AgentStatus.BUSY)
 
   const completedToday = jobs.filter((j) => j.status === JobStatus.COMPLETE).length
-  const completionPct =
-    jobs.length > 0 ? Math.round((completedToday / jobs.length) * 100) : 0
+  const completionPct = jobs.length > 0 ? Math.round((completedToday / jobs.length) * 100) : 0
 
   const recentJobs = jobs.slice(0, 5)
 
@@ -154,7 +145,10 @@ export const ManagementDashboard: React.FC = () => {
         <Grid.Col span={{ base: 12, lg: 8 }}>
           <DashboardTable
             title={t('dashboard.recentJobs', 'Recent Dispatch Jobs')}
-            subtitle={t('dashboard.recentJobsSubtitle', 'Active jobs and field operations tracking')}
+            subtitle={t(
+              'dashboard.recentJobsSubtitle',
+              'Active jobs and field operations tracking'
+            )}
             jobs={recentJobs}
             loading={isLoadingJobs}
             emptyMessage={t('dashboard.noJobsMessage', 'No jobs created yet.')}

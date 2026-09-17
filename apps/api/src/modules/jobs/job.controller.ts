@@ -79,12 +79,7 @@ export const assignJobController: RequestHandler = asyncHandler(async (req, res)
   const id = req.params.id as string
   const { agentId } = assignJobSchema.parse(req.body)
 
-  const assigned = await assignmentService.assignAgentToJob(
-    id,
-    agentId,
-    companyId,
-    userId
-  )
+  const assigned = await assignmentService.assignAgentToJob(id, agentId, companyId, userId)
   return sendSuccess(res, assigned, 'Agent assigned successfully', HttpStatus.OK)
 })
 

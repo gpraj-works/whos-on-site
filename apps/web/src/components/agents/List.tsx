@@ -1,18 +1,46 @@
-import React from 'react'
-import { Avatar, Badge, Card, Group, Paper, Stack, Table, Text, Title } from '@mantine/core'
-import { AgentStatus } from '@whosonsite/shared'
-import { MapPin, Phone } from 'lucide-react'
+import React, { useState } from 'react'
+import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Card,
+  Group,
+  Paper,
+  Stack,
+  Table,
+  Text,
+  Title,
+  Tooltip
+} from '@mantine/core'
+import { AgentDto, AgentStatus } from '@whosonsite/shared'
+import { Edit2, MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { formatDateTime, formatRelative } from '@whosonsite/shared'
-import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useAgents } from './queries'
+import { ApiErrorAlert, ConfirmDialog } from '../feedback'
+import { useAgents, useDeleteAgent } from './queries'
+import { AgentFormModal } from './Form'
+import { Trash2 } from 'lucide-react'
 
 export const AgentList: React.FC = () => {
   const { t } = useTranslation()
   const { primaryColor } = useAppTheme()
   const { data: agents = [], isLoading, error } = useAgents()
+  const deleteAgentMutation = useDeleteAgent()
+
+  const [editingAgent, setEditingAgent] = useState<AgentDto | null>(null)
+  const [agentToDelete, setAgentToDelete] = useState<AgentDto | null>(null)
+
+  const handleDeleteConfirm = async () => {
+    if (!agentToDelete) return
+    try {
+      await deleteAgentMutation.mutateAsync(agentToDelete.id)
+      setAgentToDelete(null)
+    } catch {
+      // Error handled by mutation/global boundary
+    }
+  }
 
   const getStatusColor = (status: AgentStatus) => {
     switch (status) {
@@ -28,9 +56,7 @@ export const AgentList: React.FC = () => {
   }
 
   const activeCount = agents.filter((tech) => tech.status !== AgentStatus.OFFLINE).length
-  const availableCount = agents.filter(
-    (tech) => tech.status === AgentStatus.AVAILABLE
-  ).length
+  const availableCount = agents.filter((tech) => tech.status === AgentStatus.AVAILABLE).length
 
   return (
     <Stack gap="sm">
@@ -77,12 +103,15 @@ export const AgentList: React.FC = () => {
                 <Table.Th>{t('agents.phone', 'Phone Number')}</Table.Th>
                 <Table.Th>{t('agents.location', 'Last Known Location')}</Table.Th>
                 <Table.Th>{t('agents.lastUpdated', 'Last Updated')}</Table.Th>
+                <Table.Th w={100} ta="right">
+                  {t('common.actions', 'Actions')}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
               {isLoading ? (
                 <Table.Tr>
-                  <Table.Td colSpan={5} ta="center" py="xl">
+                  <Table.Td colSpan={6} ta="center" py="xl">
                     <Text size="sm" c="dimmed">
                       {t('common.loading', 'Loading agents...')}
                     </Text>
@@ -90,7 +119,7 @@ export const AgentList: React.FC = () => {
                 </Table.Tr>
               ) : agents.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={5} ta="center" py="xl">
+                  <Table.Td colSpan={6} ta="center" py="xl">
                     <Text size="sm" c="dimmed">
                       {t('common.noData', 'No agents registered in company.')}
                     </Text>
@@ -146,6 +175,30 @@ export const AgentList: React.FC = () => {
                           : 'N/A'}
                       </Text>
                     </Table.Td>
+                    <Table.Td ta="right">
+                      <Group gap="xs" justify="flex-end" wrap="nowrap">
+                        <Tooltip label={t('common.edit', 'Edit')}>
+                          <ActionIcon
+                            variant="light"
+                            color="blue"
+                            size="sm"
+                            onClick={() => setEditingAgent(tech)}
+                          >
+                            <Edit2 size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label={t('common.delete', 'Delete')}>
+                          <ActionIcon
+                            variant="light"
+                            color="red"
+                            size="sm"
+                            onClick={() => setAgentToDelete(tech)}
+                          >
+                            <Trash2 size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Table.Td>
                   </Table.Tr>
                 ))
               )}
@@ -153,6 +206,27 @@ export const AgentList: React.FC = () => {
           </Table>
         </Table.ScrollContainer>
       </Card>
+
+      <AgentFormModal
+        opened={!!editingAgent}
+        onClose={() => setEditingAgent(null)}
+        agent={editingAgent || undefined}
+      />
+
+      <ConfirmDialog
+        opened={!!agentToDelete}
+        onClose={() => setAgentToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t('agents.deleteTitle', 'Delete Agent')}
+        message={t(
+          'agents.deleteMessage',
+          'Are you sure you want to delete this agent? This action cannot be undone.'
+        )}
+        confirmLabel={t('common.delete', 'Delete')}
+        confirmColor="red"
+        isLoading={deleteAgentMutation.isPending}
+        error={deleteAgentMutation.error}
+      />
     </Stack>
   )
 }

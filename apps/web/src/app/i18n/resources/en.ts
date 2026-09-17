@@ -166,8 +166,7 @@ export const en = {
     },
     agents: {
       title: 'Agents',
-      subtitle:
-        'Real-time agent availability, status tracking, and location readiness',
+      subtitle: 'Real-time agent availability, status tracking, and location readiness',
       createTitle: 'New Agent',
       name: 'Agent',
       status: 'Status',
@@ -185,7 +184,12 @@ export const en = {
       address: 'Address',
       email: 'Email',
       createdAt: 'Created At',
-      saveSubmit: 'Add'
+      saveSubmit: 'Add',
+      pickOnMap: 'Pick on map',
+      hideMap: 'Hide map',
+      searchAddress: 'Searching addresses...',
+      addressHint: 'Type to search or pick a location on the map',
+      locationSet: 'Location pinned'
     }
   }
 }

@@ -11,8 +11,7 @@ import { apiClient } from '../../lib/api'
 export async function listJobs(filters?: JobFilterQuery): Promise<JobDto[]> {
   const params = new URLSearchParams()
   if (filters?.status) params.append('status', filters.status)
-  if (filters?.assignedAgentId)
-    params.append('assignedAgentId', filters.assignedAgentId)
+  if (filters?.assignedAgentId) params.append('assignedAgentId', filters.assignedAgentId)
   if (filters?.date) params.append('date', filters.date)
   if (filters?.limit !== undefined) params.append('limit', String(filters.limit))
   if (filters?.offset !== undefined) params.append('offset', String(filters.offset))

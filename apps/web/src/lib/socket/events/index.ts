@@ -19,10 +19,7 @@ export interface SocketEventHandlers {
  * Register typed socket event listeners on a Socket.io client instance.
  * Returns an unsubscribe cleanup function.
  */
-export function registerSocketHandlers(
-  socket: Socket,
-  handlers: SocketEventHandlers
-): () => void {
+export function registerSocketHandlers(socket: Socket, handlers: SocketEventHandlers): () => void {
   const jobCreatedListener = (data: JobCreatedEvent) => {
     handlers.onJobCreated?.(data)
   }

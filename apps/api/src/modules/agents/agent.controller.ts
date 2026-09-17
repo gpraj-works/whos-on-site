@@ -3,7 +3,8 @@ import * as agentService from './agent.service'
 import {
   createAgentSchema,
   nearbyQuerySchema,
-  updateLocationSchema
+  updateLocationSchema,
+  updateAgentSchema
 } from './agent.schema'
 import { asyncHandler } from '../../middleware/error-handler'
 import { sendSuccess } from '../../common/response-handler'
@@ -15,35 +16,31 @@ export const listAgents: RequestHandler = asyncHandler(async (req: Request, res:
   sendSuccess(res, agents)
 })
 
-export const nearbyAgents: RequestHandler = asyncHandler(
-  async (req: Request, res: Response) => {
-    const companyId = req.auth!.companyId
-    const query = nearbyQuerySchema.parse(req.query)
-    const results = await agentService.getNearbyAgents({
-      companyId,
-      lat: query.lat,
-      lng: query.lng,
-      radiusMeters: query.radiusMeters
-    })
-    sendSuccess(res, results)
-  }
-)
+export const nearbyAgents: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const query = nearbyQuerySchema.parse(req.query)
+  const results = await agentService.getNearbyAgents({
+    companyId,
+    lat: query.lat,
+    lng: query.lng,
+    radiusMeters: query.radiusMeters
+  })
+  sendSuccess(res, results)
+})
 
-export const createAgent: RequestHandler = asyncHandler(
-  async (req: Request, res: Response) => {
-    const companyId = req.auth!.companyId
-    const userId = req.auth!.userId
-    const parsed = createAgentSchema.parse(req.body)
+export const createAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const userId = req.auth!.userId
+  const parsed = createAgentSchema.parse(req.body)
 
-    const agent = await agentService.createAgent({
-      ...parsed,
-      companyId,
-      createdBy: userId
-    })
+  const agent = await agentService.createAgent({
+    ...parsed,
+    companyId,
+    createdBy: userId
+  })
 
-    sendSuccess(res, agent, 'Agent created successfully.', HttpStatus.CREATED)
-  }
-)
+  sendSuccess(res, agent, 'Agent created successfully.', HttpStatus.CREATED)
+})
 
 export const updateLocation: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
   const companyId = req.auth!.companyId
@@ -52,4 +49,21 @@ export const updateLocation: RequestHandler = asyncHandler(async (req: Request, 
 
   const updated = await agentService.updateAgentLocation(agentId, companyId, coords)
   sendSuccess(res, updated, 'Agent location updated successfully.')
+})
+
+export const updateAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const agentId = req.params.id as string
+  const parsed = updateAgentSchema.parse(req.body)
+
+  const updated = await agentService.updateAgent(agentId, companyId, parsed)
+  sendSuccess(res, updated, 'Agent updated successfully.')
+})
+
+export const deleteAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const agentId = req.params.id as string
+
+  await agentService.deleteAgent(agentId, companyId)
+  sendSuccess(res, null, 'Agent deleted successfully.', HttpStatus.OK)
 })

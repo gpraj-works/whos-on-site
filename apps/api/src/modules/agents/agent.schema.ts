@@ -9,6 +9,8 @@ export const createAgentSchema = z.object({
   location: coordinatesSchema.optional()
 })
 
+export const updateAgentSchema = createAgentSchema.partial()
+
 export const updateLocationSchema = coordinatesSchema
 
 export const nearbyQuerySchema = z.object({

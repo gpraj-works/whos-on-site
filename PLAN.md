@@ -17,7 +17,7 @@
 7. [Real-time events (Socket.io)](#7-real-time-events-socketio)
 8. [Monorepo folder structure](#8-monorepo-folder-structure)
 9. [Core user flows](#9-core-user-flows)
-10. [Implementation roadmap — 8 phases](#10-implementation-roadmap--8-phases)
+10. [Implementation roadmap — 9 phases](#10-implementation-roadmap--9-phases)
 11. [Testing strategy](#11-testing-strategy)
 12. [DevOps & deployment](#12-devops--deployment)
 13. [Security checklist](#13-security-checklist)
@@ -35,7 +35,7 @@
 | **Primary vertical (demo framing)** | Home services (HVAC / plumbing / electrical repair)                                  |
 | **Also fits**                       | Courier/delivery, cleaning crews, roadside assistance, security patrol, inspections  |
 | **Core differentiator**             | PostGIS-backed real-time proximity dispatch                                          |
-| **Timeline**                        | 8 weeks · 3 hrs/day · ~180 hours total, organized into 8 phases (one phase per week) |
+| **Timeline**                        | 9 weeks · 3 hrs/day · ~200 hours total, organized into 9 phases (one phase per week) |
 | **Goal**                            | Portfolio-grade, production-quality project for job applications                     |
 
 **One-line pitch:** _A live, permissioned dispatch board that replaces phone-call coordination with real-time job status, technician location, and a timestamped audit trail._
@@ -641,9 +641,9 @@ Note the fan-out in step 2: one status write triggers a single `job:statusChange
 
 ---
 
-## 10. Implementation roadmap — 8 phases
+## 10. Implementation roadmap — 9 phases
 
-The 8-week/~180-hour build is organized into 8 sequential phases, one per week (~3 hrs/day, ~22.5 hrs/phase). Each phase below defines its objective, the detailed task list, concrete deliverables, and the exit criteria that must be true before moving to the next phase. Phases are intentionally sequential — each one depends on the tables, middleware, or endpoints the previous phase produced.
+The 9-week/~200-hour build is organized into 9 sequential phases, one per week (~3 hrs/day, ~22.5 hrs/phase). Each phase below defines its objective, the detailed task list, concrete deliverables, and the exit criteria that must be true before moving to the next phase. Phases are intentionally sequential — each one depends on the tables, middleware, or endpoints the previous phase produced.
 
 ### Phase 1 — Foundations & Data Layer
 
@@ -961,7 +961,7 @@ VITE_SOCKET_URL=http://localhost:4000
 
 ## 15. Stretch goals
 
-_Only pursue these after all 8 phases are solid and deployed._
+_Only pursue these after all 9 phases are solid and deployed._
 
 1. **Route optimization** — order a technician's multiple stops for the day using a basic TSP heuristic.
 2. **SMS notifications** — Twilio integration for customer status updates instead of just a link.
@@ -971,4 +971,437 @@ _Only pursue these after all 8 phases are solid and deployed._
 
 ---
 
-_Document version 1.2 — removed Swagger/OpenAPI auto-generated docs in favor of a hand-maintained Markdown API reference (`docs/api-reference.md`); restructured the 8-week roadmap into 8 detailed phases, each with objective, task list, deliverables, and exit criteria._
+### Phase 9 — Company Registration with Trial Period & Subscription Management
+
+**Duration:** Week 9 (~22.5 hrs) · **Depends on:** Phase 2 (auth/tenancy middleware)
+
+**Objective:** Implement a complete registration flow where companies provide business details (name, phone, email, address), receive a 14-day trial, and must subscribe after trial expiration to continue using the platform.
+
+---
+
+#### 9.1 Database Schema Changes
+
+**Extend `companies` Table:**
+
+Add subscription tracking columns to `apps/api/src/infrastructure/database/schema/companies.ts`:
+
+| Column                | Type                     | Notes                                                   |
+| --------------------- | ------------------------ | ------------------------------------------------------- |
+| `phone`               | text, nullable           | Company contact phone (nullable for existing companies) |
+| `address`             | text, nullable           | Street address                                          |
+| `city`                | text, nullable           | City                                                    |
+| `state`               | text, nullable           | State/Province                                          |
+| `zip_code`            | text, nullable           | Postal code                                             |
+| `country`             | text, default 'US'       | Country code                                            |
+| `trial_started_at`    | timestamptz, nullable    | When trial began                                        |
+| `trial_ends_at`       | timestamptz, nullable    | Trial expiration date                                   |
+| `subscription_status` | subscription_status enum | Current subscription status                             |
+
+**Create Subscription Status Enum:**
+
+```typescript
+export const subscriptionStatusEnum = pgEnum('subscription_status', [
+  'trial', // Active 14-day trial
+  'active', // Paid and active subscription
+  'past_due', // Payment failed, grace period (future)
+  'cancelled', // Subscription cancelled (future)
+  'expired' // Trial or subscription expired
+])
+```
+
+**Migration Strategy:**
+
+- Make `phone` nullable in DB with `DEFAULT ''` to handle existing seed companies
+- Zod schema enforces phone as required only on new registrations
+- Existing companies get backdated trial dates from their `created_at` column
+- Migration adds all new columns with sensible defaults
+
+---
+
+#### 9.2 Shared Package Updates
+
+**Update Registration Schema (`packages/shared/src/schemas/index.ts`):**
+
+```typescript
+export const registerSchema = z.object({
+  companyName: z.string().min(2, 'Company name must be at least 2 characters'),
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  phone: z
+    .string()
+    .min(10, 'Phone number must be at least 10 digits')
+    .regex(/^\+?[\d\s-()]+$/, 'Invalid phone format'),
+  address: z.string().min(5, 'Address is required'),
+  city: z.string().min(2, 'City is required'),
+  state: z.string().min(2, 'State is required'),
+  zipCode: z.string().min(5, 'ZIP code is required'),
+  country: z.string().default('US')
+})
+```
+
+**Add Subscription Enums (`packages/shared/src/enums/index.ts`):**
+
+```typescript
+export enum SubscriptionStatus {
+  TRIAL = 'trial',
+  ACTIVE = 'active',
+  PAST_DUE = 'past_due',
+  CANCELLED = 'cancelled',
+  EXPIRED = 'expired'
+}
+```
+
+**Update Company DTO (`packages/shared/src/types/index.ts`):**
+
+```typescript
+export interface CompanyDto {
+  id: string
+  name: string
+  primaryColor: string
+  phone: string
+  address?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  country: string
+  subscriptionStatus: SubscriptionStatus
+  trialStartedAt?: string
+  trialEndsAt?: string
+  createdAt: string
+  updatedAt: string
+}
+```
+
+**Add Subscription Response Types:**
+
+```typescript
+export interface SubscriptionInfo {
+  status: SubscriptionStatus
+  trialStartedAt?: string
+  trialEndsAt?: string
+  daysRemaining?: number
+  isTrialExpired: boolean
+  requiresCheckout: boolean
+}
+```
+
+---
+
+#### 9.3 Backend Implementation
+
+**Update Auth Service Registration (`apps/api/src/modules/auth/auth.service.ts`):**
+
+Modify `register()` function to:
+
+1. Accept new fields (phone, address, city, state, zipCode, country)
+2. Calculate trial period: `trialStartedAt = new Date()`, `trialEndsAt = dayjs().add(14, 'day').toDate()`
+3. Set `subscriptionStatus = 'trial'`
+4. Include all fields in company creation within the transaction
+
+**Update Auth Repository (`apps/api/src/modules/auth/auth.repository.ts`):**
+
+Update `createCompany()` to accept and persist all new fields.
+
+**Create Subscription Module (`apps/api/src/modules/subscription/`):**
+
+New module with:
+
+- `subscription.routes.ts` - API routes
+- `subscription.controller.ts` - Request handlers
+- `subscription.service.ts` - Business logic
+- `subscription.repository.ts` - Database queries
+- `subscription.types.ts` - TypeScript interfaces
+
+**Key Endpoints:**
+
+- `GET /subscription/status` - Get current subscription status for authenticated company
+- `POST /subscription/checkout` - Create checkout session (placeholder for future Stripe integration)
+- `POST /subscription/webhook` - Handle payment webhooks (placeholder)
+- `PUT /subscription/cancel` - Cancel subscription (placeholder)
+
+**Subscription Service Logic (`subscription.service.ts`):**
+
+```typescript
+export async function getSubscriptionStatus(companyId: string): Promise<SubscriptionInfo> {
+  const company = await subscriptionRepo.findCompanyById(companyId)
+
+  const now = new Date()
+  const isTrialExpired = company.trialEndsAt ? now > company.trialEndsAt : false
+  const daysRemaining = company.trialEndsAt
+    ? Math.max(
+        0,
+        Math.ceil((company.trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      )
+    : 0
+
+  let requiresCheckout = false
+  if (isTrialExpired && company.subscriptionStatus === 'trial') {
+    requiresCheckout = true
+  }
+
+  return {
+    status: company.subscriptionStatus,
+    trialStartedAt: company.trialStartedAt?.toISOString(),
+    trialEndsAt: company.trialEndsAt?.toISOString(),
+    daysRemaining,
+    isTrialExpired,
+    requiresCheckout
+  }
+}
+```
+
+**Update Login Response:**
+
+Modify `auth.service.login()` to include subscription info in the response:
+
+```typescript
+export interface AuthResponse {
+  accessToken: string
+  refreshToken: string
+  user: AuthUser
+  company: CompanyDto
+  subscription: SubscriptionInfo // NEW: include subscription status
+}
+```
+
+**Create Subscription Guard Middleware (`apps/api/src/middleware/subscription-guard.ts`):**
+
+```typescript
+export function requireActiveSubscription(req, res, next): void {
+  const company = req.company
+
+  if (!company) {
+    sendError(res, 'Company context required', 401)
+    return
+  }
+
+  // Allow trial users
+  if (company.subscriptionStatus === 'trial') {
+    const now = new Date()
+    if (company.trialEndsAt && now > company.trialEndsAt) {
+      sendError(res, 'Trial expired. Please subscribe to continue.', 403, {
+        code: 'TRIAL_EXPIRED',
+        requiresCheckout: true
+      })
+      return
+    }
+    return next()
+  }
+
+  // Allow active subscriptions
+  if (company.subscriptionStatus === 'active') {
+    return next()
+  }
+
+  // Block other statuses (past_due, cancelled, expired)
+  sendError(res, 'Subscription required. Please update your billing.', 403, {
+    code: 'SUBSCRIPTION_REQUIRED',
+    requiresCheckout: true
+  })
+}
+```
+
+**Register Subscription Routes (`apps/api/src/routes/index.ts`):**
+
+```typescript
+import subscriptionRouter from '../modules/subscription/subscription.routes'
+
+router.use('/subscription', subscriptionRouter)
+```
+
+---
+
+#### 9.4 Frontend Implementation
+
+**Create Registration Page (`apps/web/src/pages/Register.tsx`):**
+
+Single-page registration form with:
+
+- Company name
+- Email
+- Password
+- Phone number
+- Address fields (street, city, state, ZIP, country)
+- Terms acceptance checkbox
+- Submit button
+
+**Create Registration Form Component (`apps/web/src/components/auth/RegisterForm.tsx`):**
+
+Form with Zod validation matching shared schema, controlled state management.
+
+**Update Auth API Client (`apps/web/src/components/auth/api.ts`):**
+
+Update `registerApi()` to accept new fields and return subscription info.
+
+**Create Trial Badge Component (`apps/web/src/components/common/TrialBadge.tsx`):**
+
+```tsx
+export const TrialBadge: React.FC<{ daysRemaining: number }> = ({ daysRemaining }) => {
+  if (daysRemaining <= 0) return null
+
+  return (
+    <Badge color="yellow" variant="filled" size="lg">
+      Trial: {daysRemaining} days remaining
+    </Badge>
+  )
+}
+```
+
+**Placement:** AppLayout header/toolbar (visible on every page for trial users).
+
+**Add Subscription Info to Auth Context (`apps/web/src/components/auth/AuthContext.tsx`):**
+
+Extend context to include subscription info:
+
+```typescript
+interface AuthContextType {
+  user: AuthUser | null
+  company: CompanyDto | null
+  subscription: SubscriptionInfo | null
+  isAuthenticated: boolean
+  isLoading: boolean
+  login: (data: LoginRequest) => Promise<void>
+  register: (data: RegisterRequest) => Promise<void>
+  logout: () => Promise<void>
+}
+```
+
+**Create Checkout Page (`apps/web/src/pages/Checkout.tsx`):**
+
+Redirect page after trial expiration with:
+
+- Trial expired message
+- Pricing plan display (placeholder for future)
+- "Subscribe Now" button (placeholder for future Stripe integration)
+- Success/cancel URL handling
+
+**Update Routing (`apps/web/src/app/app.tsx`):**
+
+Add new routes:
+
+```tsx
+<Route element={<PublicRoute />}>
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
+  <Route path="/checkout" element={<Checkout />} />
+  <Route path="/checkout/success" element={<CheckoutSuccess />} />
+</Route>
+```
+
+**Create Subscription Guard Component (`apps/web/src/components/auth/SubscriptionGuard.tsx`):**
+
+```tsx
+export const SubscriptionGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { subscription, isLoading } = useAuth()
+
+  if (isLoading) return <LoadingState />
+
+  if (subscription?.requiresCheckout) {
+    return <Navigate to="/checkout" replace />
+  }
+
+  return <>{children}</>
+}
+```
+
+**Update Protected Route (`apps/web/src/components/auth/ProtectedRoute.tsx`):**
+
+Add subscription check after authentication:
+
+```typescript
+// Check subscription status
+if (subscription?.requiresCheckout) {
+  return <Navigate to="/checkout" replace />
+}
+```
+
+**Update Login Flow:**
+
+1. User logs in → `POST /auth/login` succeeds
+2. Frontend receives auth response with `subscription` field
+3. If `subscription.requiresCheckout` → redirect to `/checkout` instead of `/dashboard`
+4. Otherwise → redirect to original destination or `/dashboard`
+
+---
+
+#### 9.5 Design Decisions
+
+**Performance:**
+
+- Keep `companyContext` middleware lightweight (just validate `req.auth.companyId`)
+- Subscription status fetched only when needed (login response, dedicated endpoint)
+- Avoid DB query on every authenticated request
+
+**Stripe Integration:**
+
+- Defer full Stripe integration to Phase 10
+- Create placeholder checkout page with "Coming Soon" messaging
+- Reserve `stripeCustomerId` and `stripeSubscriptionId` columns for future use
+
+**Migration:**
+
+- Make `phone` nullable in DB with default empty string
+- Existing seed companies get backdated trial dates from `created_at`
+- Zod schema enforces phone as required only on new registrations
+
+**Trial Badge:**
+
+- Display in AppLayout header/toolbar
+- Visible on every page for trial users
+- Shows days remaining (e.g., "Trial: 12 days remaining")
+- Disappears when trial expires or subscription becomes active
+
+**Registration Form:**
+
+- Single page with all fields (not multi-step wizard)
+- Zod validation on submit (no HTML5 validation)
+- Controlled state with error messages from Zod
+
+**Email Verification:**
+
+- Skip for now (can be added in future phase)
+- Focus on registration flow and trial period
+
+---
+
+#### 9.6 Deliverables
+
+- Extended `companies` table with subscription tracking columns
+- Updated registration schema with company details
+- Registration page with complete form
+- Subscription status endpoint
+- Trial badge component in AppLayout
+- Checkout page (placeholder)
+- Subscription guard middleware
+- Protected route subscription gating
+- Login flow with subscription redirect logic
+
+---
+
+#### 9.7 Exit Criteria
+
+- New company registration captures all required fields (name, phone, email, address)
+- Trial period starts on registration (14 days from signup)
+- Trial badge displays days remaining on every page
+- Trial expired users are redirected to checkout on login
+- Checkout page displays (placeholder for future payment integration)
+- Existing seed companies have backdated trial dates
+- All validation uses Zod schemas (no HTML5 validation)
+- `pnpm typecheck` passes with 0 errors
+- `pnpm test` passes
+
+---
+
+#### 9.8 Future Enhancements (Phase 10+)
+
+- Stripe integration for payment processing
+- Plan-based module access (different features per plan)
+- Billing portal for subscription management
+- Invoice generation and email delivery
+- Webhook handling for payment events
+- Grace period logic for failed payments
+- Plan upgrades/downgrades
+
+---
+
+_Document version 1.3 — added Phase 9: Company Registration with Trial Period & Subscription Management; restructured 8-week roadmap to include trial period feature with placeholder Stripe integration._

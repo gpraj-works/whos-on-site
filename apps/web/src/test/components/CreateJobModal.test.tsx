@@ -12,6 +12,11 @@ vi.mock('../../components/jobs/queries', () => ({
     mutateAsync: mockMutateAsync,
     isPending: false,
     error: null
+  }),
+  useUpdateJob: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+    error: null
   })
 }))
 
@@ -20,19 +25,19 @@ vi.mock('../../components/customers/queries', () => ({
 }))
 
 vi.mock('../../components/customers/Form', () => ({
-  CreateCustomerModal: () => null
+  CustomerFormModal: () => null
 }))
 
-import { CreateJobModal } from '../../components/jobs/Form'
+import { JobFormModal } from '../../components/jobs/Form'
 
-describe('CreateJobModal', () => {
+describe('JobFormModal', () => {
   it('shows a Zod validation error when submitted without a customer', async () => {
     const user = userEvent.setup()
     const onClose = vi.fn()
 
     render(
       <MantineProvider>
-        <CreateJobModal opened onClose={onClose} />
+        <JobFormModal opened onClose={onClose} />
       </MantineProvider>
     )
 

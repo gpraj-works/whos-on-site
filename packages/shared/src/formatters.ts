@@ -20,8 +20,6 @@ export function formatJobStatus(status: JobStatus | string): string {
     default:
       // Fallback for unknown statuses: capitalize first letter and replace underscores
       if (!status) return 'Unknown'
-      return status
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, (char) => char.toUpperCase())
+      return status.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase())
   }
 }

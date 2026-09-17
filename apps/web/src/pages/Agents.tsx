@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useAppTheme } from '../app/theme/ThemeContext'
 import { useAuth } from '../components/auth/AuthContext'
 import { PageHeader } from '../components/common/PageHeader'
-import { CreateAgentModal } from '../components/agents/Form'
+import { AgentFormModal } from '../components/agents/Form'
 import { AgentList } from '../components/agents/List'
 
 export const Agents: React.FC = () => {
@@ -42,10 +42,7 @@ export const Agents: React.FC = () => {
 
         <AgentList />
 
-        <CreateAgentModal
-          opened={createModalOpened}
-          onClose={() => setCreateModalOpened(false)}
-        />
+        <AgentFormModal opened={createModalOpened} onClose={() => setCreateModalOpened(false)} />
       </Stack>
     </Container>
   )

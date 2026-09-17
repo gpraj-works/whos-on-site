@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-  ActionIcon,
-  Badge,
-  Box,
-  Burger,
-  Group,
-  Menu,
-  Text,
-  Title,
-  Tooltip
-} from '@mantine/core'
+import { ActionIcon, Badge, Box, Burger, Group, Menu, Text, Title, Tooltip } from '@mantine/core'
 import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Moon, RefreshCw, Settings, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
