@@ -13,6 +13,7 @@ import { BadRequestError, ForbiddenError, NotFoundError } from '../../common/app
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueDelayedReminderJob, enqueueNotificationJob } from '../../jobs/queues/notification.queue'
+import { dayjs } from '@whosonsite/shared'
 import { findCustomerById } from '../customers/customer.repository'
 import { findCompanyAgents } from '../agents/agent.repository'
 import * as jobRepo from './job.repository'
@@ -228,7 +229,7 @@ export async function changeJobStatus(
     status: updatedJob.status,
     fromStatus: job.status,
     changedBy: userId,
-    changedAt: new Date().toISOString()
+    changedAt: dayjs().toISOString()
   })
 
   // Enqueue notification job

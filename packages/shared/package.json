@@ -17,6 +17,7 @@
     "test": "tsc --noEmit"
   },
   "dependencies": {
+    "dayjs": "^1.11.23",
     "zod": "^3.24.2"
   },
   "devDependencies": {

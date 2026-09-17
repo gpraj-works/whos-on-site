@@ -2,12 +2,12 @@ import React from 'react'
 import { Grid, Stack } from '@mantine/core'
 import { JobStatus } from '@whosonsite/shared'
 import { CalendarClock, CalendarDays, TrendingUp } from 'lucide-react'
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { useJobs } from '../jobs/queries'
-import { formatTime } from '../../lib/date/format'
+import { formatTime } from '@whosonsite/shared'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { StatCard } from './StatCard'
 import { DashboardTable } from './DashboardTable'
@@ -36,7 +36,6 @@ export const AgentDashboard: React.FC = () => {
     (j) => j.status !== JobStatus.COMPLETE && j.status !== JobStatus.CANCELLED
   ).length
 
-  const now = Date.now()
   const nextAppointment =
     allJobs
       .filter(
@@ -44,11 +43,11 @@ export const AgentDashboard: React.FC = () => {
           j.status !== JobStatus.COMPLETE &&
           j.status !== JobStatus.CANCELLED &&
           j.scheduledAt &&
-          new Date(j.scheduledAt).getTime() >= now
+          dayjs(j.scheduledAt).isAfter(dayjs())
       )
       .sort(
         (a, b) =>
-          new Date(a.scheduledAt as string).getTime() - new Date(b.scheduledAt as string).getTime()
+          dayjs(a.scheduledAt as string).diff(dayjs(b.scheduledAt as string))
       )[0] ?? null
 
   return (

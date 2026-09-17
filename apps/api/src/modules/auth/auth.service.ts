@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import argon2 from 'argon2'
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import jwt from 'jsonwebtoken'
 import {
   AuthResponse,

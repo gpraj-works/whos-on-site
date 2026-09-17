@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { Coordinates, AgentLocationUpdatedEvent } from '@whosonsite/shared'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import * as agentRepo from './agent.repository'

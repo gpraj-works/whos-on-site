@@ -1,4 +1,5 @@
 import { and, eq, isNull } from 'drizzle-orm'
+import { dayjs } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'
 import { companies, refreshTokens, users } from '../../infrastructure/database/schema/index'
 import { CreateCompanyData, CreateRefreshTokenData, CreateUserData } from './auth.types'
@@ -55,7 +56,7 @@ export async function findRefreshTokenByHash(tokenHash: string, client: Database
 export async function revokeRefreshToken(id: string, client: DatabaseClient = db) {
   const [token] = await client
     .update(refreshTokens)
-    .set({ revokedAt: new Date() })
+    .set({ revokedAt: dayjs().toDate() })
     .where(eq(refreshTokens.id, id))
     .returning()
   return token || null
@@ -64,6 +65,6 @@ export async function revokeRefreshToken(id: string, client: DatabaseClient = db
 export async function revokeUserRefreshTokens(userId: string, client: DatabaseClient = db) {
   await client
     .update(refreshTokens)
-    .set({ revokedAt: new Date() })
+    .set({ revokedAt: dayjs().toDate() })
     .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)))
 }

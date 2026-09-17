@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { Response } from 'express'
 import { HttpStatus } from './http-status'
 

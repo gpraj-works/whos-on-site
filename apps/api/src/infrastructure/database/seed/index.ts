@@ -1,4 +1,5 @@
 import argon2 from 'argon2'
+import { dayjs } from '@whosonsite/shared'
 import { sql } from 'drizzle-orm'
 import { db } from '../client'
 import { companies, customers, jobs, users, agents } from '../schema/index'
@@ -67,7 +68,7 @@ export async function seedDatabase() {
       phone: '404-555-0101',
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-84.3850, 33.7500), 4326)`,
-      lastLocationAt: new Date(),
+      lastLocationAt: dayjs().toDate(),
       createdBy: dispatcherA.id
     },
     {
@@ -76,7 +77,7 @@ export async function seedDatabase() {
       phone: '404-555-0102',
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-84.2970, 33.7710), 4326)`,
-      lastLocationAt: new Date(),
+      lastLocationAt: dayjs().toDate(),
       createdBy: dispatcherA.id
     }
   ])
@@ -186,7 +187,7 @@ export async function seedDatabase() {
       phone: '212-555-0201',
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-73.9442, 40.6782), 4326)`,
-      lastLocationAt: new Date(),
+      lastLocationAt: dayjs().toDate(),
       createdBy: dispatcherB.id
     },
     {
@@ -195,7 +196,7 @@ export async function seedDatabase() {
       phone: '212-555-0202',
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-73.7949, 40.7282), 4326)`,
-      lastLocationAt: new Date(),
+      lastLocationAt: dayjs().toDate(),
       createdBy: dispatcherB.id
     }
   ])

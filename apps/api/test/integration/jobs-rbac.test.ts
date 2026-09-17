@@ -1,5 +1,6 @@
 import { describe, expect, it, beforeAll } from 'vitest'
 import request from 'supertest'
+import { dayjs } from '@whosonsite/shared'
 import { app } from '../../src/app'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 
@@ -45,7 +46,7 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
       .send({
         customerId,
         location: { lat: 33.755, lng: -84.388 },
-        scheduledAt: new Date(Date.now() + 86400000).toISOString(),
+        scheduledAt: dayjs().add(1, 'day').toISOString(),
         notes: 'Test emergency AC repair'
       })
 

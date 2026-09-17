@@ -3,7 +3,7 @@ import { Card, Group, Paper, Stack, Table, Text, TextInput } from '@mantine/core
 import { Mail, MapPin, Phone, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { formatDate } from '../../lib/date/format'
+import { formatDate } from '@whosonsite/shared'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useCustomers } from './queries'
 

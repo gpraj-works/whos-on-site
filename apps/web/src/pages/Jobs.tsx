@@ -28,7 +28,7 @@ import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { CreateJobModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
 import { useAgents } from '../components/agents/queries'
-import { formatDateTime } from '../lib/date/format'
+import { formatDateTime } from '@whosonsite/shared'
 
 export const Jobs: React.FC = () => {
   const { t } = useTranslation()

@@ -1,5 +1,6 @@
 import { JobAssignedEvent, JobDto, JobStatus } from '@whosonsite/shared'
 import { BadRequestError, NotFoundError } from '../../common/app-error'
+import { dayjs } from '@whosonsite/shared'
 import { withTransaction } from '../../infrastructure/database/client'
 import { emitToCompany } from '../../infrastructure/socket/socket.events'
 import { enqueueNotificationJob } from '../../jobs/queues/notification.queue'
@@ -76,7 +77,7 @@ export async function assignAgentToJob(
     companyId,
     jobId: updatedJob.id,
     agentId,
-    assignedAt: new Date().toISOString()
+    assignedAt: dayjs().toISOString()
   })
 
   // Enqueue notification job

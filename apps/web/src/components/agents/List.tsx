@@ -5,7 +5,7 @@ import { MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
-import { formatDateTime, formatRelative } from '../../lib/date/format'
+import { formatDateTime, formatRelative } from '@whosonsite/shared'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useAgents } from './queries'
 

@@ -28,7 +28,7 @@ import {
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { formatDate, formatDateTime, formatRelative } from '../../lib/date/format'
+import { formatDate, formatDateTime, formatRelative } from '@whosonsite/shared'
 import { ConfirmDialog } from '../common/ConfirmDialog'
 import { StatusBadge } from '../common/StatusBadge'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'

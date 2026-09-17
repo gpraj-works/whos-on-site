@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { pinoHttp } from 'pino-http'
+import { dayjs } from '@whosonsite/shared'
 import { env } from './config/env'
 import { logger } from './infrastructure/logging/logger'
 import { queryClient } from './infrastructure/database/client'
@@ -41,7 +42,7 @@ app.use('/api', apiRouter)
 app.get('/health', (_req: Request, res: Response<HealthResponse>) => {
   res.json({
     status: 'ok',
-    timestamp: new Date().toISOString(),
+    timestamp: dayjs().toISOString(),
     uptime: process.uptime()
   })
 })
@@ -79,7 +80,7 @@ app.get('/ready', async (_req: Request, res: Response<ReadinessResponse>) => {
       postgres: postgresConnected,
       redis: redisConnected
     },
-    timestamp: new Date().toISOString()
+    timestamp: dayjs().toISOString()
   })
 })
 

@@ -30,7 +30,7 @@ import { StatusBadge } from '../components/common/StatusBadge'
 import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { useJobs, useUpdateJobStatus } from '../components/jobs/queries'
 import { useAgents } from '../components/agents/queries'
-import { formatDate, formatDateTime } from '../lib/date/format'
+import { formatDate, formatDateTime } from '@whosonsite/shared'
 import { useLocationTracking } from '../lib/location/useLocationTracking'
 
 interface UnsyncedUpdate {

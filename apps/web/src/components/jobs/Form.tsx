@@ -4,17 +4,17 @@ import {
   Button,
   Group,
   Modal,
-  Popover,
-  ScrollArea,
   Select,
   Stack,
-  Textarea,
-  TextInput
+  Textarea
 } from '@mantine/core'
 import { DatePickerInput } from '@mantine/dates'
 import { createJobSchema, CustomerDto } from '@whosonsite/shared'
-import { Calendar, Clock, Plus } from 'lucide-react'
+import { dayjs } from '@whosonsite/shared'
+import { Calendar, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
+import { TimeInput } from '../shared/TimeInput'
 
 import { useCustomers } from '../customers/queries'
 import { CreateCustomerModal } from '../customers/Form'
@@ -26,29 +26,6 @@ interface CreateJobModalProps {
   onClose: () => void
 }
 
-const hoursList = Array.from({ length: 12 }).map((_, i) => (i + 1).toString().padStart(2, '0'))
-const minutesList = Array.from({ length: 60 }).map((_, i) => i.toString().padStart(2, '0'))
-const ampmList = ['AM', 'PM']
-
-const TimeColumn = ({ data, value, onChange }: { data: string[]; value: string; onChange: (v: string) => void }) => (
-  <ScrollArea h={180} type="never">
-    <Stack gap={2}>
-      {data.map((item) => (
-        <Button
-          key={item}
-          variant={value === item ? 'filled' : 'subtle'}
-          color={value === item ? undefined : 'gray'}
-          onClick={() => onChange(item)}
-          size="sm"
-          px="sm"
-        >
-          {item}
-        </Button>
-      ))}
-    </Stack>
-  </ScrollArea>
-)
-
 export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose }) => {
   const { t } = useTranslation()
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers()
@@ -56,9 +33,8 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
   const [customerId, setCustomerId] = useState('')
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
-  
+
   // Custom Time Picker State
-  const [timeOpened, setTimeOpened] = useState(false)
   const [hour, setHour] = useState<string>('09')
   const [minute, setMinute] = useState<string>('00')
   const [ampm, setAmpm] = useState<string>('AM')
@@ -93,13 +69,16 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
     let isoScheduledAt: string | undefined = undefined
     if (scheduledDate) {
-      const combinedDate = new Date(scheduledDate)
       let hours24 = parseInt(hour, 10)
       if (ampm === 'PM' && hours24 < 12) hours24 += 12
       if (ampm === 'AM' && hours24 === 12) hours24 = 0
-      
-      combinedDate.setHours(hours24, parseInt(minute, 10), 0, 0)
-      isoScheduledAt = combinedDate.toISOString()
+
+      isoScheduledAt = dayjs(scheduledDate)
+        .hour(hours24)
+        .minute(parseInt(minute, 10))
+        .second(0)
+        .millisecond(0)
+        .toISOString()
     }
 
     const rawInput = {
@@ -157,9 +136,10 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
                 }
                 data={customerSelectData}
                 value={customerId}
-                onChange={(val) => {
+                onChange={(val: string | null) => {
                   setCustomerId(val || '')
-                  if (fieldErrors.customerId) setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
+                  if (fieldErrors.customerId)
+                    setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
                 }}
                 searchable
                 clearable
@@ -184,36 +164,26 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
               placeholder="Pick date"
               leftSection={<Calendar size={16} />}
               value={scheduledDate}
-              onChange={(val) => {
+              onChange={(val: Date | null) => {
                 setScheduledDate(val)
-                if (fieldErrors.scheduledAt) setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+                if (fieldErrors.scheduledAt)
+                  setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
               }}
               error={fieldErrors.scheduledAt}
               clearable
             />
 
             {/* Schedule Time */}
-            <Popover opened={timeOpened} onChange={setTimeOpened} position="bottom-start" withArrow shadow="md">
-              <Popover.Target>
-                <TextInput
-                  label="Schedule Time"
-                  placeholder="Select time"
-                  readOnly
-                  leftSection={<Clock size={16} />}
-                  value={`${hour}:${minute} ${ampm}`}
-                  onClick={() => setTimeOpened((o) => !o)}
-                  styles={{ input: { cursor: 'pointer' } }}
-                  error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
-                />
-              </Popover.Target>
-              <Popover.Dropdown p="xs">
-                <Group gap="xs" wrap="nowrap" align="flex-start">
-                  <TimeColumn data={hoursList} value={hour} onChange={setHour} />
-                  <TimeColumn data={minutesList} value={minute} onChange={setMinute} />
-                  <TimeColumn data={ampmList} value={ampm} onChange={setAmpm} />
-                </Group>
-              </Popover.Dropdown>
-            </Popover>
+            <TimeInput
+              label="Schedule Time"
+              hour={hour}
+              minute={minute}
+              ampm={ampm}
+              onHourChange={setHour}
+              onMinuteChange={setMinute}
+              onAmpmChange={setAmpm}
+              error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
+            />
 
             {/* Description */}
             <Textarea

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import request from 'supertest'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/app'
