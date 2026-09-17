@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../app/theme/ThemeContext'
 import { PageHeader } from '../components/common/PageHeader'
-import { CreateCustomerModal } from '../components/customers/Form'
+import { CustomerFormModal } from '../components/customers/Form'
 import { CustomerList } from '../components/customers/List'
 
 export const Customers: React.FC = () => {
@@ -36,7 +36,7 @@ export const Customers: React.FC = () => {
 
         <CustomerList />
 
-        <CreateCustomerModal
+        <CustomerFormModal
           opened={createModalOpened}
           onClose={() => setCreateModalOpened(false)}
         />

@@ -10,13 +10,14 @@ import 'leaflet/dist/leaflet.css'
 
 import { GeocodeResult, reverseGeocode, searchAddress } from '../../lib/geo'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCreateCustomer } from './queries'
+import { useCreateCustomer, useUpdateCustomer } from './queries'
 
-interface CreateCustomerModalProps {
+export interface CustomerFormModalProps {
   opened: boolean
   onClose: () => void
   onSuccess?: (customer: CustomerDto) => void
   zIndex?: number
+  customer?: CustomerDto
 }
 
 const DEFAULT_MAP_CENTER: [number, number] = [40.7128, -74.006]
@@ -79,21 +80,30 @@ function CustomerLocationPicker({ latitude, longitude, onPick }: CustomerLocatio
   )
 }
 
-export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
-  opened,
+interface CustomerFormContentProps {
+  customer?: CustomerDto
+  onClose: () => void
+  onSuccess?: (customer: CustomerDto) => void
+  zIndex?: number
+}
+
+function CustomerFormContent({
+  customer,
   onClose,
   onSuccess,
   zIndex
-}) => {
+}: CustomerFormContentProps) {
   const { t } = useTranslation()
   const createCustomerMutation = useCreateCustomer()
+  const updateCustomerMutation = useUpdateCustomer()
+  const isEditing = !!customer
 
-  const [name, setName] = useState('')
-  const [mobile, setMobile] = useState('')
-  const [address, setAddress] = useState('')
-  const [email, setEmail] = useState('')
-  const [latitude, setLatitude] = useState<number | null>(null)
-  const [longitude, setLongitude] = useState<number | null>(null)
+  const [name, setName] = useState(customer?.name ?? '')
+  const [mobile, setMobile] = useState(customer?.mobile ?? '')
+  const [address, setAddress] = useState(customer?.address ?? '')
+  const [email, setEmail] = useState(customer?.email ?? '')
+  const [latitude, setLatitude] = useState<number | null>(customer?.latitude ?? null)
+  const [longitude, setLongitude] = useState<number | null>(customer?.longitude ?? null)
   const [fieldErrors, setFieldErrors] = useState<{
     name?: string
     mobile?: string
@@ -146,24 +156,8 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     }, 400)
   }
 
-  const handleReset = () => {
-    setName('')
-    setMobile('')
-    setAddress('')
-    setEmail('')
-    setLatitude(null)
-    setLongitude(null)
-    setFieldErrors({})
-    setShowMap(false)
-    setSuggestions([])
-    setIsAddressSearching(false)
-    setIsReverseGeocoding(false)
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
-    searchSeqRef.current += 1
-  }
-
   const handleClose = () => {
-    handleReset()
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
     onClose()
   }
 
@@ -227,30 +221,27 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     }
 
     try {
-      const created = await createCustomerMutation.mutateAsync(parseResult.data)
+      let result
+      if (isEditing) {
+        result = await updateCustomerMutation.mutateAsync({ id: customer.id, input: parseResult.data })
+      } else {
+        result = await createCustomerMutation.mutateAsync(parseResult.data)
+      }
       handleClose()
       if (onSuccess) {
-        onSuccess(created)
+        onSuccess(result)
       }
     } catch {
-      // Handled via createCustomerMutation.error
+      // Handled via mutation.error
     }
   }
 
   const locationPinned = latitude !== null && longitude !== null
 
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title={t('customers.createTitle', 'New Customer')}
-      centered
-      radius="md"
-      zIndex={zIndex}
-    >
-      <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={handleSubmit} noValidate>
         <Stack gap="md">
-          <ApiErrorAlert error={createCustomerMutation.error} />
+          <ApiErrorAlert error={isEditing ? updateCustomerMutation.error : createCustomerMutation.error} />
 
           <TextInput
             label={t('customers.name', 'Customer Name')}
@@ -401,12 +392,43 @@ export const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
             <Button variant="default" onClick={handleClose}>
               {t('common.cancel', 'Cancel')}
             </Button>
-            <Button type="submit" loading={createCustomerMutation.isPending}>
-              {t('customers.saveSubmit', 'Add')}
+            <Button type="submit" loading={isEditing ? updateCustomerMutation.isPending : createCustomerMutation.isPending}>
+              {isEditing ? t('common.save', 'Save') : t('customers.saveSubmit', 'Add')}
             </Button>
           </Group>
         </Stack>
       </form>
+  )
+}
+
+export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
+  opened,
+  onClose,
+  onSuccess,
+  zIndex,
+  customer
+}) => {
+  const { t } = useTranslation()
+  const isEditing = !!customer
+
+  return (
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={isEditing ? t('customers.editTitle', 'Edit Customer') : t('customers.createTitle', 'New Customer')}
+      centered
+      radius="md"
+      zIndex={zIndex}
+    >
+      {opened ? (
+        <CustomerFormContent
+          key={customer ? customer.id : 'new'}
+          customer={customer}
+          onClose={onClose}
+          onSuccess={onSuccess}
+          zIndex={zIndex}
+        />
+      ) : null}
     </Modal>
   )
 }

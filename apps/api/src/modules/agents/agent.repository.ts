@@ -153,3 +153,16 @@ export async function updateAgent(
 
   return updated || null
 }
+
+export async function deleteAgent(
+  id: string,
+  companyId: string,
+  client: DatabaseClient = db
+) {
+  const [deleted] = await client
+    .delete(agents)
+    .where(and(eq(agents.id, id), eq(agents.companyId, companyId)))
+    .returning()
+
+  return deleted || null
+}

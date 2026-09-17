@@ -39,3 +39,9 @@ export async function updateAgent(
     body: JSON.stringify(data)
   })
 }
+
+export async function deleteAgent(id: string): Promise<void> {
+  return apiClient<void>(`/agents/${id}`, {
+    method: 'DELETE'
+  })
+}

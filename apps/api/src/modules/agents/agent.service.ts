@@ -8,6 +8,8 @@ import {
   AgentQueryResult
 } from './agent.types'
 
+import * as jobRepo from '../jobs/job.repository'
+
 export async function getCompanyAgents(companyId: string): Promise<AgentQueryResult[]> {
   return agentRepo.findCompanyAgents(companyId)
 }
@@ -52,4 +54,22 @@ export async function updateAgent(id: string, companyId: string, data: Partial<C
     throw new Error('Agent not found or does not belong to your company.')
   }
   return updated
+}
+
+export async function deleteAgent(id: string, companyId: string) {
+  const existing = await agentRepo.findAgentById(id, companyId)
+  if (!existing) {
+    throw new Error('Agent not found or does not belong to your company.')
+  }
+
+  // Option A: Prevent deletion if there are associated jobs
+  const agentJobs = await jobRepo.findJobs({ assignedAgentId: id, companyId, limit: 1 })
+  if (agentJobs.length > 0) {
+    throw new Error('Agent cannot be deleted because they have associated jobs. Unassign the jobs first.')
+  }
+
+  const deleted = await agentRepo.deleteAgent(id, companyId)
+  if (!deleted) {
+    throw new Error('Failed to delete agent.')
+  }
 }

@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { TimeInput } from '../shared/TimeInput'
 
 import { useCustomers } from '../customers/queries'
-import { CreateCustomerModal } from '../customers/Form'
+import { CustomerFormModal } from '../customers/Form'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useCreateJob, useUpdateJob } from './queries'
 
@@ -285,7 +285,7 @@ export const JobFormModal: React.FC<JobFormModalProps> = ({ opened, onClose, job
         </form>
       </Modal>
 
-      <CreateCustomerModal
+      <CustomerFormModal
         opened={createCustomerModalOpened}
         onClose={() => setCreateCustomerModalOpened(false)}
         onSuccess={handleCustomerCreated}

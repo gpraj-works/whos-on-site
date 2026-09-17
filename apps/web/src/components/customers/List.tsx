@@ -3,15 +3,22 @@ import { Card, Group, Paper, Stack, Table, Text, TextInput } from '@mantine/core
 import { Mail, MapPin, Phone, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { formatDate } from '@whosonsite/shared'
-import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
-import { useCustomers } from './queries'
+import { CustomerDto, formatDate } from '@whosonsite/shared'
+import { ApiErrorAlert, ConfirmDialog } from '../feedback'
+import { CustomerFormModal } from './Form'
+import { useCustomers, useDeleteCustomer } from './queries'
+import { Edit2, Trash2 } from 'lucide-react'
+import { ActionIcon, Tooltip } from '@mantine/core'
 
 export const CustomerList: React.FC = () => {
   const { t } = useTranslation()
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: customers = [], isLoading, error } = useCustomers()
+  const deleteCustomerMutation = useDeleteCustomer()
+
+  const [customerToEdit, setCustomerToEdit] = useState<CustomerDto | null>(null)
+  const [customerToDelete, setCustomerToDelete] = useState<CustomerDto | null>(null)
 
   const filteredCustomers = customers.filter((c) => {
     if (!searchQuery.trim()) return true
@@ -23,6 +30,16 @@ export const CustomerList: React.FC = () => {
       (c.email && c.email.toLowerCase().includes(q))
     )
   })
+
+  const handleDeleteConfirm = async () => {
+    if (!customerToDelete) return
+    try {
+      await deleteCustomerMutation.mutateAsync(customerToDelete.id)
+      setCustomerToDelete(null)
+    } catch {
+      // Error handled by ApiErrorAlert (if we added it, but here it's caught globally or by mutation)
+    }
+  }
 
   return (
     <Stack gap="sm">
@@ -53,6 +70,9 @@ export const CustomerList: React.FC = () => {
                 <Table.Th>{t('customers.address', 'Address')}</Table.Th>
                 <Table.Th>{t('customers.email', 'Email')}</Table.Th>
                 <Table.Th>{t('customers.createdAt', 'Created At')}</Table.Th>
+                <Table.Th w={100} ta="right">
+                  {t('common.actions', 'Actions')}
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
@@ -66,7 +86,7 @@ export const CustomerList: React.FC = () => {
                 </Table.Tr>
               ) : filteredCustomers.length === 0 ? (
                 <Table.Tr>
-                  <Table.Td colSpan={5} ta="center" py="xl">
+                  <Table.Td colSpan={6} ta="center" py="xl">
                     <Text size="sm" c="dimmed">
                       {t('common.noData', 'No customers found.')}
                     </Text>
@@ -109,6 +129,30 @@ export const CustomerList: React.FC = () => {
                         {formatDate(customer.createdAt)}
                       </Text>
                     </Table.Td>
+                    <Table.Td ta="right">
+                      <Group gap="xs" justify="flex-end" wrap="nowrap">
+                        <Tooltip label={t('common.edit', 'Edit')}>
+                          <ActionIcon
+                            variant="light"
+                            onClick={() => setCustomerToEdit(customer)}
+                            color="blue"
+                            size="sm"
+                          >
+                            <Edit2 size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label={t('common.delete', 'Delete')}>
+                          <ActionIcon
+                            variant="light"
+                            color="red"
+                            onClick={() => setCustomerToDelete(customer)}
+                            size="sm"
+                          >
+                            <Trash2 size={14} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Table.Td>
                   </Table.Tr>
                 ))
               )}
@@ -116,6 +160,27 @@ export const CustomerList: React.FC = () => {
           </Table>
         </Table.ScrollContainer>
       </Card>
+
+      <CustomerFormModal
+        opened={!!customerToEdit}
+        onClose={() => setCustomerToEdit(null)}
+        customer={customerToEdit || undefined}
+      />
+
+      <ConfirmDialog
+        opened={!!customerToDelete}
+        onClose={() => setCustomerToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        title={t('customers.deleteTitle', 'Delete Customer')}
+        message={t(
+          'customers.deleteMessage',
+          'Are you sure you want to delete this customer? This action cannot be undone.'
+        )}
+        confirmLabel={t('common.delete', 'Delete')}
+        confirmColor="red"
+        isLoading={deleteCustomerMutation.isPending}
+        error={deleteCustomerMutation.error}
+      />
     </Stack>
   )
 }

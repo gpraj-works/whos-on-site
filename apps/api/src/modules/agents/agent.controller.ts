@@ -63,3 +63,11 @@ export const updateAgent: RequestHandler = asyncHandler(async (req: Request, res
   const updated = await agentService.updateAgent(agentId, companyId, parsed)
   sendSuccess(res, updated, 'Agent updated successfully.')
 })
+
+export const deleteAgent: RequestHandler = asyncHandler(async (req: Request, res: Response) => {
+  const companyId = req.auth!.companyId
+  const agentId = req.params.id as string
+
+  await agentService.deleteAgent(agentId, companyId)
+  sendSuccess(res, null, 'Agent deleted successfully.', HttpStatus.OK)
+})

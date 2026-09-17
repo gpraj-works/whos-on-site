@@ -12,6 +12,11 @@ vi.mock('../../components/jobs/queries', () => ({
     mutateAsync: mockMutateAsync,
     isPending: false,
     error: null
+  }),
+  useUpdateJob: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+    error: null
   })
 }))
 
@@ -20,7 +25,7 @@ vi.mock('../../components/customers/queries', () => ({
 }))
 
 vi.mock('../../components/customers/Form', () => ({
-  CreateCustomerModal: () => null
+  CustomerFormModal: () => null
 }))
 
 import { JobFormModal } from '../../components/jobs/Form'
