@@ -2,17 +2,19 @@ import React, { useState } from 'react'
 import {
   ActionIcon,
   Button,
-  Grid,
   Group,
   Modal,
   Select,
   Stack,
-  Textarea,
-  TextInput
+  Textarea
 } from '@mantine/core'
+import { DatePickerInput } from '@mantine/dates'
 import { createJobSchema, CustomerDto } from '@whosonsite/shared'
-import { Plus } from 'lucide-react'
+import { dayjs } from '@whosonsite/shared'
+import { Calendar, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+
+import { TimeInput } from '../shared/TimeInput'
 
 import { useCustomers } from '../customers/queries'
 import { CreateCustomerModal } from '../customers/Form'
@@ -30,7 +32,12 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
   const createJobMutation = useCreateJob()
 
   const [customerId, setCustomerId] = useState('')
-  const [scheduledAt, setScheduledAt] = useState('')
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
+
+  // Custom Time Picker State
+  const [hour, setHour] = useState<string>('09')
+  const [minute, setMinute] = useState<string>('00')
+  const [ampm, setAmpm] = useState<string>('AM')
   const [notes, setNotes] = useState('')
 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
@@ -38,7 +45,10 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
   const handleReset = () => {
     setCustomerId('')
-    setScheduledAt('')
+    setScheduledDate(null)
+    setHour('09')
+    setMinute('00')
+    setAmpm('AM')
     setNotes('')
     setFieldErrors({})
   }
@@ -58,13 +68,17 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
     setFieldErrors({})
 
     let isoScheduledAt: string | undefined = undefined
-    if (scheduledAt) {
-      const parsedDate = new Date(scheduledAt)
-      if (isNaN(parsedDate.getTime())) {
-        setFieldErrors({ scheduledAt: 'Invalid schedule date/time' })
-        return
-      }
-      isoScheduledAt = parsedDate.toISOString()
+    if (scheduledDate) {
+      let hours24 = parseInt(hour, 10)
+      if (ampm === 'PM' && hours24 < 12) hours24 += 12
+      if (ampm === 'AM' && hours24 === 12) hours24 = 0
+
+      isoScheduledAt = dayjs(scheduledDate)
+        .hour(hours24)
+        .minute(parseInt(minute, 10))
+        .second(0)
+        .millisecond(0)
+        .toISOString()
     }
 
     const rawInput = {
@@ -103,7 +117,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
         opened={opened}
         onClose={handleClose}
         title={t('jobs.createTitle', 'New Job')}
-        size="lg"
+        size="md"
         centered
         radius="md"
       >
@@ -111,56 +125,67 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
           <Stack gap="md">
             <ApiErrorAlert error={createJobMutation.error} />
 
-            {/* Row 1: Customer selection with plus icon button + Schedule */}
-            <Grid align="flex-end" gutter="md">
-              <Grid.Col span={{ base: 12, sm: 7 }}>
-                <Group gap="xs" align="flex-end" wrap="nowrap">
-                  <Select
-                    label={t('jobs.customer', 'Customer')}
-                    placeholder={
-                      isLoadingCustomers
-                        ? t('common.loading', 'Loading customers...')
-                        : t('jobs.selectCustomer', 'Select a customer')
-                    }
-                    data={customerSelectData}
-                    value={customerId}
-                    onChange={(val) => {
-                      setCustomerId(val || '')
-                      if (fieldErrors.customerId) setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
-                    }}
-                    searchable
-                    clearable
-                    withAsterisk
-                    error={fieldErrors.customerId}
-                    style={{ flex: 1 }}
-                  />
-                  <ActionIcon
-                    variant="light"
-                    color="teal"
-                    size="lg"
-                    title={t('jobs.addCustomer', 'Add Customer')}
-                    onClick={() => setCreateCustomerModalOpened(true)}
-                  >
-                    <Plus size={18} />
-                  </ActionIcon>
-                </Group>
-              </Grid.Col>
+            {/* Customer selection */}
+            <Group gap="xs" align="flex-end" wrap="nowrap">
+              <Select
+                label={t('jobs.customer', 'Customer')}
+                placeholder={
+                  isLoadingCustomers
+                    ? t('common.loading', 'Loading customers...')
+                    : t('jobs.selectCustomer', 'Select a customer')
+                }
+                data={customerSelectData}
+                value={customerId}
+                onChange={(val: string | null) => {
+                  setCustomerId(val || '')
+                  if (fieldErrors.customerId)
+                    setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
+                }}
+                searchable
+                clearable
+                withAsterisk
+                error={fieldErrors.customerId}
+                style={{ flex: 1 }}
+              />
+              <ActionIcon
+                variant="light"
+                color="teal"
+                size="lg"
+                title={t('jobs.addCustomer', 'Add Customer')}
+                onClick={() => setCreateCustomerModalOpened(true)}
+              >
+                <Plus size={18} />
+              </ActionIcon>
+            </Group>
 
-              <Grid.Col span={{ base: 12, sm: 5 }}>
-                <TextInput
-                  label="Schedule"
-                  type="datetime-local"
-                  value={scheduledAt}
-                  onChange={(e) => {
-                    setScheduledAt(e.target.value)
-                    if (fieldErrors.scheduledAt) setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
-                  }}
-                  error={fieldErrors.scheduledAt}
-                />
-              </Grid.Col>
-            </Grid>
+            {/* Schedule Date */}
+            <DatePickerInput
+              label="Schedule Date"
+              placeholder="Pick date"
+              leftSection={<Calendar size={16} />}
+              value={scheduledDate}
+              onChange={(val: Date | null) => {
+                setScheduledDate(val)
+                if (fieldErrors.scheduledAt)
+                  setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+              }}
+              error={fieldErrors.scheduledAt}
+              clearable
+            />
 
-            {/* Row 2: Description */}
+            {/* Schedule Time */}
+            <TimeInput
+              label="Schedule Time"
+              hour={hour}
+              minute={minute}
+              ampm={ampm}
+              onHourChange={setHour}
+              onMinuteChange={setMinute}
+              onAmpmChange={setAmpm}
+              error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
+            />
+
+            {/* Description */}
             <Textarea
               label="Description"
               placeholder={t('jobs.notesPlaceholder', 'Enter job service details or instructions')}

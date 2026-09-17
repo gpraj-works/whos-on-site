@@ -17,7 +17,7 @@ export function initSocketServer(httpServer: HttpServer): SocketIoServer {
         if (!origin) return callback(null, true)
         if (
           allowedOrigins.includes(origin) ||
-          (env.isDevEnv && /^http:\/\/(localhost|127\.0\.0\.1):(3000|517[3-9]|4173)$/.test(origin))
+          (env.isDevEnv && /^http:\/\/(localhost|127\.0\.0\.1):(3000|5173|4173)$/.test(origin))
         ) {
           return callback(null, true)
         }

@@ -5,7 +5,7 @@ import { MapPin, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
-import { formatDateTime, formatRelative } from '../../lib/date/format'
+import { formatDateTime, formatRelative } from '@whosonsite/shared'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useAgents } from './queries'
 
@@ -68,88 +68,90 @@ export const AgentList: React.FC = () => {
 
       {/* Agents Table */}
       <Card radius="md" withBorder shadow="xs" p="0">
-        <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{t('agents.name', 'Agent')}</Table.Th>
-              <Table.Th>{t('agents.status', 'Status')}</Table.Th>
-              <Table.Th>{t('agents.phone', 'Phone Number')}</Table.Th>
-              <Table.Th>{t('agents.location', 'Last Known Location')}</Table.Th>
-              <Table.Th>{t('agents.lastUpdated', 'Last Updated')}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <Table.ScrollContainer minWidth={800}>
+          <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5} ta="center" py="xl">
-                  <Text size="sm" c="dimmed">
-                    {t('common.loading', 'Loading agents...')}
-                  </Text>
-                </Table.Td>
+                <Table.Th>{t('agents.name', 'Agent')}</Table.Th>
+                <Table.Th>{t('agents.status', 'Status')}</Table.Th>
+                <Table.Th>{t('agents.phone', 'Phone Number')}</Table.Th>
+                <Table.Th>{t('agents.location', 'Last Known Location')}</Table.Th>
+                <Table.Th>{t('agents.lastUpdated', 'Last Updated')}</Table.Th>
               </Table.Tr>
-            ) : agents.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={5} ta="center" py="xl">
-                  <Text size="sm" c="dimmed">
-                    {t('common.noData', 'No agents registered in company.')}
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              agents.map((tech) => (
-                <Table.Tr key={tech.id}>
-                  <Table.Td>
-                    <Group gap="xs">
-                      <Avatar color={primaryColor} radius="xl" size="sm">
-                        {tech.name.charAt(0).toUpperCase()}
-                      </Avatar>
-                      <div>
-                        <Text size="sm" fw={700}>
-                          {tech.name}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          ID: {tech.id.slice(0, 8)}...
-                        </Text>
-                      </div>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge size="sm" color={getStatusColor(tech.status)} variant="light">
-                      {t(`status.${tech.status}`, tech.status)}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap={6}>
-                      <Phone size={14} style={{ opacity: 0.6 }} />
-                      <Text size="xs">{tech.phone || 'N/A'}</Text>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    {tech.location ? (
-                      <Group gap={6}>
-                        <MapPin size={14} style={{ color: 'teal' }} />
-                        <Text size="xs">
-                          {tech.location.lat.toFixed(4)}, {tech.location.lng.toFixed(4)}
-                        </Text>
-                      </Group>
-                    ) : (
-                      <Text size="xs" c="dimmed">
-                        No GPS location fix
-                      </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="xs" c="dimmed">
-                      {tech.lastLocationAt
-                        ? `${formatRelative(tech.lastLocationAt)} (${formatDateTime(tech.lastLocationAt)})`
-                        : 'N/A'}
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5} ta="center" py="xl">
+                    <Text size="sm" c="dimmed">
+                      {t('common.loading', 'Loading agents...')}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : agents.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5} ta="center" py="xl">
+                    <Text size="sm" c="dimmed">
+                      {t('common.noData', 'No agents registered in company.')}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                agents.map((tech) => (
+                  <Table.Tr key={tech.id}>
+                    <Table.Td>
+                      <Group gap="xs">
+                        <Avatar color={primaryColor} radius="xl" size="sm">
+                          {tech.name.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <div>
+                          <Text size="sm" fw={700}>
+                            {tech.name}
+                          </Text>
+                          <Text size="xs" c="dimmed">
+                            ID: {tech.id.slice(0, 8)}...
+                          </Text>
+                        </div>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge size="sm" color={getStatusColor(tech.status)} variant="light">
+                        {t(`status.${tech.status}`, tech.status)}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={6}>
+                        <Phone size={14} style={{ opacity: 0.6 }} />
+                        <Text size="xs">{tech.phone || 'N/A'}</Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      {tech.location ? (
+                        <Group gap={6}>
+                          <MapPin size={14} style={{ color: 'teal' }} />
+                          <Text size="xs">
+                            {tech.location.lat.toFixed(4)}, {tech.location.lng.toFixed(4)}
+                          </Text>
+                        </Group>
+                      ) : (
+                        <Text size="xs" c="dimmed">
+                          No GPS location fix
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="xs" c="dimmed">
+                        {tech.lastLocationAt
+                          ? `${formatRelative(tech.lastLocationAt)} (${formatDateTime(tech.lastLocationAt)})`
+                          : 'N/A'}
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Card>
     </Stack>
   )

@@ -1,0 +1,42 @@
+# Dependencies
+**/node_modules
+
+# Build outputs
+**/dist
+**/build
+**/*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.local
+.env.production
+**/.env
+**/.env.local
+!.env.example
+!**/.env.example
+*.pem
+
+# Drizzle / logs
+**/.drizzle
+logs
+**/logs
+*.log
+
+# VCS & tooling
+.git
+.github
+.vscode
+.idea
+.agents
+.opencode
+opencode.json*
+.opencode.json*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+coverage
+**/coverage

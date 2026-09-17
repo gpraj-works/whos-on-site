@@ -1,5 +1,7 @@
-import { AuthResponse, LoginRequest, RegisterRequest } from '@whosonsite/shared'
+import { AuthResponse, AuthUser, CompanyDto, LoginRequest, RegisterRequest } from '@whosonsite/shared'
 import { apiClient } from '../../lib/api'
+
+export type MeResponse = { user: AuthUser; company?: CompanyDto }
 
 export async function loginApi(data: LoginRequest) {
   return apiClient<AuthResponse>('/auth/login', {
@@ -15,6 +17,10 @@ export async function registerApi(data: RegisterRequest) {
     body: JSON.stringify(data),
     skipAuth: true
   })
+}
+
+export async function meApi() {
+  return apiClient<MeResponse>('/auth/me')
 }
 
 export async function logoutApi() {

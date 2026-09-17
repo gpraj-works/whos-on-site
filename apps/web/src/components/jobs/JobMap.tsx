@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet'
 import { ActionIcon, Badge, Button, Group, Paper, Stack, Text, Tooltip } from '@mantine/core'
-import { JobDto, JobStatus, AgentDto, AgentStatus, Coordinates } from '@whosonsite/shared'
+import { JobDto, JobStatus, AgentDto, AgentStatus, Coordinates , formatJobStatus } from '@whosonsite/shared'
 import L from 'leaflet'
+import { dayjs } from '@whosonsite/shared'
 import { Maximize2, Minimize2 } from 'lucide-react'
 
 import 'leaflet/dist/leaflet.css'
@@ -337,7 +338,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                 <Stack gap="xs">
                   <Group justify="space-between" align="center">
                     <Badge color={JOB_STATUS_COLORS[job.status]} variant="filled" size="sm">
-                      {job.status.toUpperCase()}
+                      {formatJobStatus(job.status).toUpperCase()}
                     </Badge>
                     <Text size="xs" c="dimmed">
                       Job #{job.id.slice(0, 8)}
@@ -405,7 +406,7 @@ export const JobMap: React.FC<JobMapProps> = ({
                       {tech.status.toUpperCase()}
                     </Badge>
                     <Text size="xs" c="dimmed">
-                      Tech
+                      Agent
                     </Text>
                   </Group>
 
@@ -420,7 +421,7 @@ export const JobMap: React.FC<JobMapProps> = ({
 
                   {tech.lastLocationAt && (
                     <Text size="xs" c="dimmed">
-                      Last update: {new Date(tech.lastLocationAt).toLocaleTimeString()}
+                      Last update: {dayjs(tech.lastLocationAt).format('h:mm:ss A')}
                     </Text>
                   )}
                 </Stack>

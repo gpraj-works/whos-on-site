@@ -1,4 +1,5 @@
 import { Job, Worker } from 'bullmq'
+import { dayjs } from '@whosonsite/shared'
 import { eq } from 'drizzle-orm'
 import { bullConnectionOptions } from '../../infrastructure/queue/bullmq'
 import { db } from '../../infrastructure/database/client'
@@ -31,10 +32,10 @@ export async function processNotificationJob(job: Job<NotificationJobPayload>): 
         jobId: null,
         type: 'daily_summary',
         payload: {
-          generatedAt: new Date().toISOString(),
+          generatedAt: dayjs().toISOString(),
           companyName: company.name
         },
-        sentAt: new Date()
+        sentAt: dayjs().toDate()
       })
     }
     logger.info({ companyCount: allCompanies.length }, 'Recorded daily summary notifications for all companies')
@@ -46,7 +47,7 @@ export async function processNotificationJob(job: Job<NotificationJobPayload>): 
     jobId: jobId || null,
     type,
     payload: payload || {},
-    sentAt: new Date()
+    sentAt: dayjs().toDate()
   })
 
   logger.info({ jobId: job.id, type, companyId }, 'Notification recorded successfully')

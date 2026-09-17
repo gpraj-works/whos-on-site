@@ -3,6 +3,8 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
+export { dayjs }
+
 /** Format as readable date (e.g. "Sep 1, 2026") */
 export function formatDate(date: string | Date | null | undefined): string {
   if (!date) return 'N/A'

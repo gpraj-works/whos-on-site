@@ -1,4 +1,5 @@
 import { and, count, eq, gte, sql } from 'drizzle-orm'
+import { dayjs } from '@whosonsite/shared'
 import { AnalyticsSummaryDto, DailyJobCount, JobStatus, AgentStatus } from '@whosonsite/shared'
 import { db } from '../../infrastructure/database/client'
 import { jobs, agents } from '../../infrastructure/database/schema'
@@ -33,10 +34,7 @@ export async function fetchAnalyticsSummary(companyId: string): Promise<Analytic
   }
 
   // 2. Fetch Jobs Created in the Last 14 Days
-  const fourteenDaysAgo = new Date()
-  fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 13)
-  fourteenDaysAgo.setHours(0, 0, 0, 0)
-
+  const fourteenDaysAgo = dayjs().subtract(13, 'day').startOf('day').toDate()
   const rawDailyCounts = await db
     .select({
       dateStr: sql<string>`TO_CHAR(${jobs.createdAt}, 'YYYY-MM-DD')`,
@@ -52,17 +50,16 @@ export async function fetchAnalyticsSummary(companyId: string): Promise<Analytic
   }
 
   const jobsCreatedLast14Days: DailyJobCount[] = []
-  const curr = new Date(fourteenDaysAgo)
-  const today = new Date()
-  today.setHours(23, 59, 59, 999)
+  let curr = dayjs().subtract(13, 'day').startOf('day')
+  const end = dayjs().endOf('day')
 
-  while (curr <= today) {
-    const isoDate = curr.toISOString().split('T')[0]
+  while (curr.isBefore(end) || curr.isSame(end, 'day')) {
+    const isoDate = curr.format('YYYY-MM-DD')
     jobsCreatedLast14Days.push({
       date: isoDate,
       count: dailyCountMap.get(isoDate) || 0
     })
-    curr.setDate(curr.getDate() + 1)
+    curr = curr.add(1, 'day')
   }
 
   // 3. Fetch Agent Availability Counts

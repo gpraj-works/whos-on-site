@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import {
   Coordinates,

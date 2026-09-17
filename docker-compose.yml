@@ -1,35 +1,100 @@
+name: whosonsite
+
+x-api-environment: &api-environment
+  NODE_ENV: production
+  PORT: '4000'
+  DATABASE_URL: postgres://${POSTGRES_USER:-whosonsite}:${POSTGRES_PASSWORD:-whosonsite_secret_password}@postgres:5432/${POSTGRES_DB:-whosonsite}
+  REDIS_URL: redis://redis:6379
+  JWT_SECRET: ${JWT_SECRET:-whosonsite_dev_access_secret_key_32bytes_long}
+  JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-whosonsite_dev_refresh_secret_key_32bytes_long}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+  SEED_DATABASE: ${SEED_DATABASE:-true}
+
 services:
   postgres:
     image: postgis/postgis:16-3.4
     container_name: whosonsite_postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: whosonsite
-      POSTGRES_USER: whosonsite
-      POSTGRES_PASSWORD: whosonsite_secret_password
+      POSTGRES_DB: ${POSTGRES_DB:-whosonsite}
+      POSTGRES_USER: ${POSTGRES_USER:-whosonsite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-whosonsite_secret_password}
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U whosonsite -d whosonsite']
-      interval: 10s
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-whosonsite} -d ${POSTGRES_DB:-whosonsite}']
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
     container_name: whosonsite_redis
-    restart: always
+    restart: unless-stopped
+    command: redis-server --appendonly yes
     ports:
-      - '6379:6379'
+      - '${REDIS_PORT:-6379}:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ['CMD-SHELL', 'redis-cli ping | grep PONG']
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: whosonsite_api
+    restart: unless-stopped
+    environment: *api-environment
+    ports:
+      - '${API_PORT:-4000}:4000'
+    command: >
+      sh -c "node apps/api/dist/infrastructure/database/run-migrations.js &&
+      if [ \"$${SEED_DATABASE}\" = \"true\" ]; then node apps/api/dist/infrastructure/database/seed/run.js; fi &&
+      node apps/api/dist/server.js"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:4000/health']
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 12
+      start_period: 10s
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: whosonsite_worker
+    restart: unless-stopped
+    environment: *api-environment
+    command: ['node', 'apps/api/dist/worker.js']
+    depends_on:
+      api:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VITE_API_BASE_URL: /api
+    container_name: whosonsite_web
+    restart: unless-stopped
+    ports:
+      - '${WEB_PORT:-3000}:80'
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   postgres_data:

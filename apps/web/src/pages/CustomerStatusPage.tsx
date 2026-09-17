@@ -15,7 +15,7 @@ import {
   Title
 } from '@mantine/core'
 import { CustomerStatusDto, JobStatus } from '@whosonsite/shared'
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import {
   AlertCircle,
   Calendar,

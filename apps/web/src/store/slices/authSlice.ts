@@ -9,6 +9,7 @@ import {
 import { getAccessToken, setAccessToken } from '../../lib/api'
 import { queryClient } from '../../app/query/client'
 import * as authApi from '../../components/auth/api'
+import type { MeResponse } from '../../components/auth/api'
 
 export interface AuthState {
   user: AuthUser | null
@@ -24,17 +25,11 @@ const initialState: AuthState = {
   isLoading: true
 }
 
-export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | null>(
-  'auth/bootstrapSession',
-  async (_, { rejectWithValue }) => {
-    if (getAccessToken()) {
-      return null
-    }
+export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | MeResponse | null, void>(
+  'auth/bootstrapSession', async (_, { rejectWithValue }) => {
+  if (getAccessToken()) {
     try {
-      const res = await authApi.refreshApi()
-      if (res.accessToken) {
-        setAccessToken(res.accessToken)
-      }
+      const res = await authApi.meApi()
       return res
     } catch (err: unknown) {
       setAccessToken(null)
@@ -42,7 +37,18 @@ export const bootstrapSessionThunk = createAsyncThunk<AuthResponse | null>(
       return rejectWithValue(err instanceof Error ? err.message : 'Session restore failed')
     }
   }
-)
+  try {
+    const res = await authApi.refreshApi()
+    if (res.accessToken) {
+      setAccessToken(res.accessToken)
+    }
+    return res
+  } catch (err: unknown) {
+    setAccessToken(null)
+    queryClient.clear()
+    return rejectWithValue(err instanceof Error ? err.message : 'Session restore failed')
+  }
+})
 
 export const loginThunk = createAsyncThunk<AuthResponse, LoginRequest>(
   'auth/login',

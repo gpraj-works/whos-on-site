@@ -28,7 +28,7 @@ import { JobDetailDrawer } from '../components/jobs/DetailDrawer'
 import { CreateJobModal } from '../components/jobs/Form'
 import { useJobs } from '../components/jobs/queries'
 import { useAgents } from '../components/agents/queries'
-import { formatDateTime } from '../lib/date/format'
+import { formatDateTime } from '@whosonsite/shared'
 
 export const Jobs: React.FC = () => {
   const { t } = useTranslation()
@@ -84,7 +84,7 @@ export const Jobs: React.FC = () => {
   }, [jobs])
 
   return (
-    <Container fluid p={0} style={{ height: 'calc(100vh - 80px)', display: 'flex', flexDirection: 'column' }}>
+    <Container fluid p={0} h={{ base: 'auto', md: 'calc(100vh - 80px)' }} style={{ display: 'flex', flexDirection: 'column' }}>
       <Stack gap="sm" style={{ height: '100%' }}>
         <PageHeader
           title={t('jobs.title', 'Jobs')}
@@ -287,7 +287,7 @@ export const Jobs: React.FC = () => {
             </Paper>
 
           {/* Right Column: Live Leaflet Map */}
-          <Box style={{ flex: 1, height: '100%', minHeight: '300px' }}>
+          <Box h={{ base: 400, md: '100%' }} style={{ flex: 1 }}>
             <JobMap
               jobs={jobs}
               agents={agents}

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { and, asc, eq, or, sql } from 'drizzle-orm'
 import { CustomerDto } from '@whosonsite/shared'
 import { DatabaseClient, db } from '../../infrastructure/database/client'

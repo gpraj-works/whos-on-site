@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import { dayjs } from '@whosonsite/shared'
 import { eq } from 'drizzle-orm'
 import request from 'supertest'
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -30,7 +30,7 @@ describe('Public Job Status & Share-Link Expiry Integration Tests', () => {
     const active = await request(app)
       .post('/api/jobs')
       .set('Authorization', `Bearer ${dispatcherToken}`)
-      .send({ customerId, scheduledAt: new Date(Date.now() + 86400000).toISOString() })
+      .send({ customerId, scheduledAt: dayjs().add(1, 'day').toISOString() })
     expect(active.status).toBe(201)
     activeJobShareToken = active.body.data.shareToken
 

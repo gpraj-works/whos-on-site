@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1789096361525,
-      "tag": "0000_productive_carnage",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1789097542023,
-      "tag": "0001_blushing_speedball",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1789098317164,
-      "tag": "0002_nasty_morg",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1789481189456,
-      "tag": "0003_worthless_magik",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1789502140967,
-      "tag": "0005_long_paper_doll",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1790000000000,
-      "tag": "0006_user_role_agent",
+      "when": 1789616524872,
+      "tag": "0000_careless_gamora",
       "breakpoints": true
     }
   ]

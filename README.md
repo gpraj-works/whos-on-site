@@ -27,44 +27,72 @@ whosonsite/
 ├── docs/
 │   ├── adr/             # Architecture Decision Records
 │   └── api-reference.md # API Reference Documentation
-└── docker-compose.yml   # PostgreSQL + PostGIS & Redis container setup
+└── docker-compose.yml   # Full stack: PostGIS, Redis, API, worker & web (Nginx)
 ```
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### Option A — Full Stack via Docker (recommended)
+
+Runs PostgreSQL/PostGIS, Redis, the API, the background worker, and the web
+frontend (via Nginx) entirely in Docker. No local Node toolchain required.
 
 ```bash
-pnpm install
-```
-
-### 2. Configure Environment
-
-Copy `.env.example` to `.env`:
-
-```bash
+# 1. Configure environment (optional — safe defaults are built-in)
 cp .env.example .env
+
+# 2. Build and start everything
+docker compose up -d --build
+
+# 3. Open the app
+#    Web:   http://localhost:3000
+#    API:   http://localhost:4000  (health: /health, ready: /ready)
 ```
 
-### 3. Run Infrastructure (Docker)
+Migrations and the demo dataset are applied automatically on first start
+(set `SEED_DATABASE=false` in `.env` to skip the seed). Demo users:
+
+| Role       | Email                    | Password    |
+| ---------- | ------------------------ | ----------- |
+| Owner      | `owner@acmehvac.com`     | `password123` |
+| Admin      | `admin@acmehvac.com`     | `password123` |
+| Dispatcher | `dispatcher@acmehvac.com`| `password123` |
+| Agent      | `tech1@acmehvac.com`     | `password123` |
+
+Stop all containers:
 
 ```bash
-docker-compose up -d
+docker compose down
 ```
 
-### 4. Development Servers
-
-Start all workspace services in parallel:
+To reseed from scratch (drops app tables first):
 
 ```bash
+docker compose exec api sh -c "node apps/api/dist/infrastructure/database/seed/run.js"
+```
+
+### Option B — Local Development Servers (Docker only for Postgres + Redis)
+
+```bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Run Postgres + Redis only
+docker compose up -d postgres redis
+
+# 4. Apply migrations and seed once
+pnpm db:migrate
+pnpm db:seed
+
+# 5. Start all workspace services in parallel
 pnpm dev
-```
 
-Or run services individually:
-
-```bash
+# Or run services individually
 pnpm dev:api   # Starts API server on http://localhost:4000
 pnpm dev:web   # Starts Web server on http://localhost:3000
 ```
