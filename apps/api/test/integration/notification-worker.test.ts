@@ -4,11 +4,7 @@ import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/app'
 import { db } from '../../src/infrastructure/database/client'
-import {
-  jobs,
-  notificationTypeEnum,
-  notifications
-} from '../../src/infrastructure/database/schema'
+import { jobs, notificationTypeEnum, notifications } from '../../src/infrastructure/database/schema'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 import { NotificationJobPayload } from '../../src/jobs/queues/notification.queue'
 import {

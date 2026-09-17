@@ -36,7 +36,12 @@ export const AgentFormModal: React.FC<AgentFormModalProps> = ({
       centered
       radius="md"
     >
-      <AgentFormBody key={opened ? 'open' : 'closed'} agent={agent} onClose={onClose} onSuccess={onSuccess} />
+      <AgentFormBody
+        key={opened ? 'open' : 'closed'}
+        agent={agent}
+        onClose={onClose}
+        onSuccess={onSuccess}
+      />
     </Modal>
   )
 }
