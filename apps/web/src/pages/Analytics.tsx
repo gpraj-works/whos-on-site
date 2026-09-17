@@ -12,6 +12,7 @@ import {
   Title,
   Tooltip
 } from '@mantine/core'
+import { BarChart, DonutChart } from '@mantine/charts'
 import { JobStatus, AgentStatus } from '@whosonsite/shared'
 import {
   BarChart2,
@@ -27,7 +28,6 @@ import { useTranslation } from 'react-i18next'
 import { JOB_STATUS_COLORS, useAppTheme } from '../app/theme'
 import { useAnalyticsSummary } from '../components/analytics/queries'
 import { PageHeader } from '../components/common/PageHeader'
-import { StatusBadge } from '../components/common/StatusBadge'
 
 export const Analytics: React.FC = () => {
   const { t } = useTranslation()
@@ -39,11 +39,19 @@ export const Analytics: React.FC = () => {
     (summary?.jobsByStatus.en_route || 0) +
     (summary?.jobsByStatus.on_site || 0)
 
-  // Find max daily count for scaling the 14-day bar chart
-  const maxDailyCount = Math.max(
-    ...(summary?.jobsCreatedLast14Days.map((d) => d.count) || [1]),
-    1
-  )
+  const statusData = Object.values(JobStatus)
+    .map((status) => ({
+      name: status.toUpperCase().replace('_', ' '),
+      value: summary?.jobsByStatus[status] || 0,
+      color: JOB_STATUS_COLORS[status]
+    }))
+    .filter((item) => item.value > 0)
+
+  const trendData =
+    summary?.jobsCreatedLast14Days.map((d) => ({
+      date: d.date.slice(5),
+      jobs: d.count
+    })) || []
 
   return (
     <Container fluid p={0}>
@@ -159,34 +167,35 @@ export const Analytics: React.FC = () => {
                     Loading breakdown...
                   </Text>
                 ) : (
-                  <Stack gap="sm">
-                    {Object.values(JobStatus).map((status) => {
-                      const count = summary?.jobsByStatus[status] || 0
-                      const total = summary?.totalJobsCount || 1
-                      const pct = Math.round((count / total) * 100)
-
-                      return (
-                        <div key={status}>
-                          <Group justify="space-between" mb={4}>
-                            <Group gap="xs">
-                              <StatusBadge status={status} />
-                              <Text size="xs" fw={600}>
-                                {status.toUpperCase().replace('_', ' ')}
-                              </Text>
-                            </Group>
-                            <Text size="xs" fw={700}>
-                              {count} ({pct}%)
-                            </Text>
-                          </Group>
-                          <Progress
-                            value={pct}
-                            color={JOB_STATUS_COLORS[status]}
-                            size="sm"
-                            radius="xl"
+                  <Stack align="center" gap="md">
+                    <DonutChart
+                      h={220}
+                      w={220}
+                      data={statusData}
+                      thickness={26}
+                      paddingAngle={2}
+                      withLabels
+                      labelsType="percent"
+                      chartLabel={`${summary?.totalJobsCount || 0} Jobs`}
+                    />
+                    <Group gap="sm" justify="center" wrap="wrap">
+                      {statusData.map((item) => (
+                        <Group key={item.name} gap={6}>
+                          <span
+                            style={{
+                              width: 10,
+                              height: 10,
+                              borderRadius: '50%',
+                              backgroundColor: `var(--mantine-color-${item.color}-6)`,
+                              display: 'inline-block'
+                            }}
                           />
-                        </div>
-                      )
-                    })}
+                          <Text size="xs" fw={600}>
+                            {item.name} ({item.value})
+                          </Text>
+                        </Group>
+                      ))}
+                    </Group>
                   </Stack>
                 )}
               </Stack>
@@ -313,51 +322,16 @@ export const Analytics: React.FC = () => {
                 Loading trend...
               </Text>
             ) : (
-              <div style={{ width: '100%', height: '180px', display: 'flex', alignItems: 'flex-end', gap: '8px', paddingTop: '20px' }}>
-                {summary?.jobsCreatedLast14Days.map((dayItem) => {
-                  const pct = Math.round((dayItem.count / maxDailyCount) * 100)
-                  const heightPct = Math.max(pct, 6) // Minimum bar height for visibility
-
-                  return (
-                    <div
-                      key={dayItem.date}
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        height: '100%',
-                        justifyContent: 'flex-end'
-                      }}
-                    >
-                      <Tooltip label={`${dayItem.date}: ${dayItem.count} jobs`}>
-                        <div
-                          style={{
-                            width: '100%',
-                            height: `${heightPct}%`,
-                            backgroundColor: dayItem.count > 0 ? 'var(--mantine-color-blue-6)' : 'var(--mantine-color-gray-3)',
-                            borderRadius: '4px 4px 0 0',
-                            transition: 'height 0.3s ease, background-color 0.2s ease',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          {dayItem.count > 0 && (
-                            <Text size="10px" fw={700} c="white">
-                              {dayItem.count}
-                            </Text>
-                          )}
-                        </div>
-                      </Tooltip>
-                      <Text size="10px" c="dimmed" mt={4} style={{ whiteSpace: 'nowrap' }}>
-                        {dayItem.date.slice(5)}
-                      </Text>
-                    </div>
-                  )
-                })}
-              </div>
+              <BarChart
+                h={240}
+                data={trendData}
+                dataKey="date"
+                series={[{ name: 'jobs', color: primaryColor }]}
+                withBarValueLabel
+                withTooltip
+                tickLine="y"
+                gridAxis="xy"
+              />
             )}
           </Stack>
         </Paper>

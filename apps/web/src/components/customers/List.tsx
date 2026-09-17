@@ -44,75 +44,77 @@ export const CustomerList: React.FC = () => {
       </Paper>
 
       <Card radius="md" withBorder shadow="xs" p="0">
-        <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>{t('customers.name', 'Customer Name')}</Table.Th>
-              <Table.Th>{t('customers.phone', 'Phone Number')}</Table.Th>
-              <Table.Th>{t('customers.address', 'Address')}</Table.Th>
-              <Table.Th>{t('customers.email', 'Email')}</Table.Th>
-              <Table.Th>{t('customers.createdAt', 'Created At')}</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <Table.ScrollContainer minWidth={800}>
+          <Table highlightOnHover verticalSpacing="md" horizontalSpacing="md">
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5} ta="center" py="xl">
-                  <Text size="sm" c="dimmed">
-                    {t('common.loading', 'Loading customers...')}
-                  </Text>
-                </Table.Td>
+                <Table.Th>{t('customers.name', 'Customer Name')}</Table.Th>
+                <Table.Th>{t('customers.phone', 'Phone Number')}</Table.Th>
+                <Table.Th>{t('customers.address', 'Address')}</Table.Th>
+                <Table.Th>{t('customers.email', 'Email')}</Table.Th>
+                <Table.Th>{t('customers.createdAt', 'Created At')}</Table.Th>
               </Table.Tr>
-            ) : filteredCustomers.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={5} ta="center" py="xl">
-                  <Text size="sm" c="dimmed">
-                    {t('common.noData', 'No customers found.')}
-                  </Text>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              filteredCustomers.map((customer) => (
-                <Table.Tr key={customer.id}>
-                  <Table.Td>
-                    <Text size="sm" fw={700}>
-                      {customer.name}
-                    </Text>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap={6}>
-                      <Phone size={14} style={{ opacity: 0.6 }} />
-                      <Text size="xs">{customer.mobile}</Text>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    <Group gap={6}>
-                      <MapPin size={14} style={{ opacity: 0.6 }} />
-                      <Text size="xs">{customer.address}</Text>
-                    </Group>
-                  </Table.Td>
-                  <Table.Td>
-                    {customer.email ? (
-                      <Group gap={6}>
-                        <Mail size={14} style={{ opacity: 0.6 }} />
-                        <Text size="xs">{customer.email}</Text>
-                      </Group>
-                    ) : (
-                      <Text size="xs" c="dimmed">
-                        N/A
-                      </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    <Text size="xs" c="dimmed">
-                      {formatDate(customer.createdAt)}
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5} ta="center" py="xl">
+                    <Text size="sm" c="dimmed">
+                      {t('common.loading', 'Loading customers...')}
                     </Text>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : filteredCustomers.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5} ta="center" py="xl">
+                    <Text size="sm" c="dimmed">
+                      {t('common.noData', 'No customers found.')}
+                    </Text>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                filteredCustomers.map((customer) => (
+                  <Table.Tr key={customer.id}>
+                    <Table.Td>
+                      <Text size="sm" fw={700}>
+                        {customer.name}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={6}>
+                        <Phone size={14} style={{ opacity: 0.6 }} />
+                        <Text size="xs">{customer.mobile}</Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      <Group gap={6}>
+                        <MapPin size={14} style={{ opacity: 0.6 }} />
+                        <Text size="xs">{customer.address}</Text>
+                      </Group>
+                    </Table.Td>
+                    <Table.Td>
+                      {customer.email ? (
+                        <Group gap={6}>
+                          <Mail size={14} style={{ opacity: 0.6 }} />
+                          <Text size="xs">{customer.email}</Text>
+                        </Group>
+                      ) : (
+                        <Text size="xs" c="dimmed">
+                          N/A
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <Text size="xs" c="dimmed">
+                        {formatDate(customer.createdAt)}
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Card>
     </Stack>
   )

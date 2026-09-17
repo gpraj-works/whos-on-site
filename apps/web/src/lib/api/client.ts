@@ -14,10 +14,36 @@ export interface ApiResponse<T = unknown> {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
-let memoryAccessToken: string | null = null
+const ACCESS_TOKEN_STORAGE_KEY = 'whosonsite_access_token'
+
+// Seed from shared storage so duplicated/new tabs inherit the current session
+// instead of racing a refresh rotation from a cold start.
+let memoryAccessToken: string | null =
+  typeof window !== 'undefined'
+    ? window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY)
+    : null
+
+// Keep every open tab in sync when one tab rotates its access token
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key !== ACCESS_TOKEN_STORAGE_KEY) {
+      return
+    }
+    memoryAccessToken = event.newValue
+  })
+}
 
 export function setAccessToken(token: string | null) {
   memoryAccessToken = token
+  try {
+    if (token) {
+      window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token)
+    } else {
+      window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+    }
+  } catch {
+    // Ignore storage failures (e.g. private browsing mode)
+  }
 }
 
 export function getAccessToken(): string | null {

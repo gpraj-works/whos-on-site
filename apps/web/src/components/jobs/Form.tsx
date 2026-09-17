@@ -2,16 +2,18 @@ import React, { useState } from 'react'
 import {
   ActionIcon,
   Button,
-  Grid,
   Group,
   Modal,
+  Popover,
+  ScrollArea,
   Select,
   Stack,
   Textarea,
   TextInput
 } from '@mantine/core'
+import { DatePickerInput } from '@mantine/dates'
 import { createJobSchema, CustomerDto } from '@whosonsite/shared'
-import { Plus } from 'lucide-react'
+import { Calendar, Clock, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { useCustomers } from '../customers/queries'
@@ -24,13 +26,42 @@ interface CreateJobModalProps {
   onClose: () => void
 }
 
+const hoursList = Array.from({ length: 12 }).map((_, i) => (i + 1).toString().padStart(2, '0'))
+const minutesList = Array.from({ length: 60 }).map((_, i) => i.toString().padStart(2, '0'))
+const ampmList = ['AM', 'PM']
+
+const TimeColumn = ({ data, value, onChange }: { data: string[]; value: string; onChange: (v: string) => void }) => (
+  <ScrollArea h={180} type="never">
+    <Stack gap={2}>
+      {data.map((item) => (
+        <Button
+          key={item}
+          variant={value === item ? 'filled' : 'subtle'}
+          color={value === item ? undefined : 'gray'}
+          onClick={() => onChange(item)}
+          size="sm"
+          px="sm"
+        >
+          {item}
+        </Button>
+      ))}
+    </Stack>
+  </ScrollArea>
+)
+
 export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose }) => {
   const { t } = useTranslation()
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers()
   const createJobMutation = useCreateJob()
 
   const [customerId, setCustomerId] = useState('')
-  const [scheduledAt, setScheduledAt] = useState('')
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null)
+  
+  // Custom Time Picker State
+  const [timeOpened, setTimeOpened] = useState(false)
+  const [hour, setHour] = useState<string>('09')
+  const [minute, setMinute] = useState<string>('00')
+  const [ampm, setAmpm] = useState<string>('AM')
   const [notes, setNotes] = useState('')
 
   const [createCustomerModalOpened, setCreateCustomerModalOpened] = useState(false)
@@ -38,7 +69,10 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
 
   const handleReset = () => {
     setCustomerId('')
-    setScheduledAt('')
+    setScheduledDate(null)
+    setHour('09')
+    setMinute('00')
+    setAmpm('AM')
     setNotes('')
     setFieldErrors({})
   }
@@ -58,13 +92,14 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
     setFieldErrors({})
 
     let isoScheduledAt: string | undefined = undefined
-    if (scheduledAt) {
-      const parsedDate = new Date(scheduledAt)
-      if (isNaN(parsedDate.getTime())) {
-        setFieldErrors({ scheduledAt: 'Invalid schedule date/time' })
-        return
-      }
-      isoScheduledAt = parsedDate.toISOString()
+    if (scheduledDate) {
+      const combinedDate = new Date(scheduledDate)
+      let hours24 = parseInt(hour, 10)
+      if (ampm === 'PM' && hours24 < 12) hours24 += 12
+      if (ampm === 'AM' && hours24 === 12) hours24 = 0
+      
+      combinedDate.setHours(hours24, parseInt(minute, 10), 0, 0)
+      isoScheduledAt = combinedDate.toISOString()
     }
 
     const rawInput = {
@@ -103,7 +138,7 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
         opened={opened}
         onClose={handleClose}
         title={t('jobs.createTitle', 'New Job')}
-        size="lg"
+        size="md"
         centered
         radius="md"
       >
@@ -111,56 +146,76 @@ export const CreateJobModal: React.FC<CreateJobModalProps> = ({ opened, onClose 
           <Stack gap="md">
             <ApiErrorAlert error={createJobMutation.error} />
 
-            {/* Row 1: Customer selection with plus icon button + Schedule */}
-            <Grid align="flex-end" gutter="md">
-              <Grid.Col span={{ base: 12, sm: 7 }}>
-                <Group gap="xs" align="flex-end" wrap="nowrap">
-                  <Select
-                    label={t('jobs.customer', 'Customer')}
-                    placeholder={
-                      isLoadingCustomers
-                        ? t('common.loading', 'Loading customers...')
-                        : t('jobs.selectCustomer', 'Select a customer')
-                    }
-                    data={customerSelectData}
-                    value={customerId}
-                    onChange={(val) => {
-                      setCustomerId(val || '')
-                      if (fieldErrors.customerId) setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
-                    }}
-                    searchable
-                    clearable
-                    withAsterisk
-                    error={fieldErrors.customerId}
-                    style={{ flex: 1 }}
-                  />
-                  <ActionIcon
-                    variant="light"
-                    color="teal"
-                    size="lg"
-                    title={t('jobs.addCustomer', 'Add Customer')}
-                    onClick={() => setCreateCustomerModalOpened(true)}
-                  >
-                    <Plus size={18} />
-                  </ActionIcon>
-                </Group>
-              </Grid.Col>
+            {/* Customer selection */}
+            <Group gap="xs" align="flex-end" wrap="nowrap">
+              <Select
+                label={t('jobs.customer', 'Customer')}
+                placeholder={
+                  isLoadingCustomers
+                    ? t('common.loading', 'Loading customers...')
+                    : t('jobs.selectCustomer', 'Select a customer')
+                }
+                data={customerSelectData}
+                value={customerId}
+                onChange={(val) => {
+                  setCustomerId(val || '')
+                  if (fieldErrors.customerId) setFieldErrors((prev) => ({ ...prev, customerId: undefined }))
+                }}
+                searchable
+                clearable
+                withAsterisk
+                error={fieldErrors.customerId}
+                style={{ flex: 1 }}
+              />
+              <ActionIcon
+                variant="light"
+                color="teal"
+                size="lg"
+                title={t('jobs.addCustomer', 'Add Customer')}
+                onClick={() => setCreateCustomerModalOpened(true)}
+              >
+                <Plus size={18} />
+              </ActionIcon>
+            </Group>
 
-              <Grid.Col span={{ base: 12, sm: 5 }}>
+            {/* Schedule Date */}
+            <DatePickerInput
+              label="Schedule Date"
+              placeholder="Pick date"
+              leftSection={<Calendar size={16} />}
+              value={scheduledDate}
+              onChange={(val) => {
+                setScheduledDate(val)
+                if (fieldErrors.scheduledAt) setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
+              }}
+              error={fieldErrors.scheduledAt}
+              clearable
+            />
+
+            {/* Schedule Time */}
+            <Popover opened={timeOpened} onChange={setTimeOpened} position="bottom-start" withArrow shadow="md">
+              <Popover.Target>
                 <TextInput
-                  label="Schedule"
-                  type="datetime-local"
-                  value={scheduledAt}
-                  onChange={(e) => {
-                    setScheduledAt(e.target.value)
-                    if (fieldErrors.scheduledAt) setFieldErrors((prev) => ({ ...prev, scheduledAt: undefined }))
-                  }}
-                  error={fieldErrors.scheduledAt}
+                  label="Schedule Time"
+                  placeholder="Select time"
+                  readOnly
+                  leftSection={<Clock size={16} />}
+                  value={`${hour}:${minute} ${ampm}`}
+                  onClick={() => setTimeOpened((o) => !o)}
+                  styles={{ input: { cursor: 'pointer' } }}
+                  error={fieldErrors.scheduledAt ? 'Invalid time' : undefined}
                 />
-              </Grid.Col>
-            </Grid>
+              </Popover.Target>
+              <Popover.Dropdown p="xs">
+                <Group gap="xs" wrap="nowrap" align="flex-start">
+                  <TimeColumn data={hoursList} value={hour} onChange={setHour} />
+                  <TimeColumn data={minutesList} value={minute} onChange={setMinute} />
+                  <TimeColumn data={ampmList} value={ampm} onChange={setAmpm} />
+                </Group>
+              </Popover.Dropdown>
+            </Popover>
 
-            {/* Row 2: Description */}
+            {/* Description */}
             <Textarea
               label="Description"
               placeholder={t('jobs.notesPlaceholder', 'Enter job service details or instructions')}
