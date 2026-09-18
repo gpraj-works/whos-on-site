@@ -14,13 +14,14 @@ import {
   Title
 } from '@mantine/core'
 import { registerSchema } from '@whosonsite/shared'
-import { Building2, KeyRound, Mail, Phone } from 'lucide-react'
+import { Building2, KeyRound, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { AddressPicker } from '../common/AddressPicker'
 import { Logo } from '../common/Logo'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import MobileInput from '../shared/MobileInput'
 import { useAuth } from './AuthContext'
 
 interface RegisterFieldErrors {
@@ -154,13 +155,12 @@ export const RegisterForm: React.FC = () => {
                 error={fieldErrors.email}
               />
 
-              <TextInput
+              <MobileInput
                 label="Phone Number"
-                placeholder="+1 555-0199"
-                leftSection={<Phone size={16} />}
+                placeholder="(555) 000-0000"
                 value={phone}
-                onChange={(e) => {
-                  setPhone(e.currentTarget.value)
+                onChange={(val) => {
+                  setPhone(val)
                   clearFieldError('phone')
                 }}
                 withAsterisk

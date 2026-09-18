@@ -4,6 +4,7 @@ import { Mail, MapPin, Phone, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { CustomerDto, formatDate } from '@whosonsite/shared'
+import { digitsOnly } from '../../lib/format/phone'
 import { ApiErrorAlert, ConfirmDialog } from '../feedback'
 import { CustomerFormModal } from './Form'
 import { useCustomers, useDeleteCustomer } from './queries'
@@ -23,9 +24,14 @@ export const CustomerList: React.FC = () => {
   const filteredCustomers = customers.filter((c) => {
     if (!searchQuery.trim()) return true
     const q = searchQuery.toLowerCase()
+    const searchDigits = digitsOnly(searchQuery)
+    const matchesMobile =
+      c.mobile.toLowerCase().includes(q) ||
+      (searchDigits.length > 0 && digitsOnly(c.mobile).includes(searchDigits))
+
     return (
       c.name.toLowerCase().includes(q) ||
-      c.mobile.toLowerCase().includes(q) ||
+      matchesMobile ||
       c.address.toLowerCase().includes(q) ||
       (c.email && c.email.toLowerCase().includes(q))
     )
