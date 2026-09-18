@@ -1,1 +1,7 @@
-export { loginSchema, registerSchema } from '@whosonsite/shared'
+export {
+  loginSchema,
+  registerSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema
+} from '@whosonsite/shared'
+

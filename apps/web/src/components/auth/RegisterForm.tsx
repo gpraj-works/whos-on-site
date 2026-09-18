@@ -1,23 +1,24 @@
 import React, { useState } from 'react'
 import {
   ActionIcon,
+  Anchor,
   Button,
   Card,
   Center,
   Container,
   Group,
+  PasswordInput,
   Stack,
   Text,
   TextInput,
-  PasswordInput,
-  Title,
-  Anchor
+  Title
 } from '@mantine/core'
 import { registerSchema } from '@whosonsite/shared'
-import { Building2, KeyRound, Mail } from 'lucide-react'
+import { Building2, KeyRound, Mail, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 
+import { AddressPicker } from '../common/AddressPicker'
 import { Logo } from '../common/Logo'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
 import { useAuth } from './AuthContext'
@@ -25,7 +26,9 @@ import { useAuth } from './AuthContext'
 interface RegisterFieldErrors {
   companyName?: string
   email?: string
+  phone?: string
   password?: string
+  address?: string
 }
 
 export const RegisterForm: React.FC = () => {
@@ -35,6 +38,10 @@ export const RegisterForm: React.FC = () => {
 
   const [companyName, setCompanyName] = useState('')
   const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
+  const [latitude, setLatitude] = useState<number | null>(null)
+  const [longitude, setLongitude] = useState<number | null>(null)
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,7 +52,16 @@ export const RegisterForm: React.FC = () => {
     setError(null)
     setFieldErrors({})
 
-    const validation = registerSchema.safeParse({ companyName, email, password })
+    const validation = registerSchema.safeParse({
+      companyName,
+      email,
+      phone,
+      password,
+      address,
+      latitude,
+      longitude
+    })
+
     if (!validation.success) {
       const formattedErrors: RegisterFieldErrors = {}
       validation.error.errors.forEach((err: { path: (string | number)[]; message: string }) => {
@@ -60,7 +76,15 @@ export const RegisterForm: React.FC = () => {
 
     setLoading(true)
     try {
-      await register({ companyName, email, password })
+      await register({
+        companyName,
+        email,
+        phone,
+        password,
+        address,
+        latitude,
+        longitude
+      })
       navigate('/dashboard', { replace: true })
     } catch (err: unknown) {
       const errorMessage =
@@ -78,8 +102,8 @@ export const RegisterForm: React.FC = () => {
   }
 
   return (
-    <Center mih="100vh" bg="var(--mantine-color-body)" p="md">
-      <Container size={420} w="100%">
+    <Center mih="100vh" bg="var(--mantine-color-body)" py="xl" px="md">
+      <Container size={520} w="100%">
         <Stack align="center" mb="lg">
           <ActionIcon size={54} radius="xl" variant="filled">
             <Logo size={32} color="currentColor" />
@@ -128,6 +152,38 @@ export const RegisterForm: React.FC = () => {
                 }}
                 withAsterisk
                 error={fieldErrors.email}
+              />
+
+              <TextInput
+                label="Phone Number"
+                placeholder="+1 555-0199"
+                leftSection={<Phone size={16} />}
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.currentTarget.value)
+                  clearFieldError('phone')
+                }}
+                withAsterisk
+                error={fieldErrors.phone}
+              />
+
+              <AddressPicker
+                value={address}
+                onChange={(newAddress) => {
+                  setAddress(newAddress)
+                  clearFieldError('address')
+                }}
+                latitude={latitude}
+                longitude={longitude}
+                onCoordinatesChange={(lat, lng) => {
+                  setLatitude(lat)
+                  setLongitude(lng)
+                }}
+                label="Company Address"
+                placeholder="Start typing company address, or pick on map"
+                error={fieldErrors.address}
+                withAsterisk
+                zIndex={400}
               />
 
               <PasswordInput

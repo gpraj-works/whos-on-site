@@ -28,12 +28,15 @@ vi.mock('react-router-dom', async (importOriginal) => {
   }
 })
 
+import { MemoryRouter } from 'react-router-dom'
 import { LoginForm } from '../../components/auth/Form'
 
 const renderForm = () =>
   render(
     <MantineProvider>
-      <LoginForm />
+      <MemoryRouter>
+        <LoginForm />
+      </MemoryRouter>
     </MantineProvider>
   )
 
@@ -83,5 +86,12 @@ describe('LoginForm', () => {
 
     expect(screen.getByPlaceholderText('admin@acmehvac.com')).toHaveValue('admin@acmehvac.com')
     expect(screen.getByPlaceholderText('Your password')).toHaveValue('password123')
+  })
+
+  it('renders forgot password link pointing to /forgot-password', () => {
+    renderForm()
+    const link = screen.getByRole('link', { name: 'Forgot password?' })
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '/forgot-password')
   })
 })

@@ -2,6 +2,11 @@ import { UserRole } from '@whosonsite/shared'
 
 export interface CreateCompanyData {
   name: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface CreateUserData {

@@ -1,6 +1,11 @@
 import { Request, RequestHandler, Response } from 'express'
 import * as authService from './auth.service'
-import { loginSchema, registerSchema } from './auth.schema'
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema
+} from './auth.schema'
 import { asyncHandler } from '../../middleware/error-handler'
 import { sendSuccess } from '../../common/response-handler'
 import { HttpStatus } from '../../common/http-status'
@@ -99,3 +104,24 @@ export const me: RequestHandler = asyncHandler(async (req: Request, res: Respons
   const data = await authService.getCurrentUser(req.auth.userId)
   sendSuccess(res, data)
 })
+
+export const forgotPassword: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const parsed = forgotPasswordSchema.parse(req.body)
+    await authService.forgotPassword(parsed.email)
+    sendSuccess(
+      res,
+      undefined,
+      'If an account with that email exists, password reset instructions have been sent.'
+    )
+  }
+)
+
+export const resetPassword: RequestHandler = asyncHandler(
+  async (req: Request, res: Response) => {
+    const parsed = resetPasswordSchema.parse(req.body)
+    await authService.resetPassword(parsed.token, parsed.password)
+    sendSuccess(res, undefined, 'Password has been reset successfully. You can now log in.')
+  }
+)
+

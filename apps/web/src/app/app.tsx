@@ -16,6 +16,8 @@ import { Jobs } from '../pages/Jobs'
 import { LandingPage } from '../pages/LandingPage'
 import { Login } from '../pages/Login'
 import { Register } from '../pages/Register'
+import { ForgotPassword } from '../pages/ForgotPassword'
+import { ResetPassword } from '../pages/ResetPassword'
 import { Settings } from '../pages/Settings'
 import { AgentJobs } from '../pages/AgentJobs'
 import { Agents } from '../pages/Agents'
@@ -41,6 +43,8 @@ export const App: React.FC = () => {
                 <Route element={<PublicRoute />}>
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                 </Route>
 
                 {/* Protected Authenticated Routes */}

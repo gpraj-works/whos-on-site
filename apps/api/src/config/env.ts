@@ -18,7 +18,14 @@ const envSchema = z.object({
   JWT_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
-  CORS_ORIGIN: z.string().default('http://localhost:5173')
+  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().default(587).optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  SMTP_FROM: z.string().default('WhosOnSite <notifications@whosonsite.internal>').optional(),
+  SMTP_SECURE: z.coerce.boolean().default(false).optional(),
+  APP_URL: z.string().default('http://localhost:5173').optional()
 })
 
 const parsedEnv = envSchema.parse(process.env)

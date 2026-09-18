@@ -68,3 +68,17 @@ export async function revokeUserRefreshTokens(userId: string, client: DatabaseCl
     .set({ revokedAt: dayjs().toDate() })
     .where(and(eq(refreshTokens.userId, userId), isNull(refreshTokens.revokedAt)))
 }
+
+export async function updateUserPassword(
+  userId: string,
+  passwordHash: string,
+  client: DatabaseClient = db
+) {
+  const [user] = await client
+    .update(users)
+    .set({ passwordHash, updatedAt: dayjs().toDate() })
+    .where(eq(users.id, userId))
+    .returning()
+  return user || null
+}
+
