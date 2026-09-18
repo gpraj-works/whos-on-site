@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AddressPicker } from '../common/AddressPicker'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import MobileInput from '../shared/MobileInput'
 import { useCreateCustomer, useUpdateCustomer } from './queries'
 
 export interface CustomerFormModalProps {
@@ -126,12 +127,12 @@ function CustomerFormContent({ customer, onClose, onSuccess, zIndex }: CustomerF
           error={fieldErrors.name}
         />
 
-        <TextInput
+        <MobileInput
           label={t('customers.phone', 'Phone / Mobile')}
-          placeholder="+1 555-0192"
+          placeholder="555 0192"
           value={mobile}
-          onChange={(e) => {
-            setMobile(e.target.value)
+          onChange={(val) => {
+            setMobile(val)
             if (fieldErrors.mobile) setFieldErrors((prev) => ({ ...prev, mobile: undefined }))
           }}
           withAsterisk

@@ -14,10 +14,21 @@ export const coordinatesSchema = z.object({
 
 export type Coordinates = z.infer<typeof coordinatesSchema>
 
+export const phoneSchema = z.string().refine(
+  (val) => {
+    const trimmed = val.trim()
+    if (!trimmed) return false
+    if (!/^\+?[\d\s().-]+$/.test(trimmed)) return false
+    const digits = trimmed.replace(/\D/g, '')
+    return digits.length >= 7 && digits.length <= 15
+  },
+  { message: 'Enter a valid phone number' }
+)
+
 export const registerSchema = z.object({
   companyName: z.string().min(2, 'Company name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
+  phone: phoneSchema,
   password: z.string().min(8, 'Password must be at least 8 characters'),
   address: z.string().min(5, 'Company address is required'),
   latitude: z.number().min(-90).max(90).optional().nullable(),
@@ -91,7 +102,7 @@ export type JobFilterQuery = z.infer<typeof jobFilterQuerySchema>
 export const createCustomerSchema = z.object({
   name: z.string().min(2, 'Customer name must be at least 2 characters'),
   email: z.union([z.string().email('Invalid email address'), z.literal('')]).optional(),
-  mobile: z.string().min(7, 'Customer phone number is required'),
+  mobile: phoneSchema,
   address: z.string().min(5, 'Address is required'),
   latitude: z.number().min(-90).max(90).optional().or(z.literal(null)),
   longitude: z.number().min(-180).max(180).optional().or(z.literal(null)),
@@ -112,7 +123,7 @@ export const customerFilterQuerySchema = z.object({
 
 export const createAgentSchema = z.object({
   name: z.string().min(2, 'Agent name must be at least 2 characters'),
-  phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
+  phone: phoneSchema,
   status: agentStatusSchema.optional()
 })
 

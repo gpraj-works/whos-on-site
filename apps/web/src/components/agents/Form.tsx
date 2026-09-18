@@ -4,6 +4,7 @@ import { createAgentSchema, AgentDto, AgentStatus } from '@whosonsite/shared'
 import { useTranslation } from 'react-i18next'
 
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
+import MobileInput from '../shared/MobileInput'
 import { useCreateAgent, useUpdateAgent } from './queries'
 
 export interface AgentFormModalProps {
@@ -118,12 +119,12 @@ const AgentFormBody: React.FC<AgentFormBodyProps> = ({ agent, onClose, onSuccess
           error={fieldErrors.name}
         />
 
-        <TextInput
+        <MobileInput
           label={t('agents.phone', 'Phone Number')}
-          placeholder="+1 404-555-0192"
+          placeholder="555 0192"
           value={phone}
-          onChange={(e) => {
-            setPhone(e.target.value)
+          onChange={(val) => {
+            setPhone(val)
             if (fieldErrors.phone) setFieldErrors((prev) => ({ ...prev, phone: undefined }))
           }}
           withAsterisk
