@@ -46,14 +46,14 @@ Every job status transition MUST record an audit log in `job_status_history` (`j
 
 ---
 
-## 2. PostGIS Spatial Queries & Technician Proximity
+## 2. PostGIS Spatial Queries & Agent Proximity
 
-- **Technician Location**: Stored as `geography(Point, 4326)` in `technicians.current_location`.
+- **Agent Location**: Stored as `geography(Point, 4326)` in `agents.current_location`.
 - **Job Location**: Stored as `geography(Point, 4326)` in `jobs.location`.
-- **Proximity Query (`/api/technicians/nearby`)**:
+- **Proximity Query (`/api/agents/nearby`)**:
   - Uses `ST_DWithin` for spatial radius filtering (e.g. within 10,000 meters).
-  - Uses `ST_Distance` to order technicians by proximity.
-  - MUST enforce `company_id = req.auth.companyId` in the exact same spatial SQL query so competitor technicians are NEVER returned.
+  - Uses `ST_Distance` to order agents by proximity.
+  - MUST enforce `company_id = req.auth.companyId` in the exact same spatial SQL query so competitor agents are NEVER returned.
 
 ---
 
@@ -61,10 +61,10 @@ Every job status transition MUST record an audit log in `job_status_history` (`j
 
 - Socket rooms are strictly scoped per company: `company:${companyId}`.
 - Core events:
-  - `job:created` — Broadcast when dispatcher creates a new job.
-  - `job:assigned` — Emitted to assigned technician device & dispatcher board.
-  - `job:statusChanged` — Emitted simultaneously to dispatcher board & public customer status view.
-  - `location:ping` — Technician live location broadcast while `en_route` or `on_site`.
+  - `job:created` — Broadcast when a manager creates a new job.
+  - `job:assigned` — Emitted to assigned agent device & management board.
+  - `job:statusChanged` — Emitted simultaneously to management board & public customer status view.
+  - `location:ping` — Agent live location broadcast while `en_route` or `on_site`.
 
 ---
 

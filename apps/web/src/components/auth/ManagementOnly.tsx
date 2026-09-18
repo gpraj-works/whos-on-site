@@ -5,11 +5,11 @@ import { UserRole } from '@whosonsite/shared'
 import { LoadingState } from '../common/LoadingState'
 import { useAuth } from './AuthContext'
 
-interface DispatcherOnlyProps {
+interface ManagementOnlyProps {
   children: React.ReactNode
 }
 
-export const DispatcherOnly: React.FC<DispatcherOnlyProps> = ({ children }) => {
+export const ManagementOnly: React.FC<ManagementOnlyProps> = ({ children }) => {
   const { isAuthenticated, isLoading, user } = useAuth()
 
   if (isLoading) {
@@ -20,7 +20,7 @@ export const DispatcherOnly: React.FC<DispatcherOnlyProps> = ({ children }) => {
     return <Navigate to="/login" replace />
   }
 
-  const allowedRoles = [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+  const allowedRoles = [UserRole.OWNER, UserRole.ADMIN]
   if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/dashboard" replace />
   }

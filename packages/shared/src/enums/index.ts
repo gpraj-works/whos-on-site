@@ -1,7 +1,6 @@
 export enum UserRole {
   OWNER = 'owner',
   ADMIN = 'admin',
-  DISPATCHER = 'dispatcher',
   AGENT = 'agent'
 }
 

@@ -230,7 +230,7 @@ erDiagram
 | company_id    | uuid, FK → companies                       | tenant scope                                                          |
 | email         | text, unique                               |                                                                       |
 | password_hash | text                                       | argon2                                                                |
-| role          | enum(owner, admin, dispatcher, technician) | RBAC — see [Auth details](#auth-details) for how `technician` differs |
+| role          | enum(owner, admin, agent)                | RBAC — see [Auth details](#auth-details) for how `agent` differs     |
 | created_at    | timestamptz                                |                                                                       |
 
 **technicians** (field workers — may or may not have login accounts)
@@ -691,7 +691,7 @@ After the core 9-phase build, the roadmap extends with [**Phase 10 — Public Ho
 - Implement `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout` per [Auth details](#auth-details): argon2 password hashing, 15-minute JWT access tokens, opaque refresh tokens hashed in a `refresh_tokens` table.
 - Implement refresh-token rotation-on-use and revocation (`revoked_at` column, single-row update).
 - Build the tenant-scoping middleware that extracts `company_id` from the JWT and injects it into every downstream query — write this once, centrally, per the [architecture](#4-system-architecture) model.
-- Implement RBAC for `owner`, `admin`, `dispatcher`, and `technician` roles, including the narrower technician permission set described in [Auth details](#auth-details).
+- Implement RBAC for `owner`, `admin`, and `agent` roles, including the narrower agent permission set described in [Auth details](#auth-details).
 - Add `express-rate-limit` to all `/api/auth/*` routes.
 - Implement the `technicians/nearby` PostGIS query (`ST_DWithin` + `ST_Distance`, ordered by distance) end-to-end, from route → service → typed Drizzle `sql` query → response.
 - Implement the technician location-ping endpoint (`PATCH /api/technicians/:id/location`) that updates `current_location` and `last_location_at`.

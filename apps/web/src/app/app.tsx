@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AuthProvider } from '../components/auth/AuthContext'
-import { DispatcherOnly } from '../components/auth/DispatcherOnly'
+import { ManagementOnly } from '../components/auth/ManagementOnly'
 import { ProtectedRoute } from '../components/auth/ProtectedRoute'
 import { PublicRoute } from '../components/auth/PublicRoute'
 import { AgentOnly } from '../components/auth/AgentOnly'
@@ -57,17 +57,17 @@ export const App: React.FC = () => {
                   <Route
                     path="/jobs"
                     element={
-                      <DispatcherOnly>
+                      <ManagementOnly>
                         <Jobs />
-                      </DispatcherOnly>
+                      </ManagementOnly>
                     }
                   />
                   <Route
                     path="/analytics"
                     element={
-                      <DispatcherOnly>
+                      <ManagementOnly>
                         <Analytics />
-                      </DispatcherOnly>
+                      </ManagementOnly>
                     }
                   />
                   <Route path="/agents" element={<Agents />} />

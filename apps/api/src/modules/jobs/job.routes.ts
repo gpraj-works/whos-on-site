@@ -21,59 +21,31 @@ const router: Router = Router()
 router.use(authenticate, companyContext)
 
 // Job CRUD & Listing
-router.post(
-  '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  createJobController
-)
+router.post('/', authorize(UserRole.OWNER, UserRole.ADMIN), createJobController)
 
-router.get(
-  '/',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
-  listJobsController
-)
+router.get('/', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT), listJobsController)
 
-router.get(
-  '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
-  getJobByIdController
-)
+router.get('/:id', authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT), getJobByIdController)
 
-router.patch(
-  '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  updateJobController
-)
+router.patch('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), updateJobController)
 
-router.delete(
-  '/:id',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  deleteJobController
-)
+router.delete('/:id', authorize(UserRole.OWNER, UserRole.ADMIN), deleteJobController)
 
 // Agent Assignments
-router.post(
-  '/:id/assign',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  assignJobController
-)
+router.post('/:id/assign', authorize(UserRole.OWNER, UserRole.ADMIN), assignJobController)
 
-router.post(
-  '/:id/unassign',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER),
-  unassignJobController
-)
+router.post('/:id/unassign', authorize(UserRole.OWNER, UserRole.ADMIN), unassignJobController)
 
 // Status Transitions & Audit History
 router.post(
   '/:id/status',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT),
   updateJobStatusController
 )
 
 router.get(
   '/:id/status-history',
-  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT),
+  authorize(UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT),
   getJobHistoryController
 )
 

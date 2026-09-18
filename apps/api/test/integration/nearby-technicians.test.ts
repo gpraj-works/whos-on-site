@@ -3,18 +3,18 @@ import request from 'supertest'
 import { app } from '../../src/app'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 
-describe('Technicians & Spatial Proximity Integration Tests', () => {
-  let dispatcherToken: string
+describe('Agents & Spatial Proximity Integration Tests', () => {
+  let adminToken: string
   let techToken: string
   let techId: string
 
   beforeAll(async () => {
     await seedDatabase()
 
-    const dispRes = await request(app)
+    const adminRes = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
-    dispatcherToken = dispRes.body.data.accessToken
+      .send({ email: 'admin@acmehvac.com', password: 'password123' })
+    adminToken = adminRes.body.data.accessToken
 
     const techRes = await request(app)
       .post('/api/auth/login')
@@ -23,15 +23,15 @@ describe('Technicians & Spatial Proximity Integration Tests', () => {
 
     const techListRes = await request(app)
       .get('/api/agents')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
     techId = techListRes.body.data[0].id
   })
 
-  it('queries nearby available technicians ordered by PostGIS distance', async () => {
+  it('queries nearby available agents ordered by PostGIS distance', async () => {
     const res = await request(app)
       .get('/api/agents/nearby')
       .query({ lat: 33.75, lng: -84.38, radiusKm: 25 })
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
 
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
@@ -46,7 +46,7 @@ describe('Technicians & Spatial Proximity Integration Tests', () => {
     }
   })
 
-  it('updates technician location via location-ping endpoint', async () => {
+  it('updates agent location via location-ping endpoint', async () => {
     const pingRes = await request(app)
       .patch(`/api/agents/${techId}/location`)
       .set('Authorization', `Bearer ${techToken}`)

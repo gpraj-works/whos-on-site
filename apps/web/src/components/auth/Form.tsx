@@ -98,7 +98,7 @@ export const LoginForm: React.FC = () => {
             <Stack gap="md">
               <TextInput
                 label="Email Address"
-                placeholder="dispatcher@acmehvac.com"
+                placeholder="admin@acmehvac.com"
                 leftSection={<Mail size={16} />}
                 value={email}
                 onChange={(e) => {
@@ -155,14 +155,6 @@ export const LoginForm: React.FC = () => {
                 onClick={() => fillDemoCredentials('admin@acmehvac.com')}
               >
                 Admin
-              </Button>
-              <Button
-                size="xs"
-                variant="light"
-                color="blue"
-                onClick={() => fillDemoCredentials('dispatcher@acmehvac.com')}
-              >
-                Dispatcher
               </Button>
               <Button
                 size="xs"

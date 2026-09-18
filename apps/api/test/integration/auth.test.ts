@@ -33,7 +33,7 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
 
   it('authenticates user login and sets httpOnly refresh token cookie', async () => {
     const res = await request(app).post('/api/auth/login').send({
-      email: 'dispatcher@acmehvac.com',
+      email: 'admin@acmehvac.com',
       password: 'password123'
     })
 
@@ -97,7 +97,7 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
     for (let i = 0; i < 22; i++) {
       const res = await request(app)
         .post('/api/auth/login')
-        .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
+        .send({ email: 'admin@acmehvac.com', password: 'password123' })
       lastStatus = res.status
       if (lastStatus === 429) {
         expect(res.body.success).toBe(false)

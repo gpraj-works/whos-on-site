@@ -20,7 +20,7 @@ export const AgentOnly: React.FC<AgentOnlyProps> = ({ children }) => {
     return <Navigate to="/login" replace />
   }
 
-  const allowedRoles = [UserRole.AGENT, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+  const allowedRoles = [UserRole.AGENT, UserRole.OWNER, UserRole.ADMIN]
   if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/dashboard" replace />
   }

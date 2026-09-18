@@ -18,7 +18,7 @@ Schema definitions are located in `apps/api/src/infrastructure/database/schema/`
 - `common.ts` — Pure timestamp helpers (`createdAt`, `updatedAt`, `timestamps`). Zero dependencies on schema tables to prevent circular imports.
 - `company.ts` — `companyId` reference helper.
 - `audit.ts` — `createdBy`, `updatedBy`, `auditUserFields` helpers.
-- Domain tables: `companies.ts`, `users.ts`, `technicians.ts`, `jobs.ts`, `refresh-tokens.ts`, `notifications.ts`, `job-assignments.ts`, `job-status-history.ts`.
+- Domain tables: `companies.ts`, `users.ts`, `agents.ts`, `jobs.ts`, `refresh-tokens.ts`, `notifications.ts`, `job-assignments.ts`, `job-status-history.ts`.
 - `index.ts` — Exports all schema modules.
 
 ---
@@ -77,7 +77,7 @@ import { sql } from 'drizzle-orm'
 const results = await executeRaw(
   sql`
   SELECT id, name, ST_Distance(current_location, ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)::geography) AS distance
-  FROM technicians
+  FROM agents
   WHERE company_id = ${companyId}
   ORDER BY distance ASC
 `,

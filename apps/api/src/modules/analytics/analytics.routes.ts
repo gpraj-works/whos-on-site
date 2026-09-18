@@ -12,7 +12,7 @@ router.use(authenticate, companyContext)
 
 router.get(
   '/summary',
-  authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
+  authorize([UserRole.OWNER, UserRole.ADMIN]),
   analyticsController.getAnalyticsSummary
 )
 

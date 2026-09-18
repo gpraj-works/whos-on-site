@@ -29,7 +29,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
 
   const handleLogout = async () => {
     await logout()
-    navigate('/', { replace: true })
+    navigate('/login', { replace: true })
   }
 
   return (

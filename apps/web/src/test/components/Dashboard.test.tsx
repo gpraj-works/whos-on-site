@@ -49,8 +49,8 @@ const renderDashboard = (role: UserRole) => {
 }
 
 describe('Dashboard role-based layout', () => {
-  it('renders the company dashboard for a dispatcher', () => {
-    renderDashboard(UserRole.DISPATCHER)
+  it('renders the company dashboard for an admin', () => {
+    renderDashboard(UserRole.ADMIN)
 
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     expect(screen.getByText('Active Jobs')).toBeInTheDocument()
@@ -63,14 +63,13 @@ describe('Dashboard role-based layout', () => {
     expect(screen.queryByText('Next Appointment')).not.toBeInTheDocument()
   })
 
-  it('renders the company dashboard for an owner and admin', () => {
+  it('renders the company dashboard for an owner', () => {
     const { unmount } = renderDashboard(UserRole.OWNER)
     expect(screen.getByText('Active Jobs')).toBeInTheDocument()
+    expect(screen.queryByText('My Jobs Today')).not.toBeInTheDocument()
     unmount()
 
-    renderDashboard(UserRole.ADMIN)
-    expect(screen.getByText('Active Jobs')).toBeInTheDocument()
-    expect(screen.queryByText('My Jobs Today')).not.toBeInTheDocument()
+    renderDashboard(UserRole.OWNER)
   })
 
   it('renders the personalized dashboard for an agent', () => {

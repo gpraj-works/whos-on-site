@@ -51,7 +51,7 @@ describe('LoginForm', () => {
     const user = userEvent.setup()
     renderForm()
 
-    await user.type(screen.getByPlaceholderText('dispatcher@acmehvac.com'), 'not-an-email')
+    await user.type(screen.getByPlaceholderText('admin@acmehvac.com'), 'not-an-email')
     await user.type(screen.getByPlaceholderText('Your password'), 'password123')
     await user.click(screen.getByRole('button', { name: 'Sign In' }))
 
@@ -62,7 +62,7 @@ describe('LoginForm', () => {
     const user = userEvent.setup()
     renderForm()
 
-    await user.type(screen.getByPlaceholderText('dispatcher@acmehvac.com'), 'user@test.com')
+    await user.type(screen.getByPlaceholderText('admin@acmehvac.com'), 'user@test.com')
     await user.type(screen.getByPlaceholderText('Your password'), 'password123')
     await user.click(screen.getByRole('button', { name: 'Sign In' }))
 
@@ -79,11 +79,9 @@ describe('LoginForm', () => {
     const user = userEvent.setup()
     renderForm()
 
-    await user.click(screen.getByRole('button', { name: 'Dispatcher' }))
+    await user.click(screen.getByRole('button', { name: 'Admin' }))
 
-    expect(screen.getByPlaceholderText('dispatcher@acmehvac.com')).toHaveValue(
-      'dispatcher@acmehvac.com'
-    )
+    expect(screen.getByPlaceholderText('admin@acmehvac.com')).toHaveValue('admin@acmehvac.com')
     expect(screen.getByPlaceholderText('Your password')).toHaveValue('password123')
   })
 })

@@ -10,31 +10,19 @@ const router = Router()
 // Apply authentication and company context middleware across all agent routes
 router.use(authenticate, companyContext)
 
-router.get(
-  '/',
-  authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  agentController.listAgents
-)
+router.get('/', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.listAgents)
 
-router.get(
-  '/nearby',
-  authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  agentController.nearbyAgents
-)
+router.get('/nearby', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.nearbyAgents)
 
 router.post('/', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.createAgent)
 
 router.patch(
   '/:id/location',
-  authorize([UserRole.AGENT, UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
+  authorize([UserRole.AGENT, UserRole.OWNER, UserRole.ADMIN]),
   agentController.updateLocation
 )
 
-router.patch(
-  '/:id',
-  authorize([UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]),
-  agentController.updateAgent
-)
+router.patch('/:id', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.updateAgent)
 
 router.delete('/:id', authorize([UserRole.OWNER, UserRole.ADMIN]), agentController.deleteAgent)
 
