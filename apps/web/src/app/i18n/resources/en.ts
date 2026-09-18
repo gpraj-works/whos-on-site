@@ -4,6 +4,21 @@ export const en = {
       name: 'WhosOnSite',
       tagline: "See who's on the job — live."
     },
+    auth: {
+      signIn: 'Sign in',
+      register: {
+        title: 'Create your company account',
+        subtitle: 'Start dispatching in minutes. No credit card required.',
+        companyName: 'Company Name',
+        companyNamePlaceholder: 'e.g. Acme HVAC Services',
+        email: 'Work Email',
+        emailPlaceholder: 'you@yourcompany.com',
+        password: 'Password',
+        submit: 'Create Account',
+        hasAccount: 'Already have an account?',
+        signIn: 'Sign in'
+      }
+    },
     nav: {
       dashboard: 'Dashboard',
       dispatch: 'Jobs',
@@ -190,6 +205,146 @@ export const en = {
       searchAddress: 'Searching addresses...',
       addressHint: 'Type to search or pick a location on the map',
       locationSet: 'Location pinned'
+    },
+    landing: {
+      nav: {
+        features: 'Features',
+        howItWorks: 'How it works',
+        about: 'About',
+        pricing: 'Pricing',
+        signIn: 'Sign in',
+        startTrial: 'Start free trial'
+      },
+      hero: {
+        badge: 'Real-time field-service dispatch',
+        title: 'See who is on the job — live',
+        subtitle:
+          'WhosOnSite replaces phone-and-text dispatch with a live board that shows every job, every agent, and every status change in real time.',
+        primaryCta: 'Start free trial',
+        secondaryCta: 'Sign in',
+        liveBoard: 'Live Dispatch Board',
+        jobCardTitle: 'Kitchen faucet repair',
+        jobCardTitle2: 'AC filter replacement',
+        jobCardEta: 'Arriving in 12 min',
+        agentCardLabel: 'Field Agents'
+      },
+      features: {
+        title: 'Everything your dispatch used to do over the phone',
+        subtitle:
+          'One live board replaces the group chats, the "where are they" calls, and the manual check-ins.',
+        items: {
+          liveBoard: {
+            title: 'Live dispatch board',
+            desc: 'Every job and every agent on one screen, updating in real time.'
+          },
+          oneTap: {
+            title: 'One-tap status updates',
+            desc: 'Agents tap en route, on site, or complete from their phone — no calls back to the office.'
+          },
+          nearby: {
+            title: 'Nearby agent matching',
+            desc: 'PostGIS-powered proximity search finds the nearest available agent to assign in seconds.'
+          },
+          customerPage: {
+            title: 'Customer status pages',
+            desc: 'Share a live link so customers can see exactly where their work is — without calling in.'
+          },
+          auditTrail: {
+            title: 'Immutable audit trail',
+            desc: 'Every status change is timestamped and recorded, so disputes have a paper trail.'
+          },
+          reassign: {
+            title: 'Instant reassignment',
+            desc: 'Illness or overtime? Reassign mid-day in two clicks without calling everyone.'
+          }
+        }
+      },
+      how: {
+        title: 'How it works',
+        subtitle: 'From phone tag to live dispatch in three steps.',
+        stepLabel: 'Step',
+        steps: {
+          create: {
+            title: 'Create the job',
+            desc: 'Add the customer and address, and schedule the work.'
+          },
+          assign: {
+            title: 'Assign the nearest agent',
+            desc: 'See who is free and closest, then assign with one click.'
+          },
+          track: {
+            title: 'Track it live',
+            desc: 'Watch the job move to en route, on site, and complete in real time.'
+          }
+        }
+      },
+      about: {
+        title: 'Built for field-service teams still running on calls and group texts',
+        subtitle:
+          'WhosOnSite is a multi-tenant dispatch platform for teams of 10–50 field workers who need more visibility than a phone can give.',
+        body: 'Field-service businesses coordinate their whole day through phone calls and text messages — but nobody knows who is free, who is nearby, or where a job stands until someone calls to ask. WhosOnSite puts every job and every agent on a live, permissioned board, so the entire day runs on visibility instead of phone tag.',
+        verticalsTitle: 'Built for verticals like',
+        verticals: ['HVAC', 'Plumbing', 'Electrical', 'Cleaning', 'Courier', 'Inspections']
+      },
+      plans: {
+        title: 'Simple plans that scale with your crew',
+        subtitle: 'Straightforward per-agent pricing for the whole operation. Billing is coming soon.',
+        perAgent: 'per agent / month',
+        startTrial: 'Start free trial',
+        popular: 'Most popular',
+        tiers: {
+          starter: {
+            name: 'Starter',
+            price: '$19',
+            desc: 'For small teams just moving off phone dispatch.',
+            features: [
+              'Live dispatch board',
+              'Up to 10 field agents',
+              'Job status tracking',
+              'Customer status pages'
+            ]
+          },
+          growth: {
+            name: 'Growth',
+            price: '$29',
+            desc: 'For growing teams that need the full playbook.',
+            features: [
+              'Everything in Starter',
+              'Nearby agent matching',
+              'Full audit trail',
+              'Priority support'
+            ]
+          },
+          enterprise: {
+            name: 'Enterprise',
+            price: 'Custom',
+            desc: 'For multi-site operations with advanced needs.',
+            features: [
+              'Everything in Growth',
+              'Unlimited agents',
+              'SSO & advanced security',
+              'Dedicated onboarding'
+            ]
+          }
+        }
+      },
+      cta: {
+        title: 'Ready to see who is on the job — live?',
+        subtitle: 'Create your account and get your whole crew on the board in minutes.',
+        primaryCta: 'Start free trial',
+        secondaryCta: 'Sign in'
+      },
+      footer: {
+        tagline: 'Live, permissioned dispatch for field-service teams.',
+        product: 'Product',
+        getStarted: 'Get Started',
+        rights: 'All rights reserved.',
+        madeFor: 'Made for field-service teams.',
+        links: {
+          signIn: 'Sign in',
+          register: 'Start free trial'
+        }
+      }
     }
   }
 }

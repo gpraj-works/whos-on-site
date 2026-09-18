@@ -3,7 +3,7 @@ import { ActionIcon, Badge, Box, Burger, Group, Menu, Text, Title, Tooltip } fro
 import { useQueryClient } from '@tanstack/react-query'
 import { LogOut, Moon, RefreshCw, Settings, Sun, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import { useAppTheme } from '../../app/theme/ThemeContext'
 import { useAuth } from '../auth/AuthContext'
@@ -19,11 +19,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
   const { colorScheme, toggleColorScheme, primaryColor } = useAppTheme()
   const { user, logout } = useAuth()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   const companyName = useAuth().company?.name || 'WhosOnSite'
 
   const handleGlobalRefresh = async () => {
     await queryClient.invalidateQueries()
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    navigate('/', { replace: true })
   }
 
   return (
@@ -96,7 +102,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ mobileOpened, toggleMobile
                 Settings
               </Menu.Item>
               <Menu.Divider />
-              <Menu.Item leftSection={<LogOut size={14} />} color="red" onClick={logout}>
+              <Menu.Item leftSection={<LogOut size={14} />} color="red" onClick={handleLogout}>
                 Logout
               </Menu.Item>
             </Menu.Dropdown>

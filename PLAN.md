@@ -641,9 +641,11 @@ Note the fan-out in step 2: one status write triggers a single `job:statusChange
 
 ---
 
-## 10. Implementation roadmap — 9 phases
+## 10. Implementation roadmap — 9 phases (+ 2 follow-up phases)
 
 The 9-week/~200-hour build is organized into 9 sequential phases, one per week (~3 hrs/day, ~22.5 hrs/phase). Each phase below defines its objective, the detailed task list, concrete deliverables, and the exit criteria that must be true before moving to the next phase. Phases are intentionally sequential — each one depends on the tables, middleware, or endpoints the previous phase produced.
+
+After the core 9-phase build, the roadmap extends with [**Phase 10 — Public Homepage & Registration**](#phase-10--public-homepage--registration-next-phase) (marketing homepage + working signup funnel) and [**Phase 11 — Billing & Subscription**](#phase-11--billing--subscription-later) (real payments, deferred).
 
 ### Phase 1 — Foundations & Data Layer
 
@@ -1392,7 +1394,7 @@ if (subscription?.requiresCheckout) {
 
 ---
 
-#### 9.8 Future Enhancements (Phase 10+)
+#### 9.8 Future Enhancements (Phase 11+)
 
 - Stripe integration for payment processing
 - Plan-based module access (different features per plan)
@@ -1404,4 +1406,67 @@ if (subscription?.requiresCheckout) {
 
 ---
 
-_Document version 1.3 — added Phase 9: Company Registration with Trial Period & Subscription Management; restructured 8-week roadmap to include trial period feature with placeholder Stripe integration._
+### Phase 10 — Public Homepage & Registration (Next Phase)
+
+**Depends on:** existing frontend auth/API modules (auth, jobs, agents, customers, analytics)
+
+**Objective:** Give first-time visitors a public marketing homepage at `/` that explains what WhosOnSite is, the problem it solves, about the company, and placeholder pricing tiers — then close the signup funnel with a working `/register` page so a fresh visitor can become an authenticated user inside their own company scope. Real billing is deferred to [Phase 11](#phase-11--billing--subscription-later).
+
+**Confirmed scope decisions:**
+
+- `/` is public for everyone (signed in or not); `/dashboard` remains the app entry for authenticated users.
+- Primary CTA "Start free trial" → `/register`; secondary CTA "Sign in" → `/login`.
+- Pricing section is 3 static tiers (Starter / Growth / Enterprise) as fixed marketing copy, labeled "billing coming soon" — no payment wiring this phase.
+- Registration is a minimal 3-field form (`companyName`, `email`, `password`) reusing the existing shared `registerSchema` and `registerThunk`. The full company-details form (phone, address, city, state, zip, country) from §9.x is deferred to Phase 11 so the funnel ships now.
+- `/checkout` ships as a placeholder page ("Coming soon"), to be completed in Phase 11.
+
+**Detailed tasks:**
+
+- Create `apps/web/src/pages/LandingPage.tsx` composing public sections: hero, problem→solution features, how it works, about/verticals, plans, and CTA.
+- Create landing section components under `apps/web/src/components/landing/` (Hero, Features, HowItWorks, About, Plans, Footer).
+- Register `/` (LandingPage, public, outside `AppLayout`) and `/register` (inside `PublicRoute`) in `apps/web/src/app/app.tsx`.
+- Create `apps/web/src/pages/Register.tsx` and `apps/web/src/components/auth/RegisterForm.tsx` with Zod validation on submit (no HTML5 validation), controlled inputs, per-field errors; navigate to `/dashboard` on success.
+- Add i18n strings (en + ta) under `translation.landing` and `translation.auth.register` in `apps/web/src/app/i18n/resources/`.
+- Ensure logged-out users land on `/` and logout returns to `/`.
+
+**Deliverables:**
+
+- Public marketing homepage with hero, features, how-it-works, about, plans, header, and footer.
+- Working registration funnel: Homepage → Register → Dashboard.
+- Placeholder `/checkout` route ("Coming soon").
+
+**Exit criteria:**
+
+- `/` renders for both signed-in and signed-out visitors.
+- A fresh visitor can register (3 fields) and reach `/dashboard` scoped to their new company.
+- `pnpm typecheck` and `pnpm test` pass with 0 errors.
+
+---
+
+### Phase 11 — Billing & Subscription (Later)
+
+**Depends on:** Phase 10 funnel · §9.1–9.8 design sketches
+
+**Objective:** Turn the static plans section into real subscription management: payment checkout, webhooks, plan-based access control, trial-expiry gating, and a billing portal.
+
+**Detailed tasks (concrete list, absorbed from §9.1–9.8):**
+
+- Extend `companies` with subscription columns: `phone`, `address`, `city`, `state`, `zip_code`, `country`, `trial_started_at`, `trial_ends_at`, `subscription_status` enum (`trial` / `active` / `past_due` / `cancelled` / `expired`); reserve `stripe_customer_id` and `stripe_subscription_id` for later.
+- Replace the minimal 3-field registration with the full company-details form (phone, address, city, state, zip, country) capturing billing-ready data.
+- Build the `subscription` backend module: `GET /subscription/status`, `POST /subscription/checkout`, `POST /subscription/webhook`, `PUT /subscription/cancel`.
+- Stripe checkout integration + payment webhook handling; success/cancel URL handling on the frontend.
+- `requireActiveSubscription` guard middleware + frontend `SubscriptionGuard`; trial-expired users redirected to `/checkout` on login.
+- Trial badge in `AppLayout` showing days remaining; disappears when trial expires or subscription becomes active.
+- Plan-based module access, upgrade/downgrade, billing portal, invoice generation/email.
+- Wire the static homepage pricing tiers to real Stripe plan IDs.
+
+**Exit criteria:**
+
+- Registration captures full company/billing details on signup.
+- A paid checkout session completes end-to-end and the company flips from `trial` to `active` via webhook.
+- Trial-expired companies are gated with a clear checkout redirect.
+- `pnpm typecheck` and `pnpm test` pass with 0 errors.
+
+---
+
+_Document version 1.4 — extended roadmap with Phase 10 (Public Homepage & Registration) and Phase 11 (Billing & Subscription, later); retitled §9.8 future enhancements to Phase 11+._
