@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import {
   ActionIcon,
+  Anchor,
   Button,
   Card,
   Center,
@@ -15,7 +16,7 @@ import {
 import { loginSchema } from '@whosonsite/shared'
 import { KeyRound, Mail } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { Logo } from '../common/Logo'
 import { ApiErrorAlert } from '../feedback/ApiErrorAlert'
@@ -98,7 +99,7 @@ export const LoginForm: React.FC = () => {
             <Stack gap="md">
               <TextInput
                 label="Email Address"
-                placeholder="dispatcher@acmehvac.com"
+                placeholder="admin@acmehvac.com"
                 leftSection={<Mail size={16} />}
                 value={email}
                 onChange={(e) => {
@@ -122,6 +123,12 @@ export const LoginForm: React.FC = () => {
                 withAsterisk
                 error={fieldErrors.password}
               />
+
+              <Group justify="space-between" align="center" mt={-4}>
+                <Anchor component={Link} to="/forgot-password" size="xs">
+                  Forgot password?
+                </Anchor>
+              </Group>
 
               <Button type="submit" fullWidth loading={loading} mt="xs">
                 Sign In
@@ -155,14 +162,6 @@ export const LoginForm: React.FC = () => {
                 onClick={() => fillDemoCredentials('admin@acmehvac.com')}
               >
                 Admin
-              </Button>
-              <Button
-                size="xs"
-                variant="light"
-                color="blue"
-                onClick={() => fillDemoCredentials('dispatcher@acmehvac.com')}
-              >
-                Dispatcher
               </Button>
               <Button
                 size="xs"

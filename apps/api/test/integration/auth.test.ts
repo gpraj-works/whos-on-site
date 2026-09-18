@@ -1,9 +1,12 @@
 import { dayjs } from '@whosonsite/shared'
+import { eq } from 'drizzle-orm'
+import jwt from 'jsonwebtoken'
 import request from 'supertest'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../../src/app'
+import { env } from '../../src/config/env'
 import { db } from '../../src/infrastructure/database/client'
-import { refreshTokens } from '../../src/infrastructure/database/schema'
+import { refreshTokens, users } from '../../src/infrastructure/database/schema'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 
 describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting', () => {
@@ -18,22 +21,85 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
     return match ? match.split(';')[0] : ''
   }
 
-  it('registers a new company and owner user', async () => {
+  it('registers a new company and owner user with extended company details', async () => {
     const res = await request(app).post('/api/auth/register').send({
       companyName: 'Test HVAC Co',
       email: 'newowner@testhvac.com',
+      phone: '+1 555-0199',
+      address: '123 Main Street, Suite 400, New York, NY 10001',
+      latitude: 40.7128,
+      longitude: -74.006,
       password: 'password123'
     })
 
     expect(res.status).toBe(201)
     expect(res.body.success).toBe(true)
     expect(res.body.data.user.email).toBe('newowner@testhvac.com')
+    expect(res.body.data.company.name).toBe('Test HVAC Co')
+    expect(res.body.data.company.phone).toBe('+1 555-0199')
+    expect(res.body.data.company.address).toBe('123 Main Street, Suite 400, New York, NY 10001')
     expect(res.body.data.accessToken).toBeDefined()
+  })
+
+  it('handles forgot-password request for existing user', async () => {
+    const res = await request(app).post('/api/auth/forgot-password').send({
+      email: 'admin@acmehvac.com'
+    })
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.message).toContain('password reset instructions')
+  })
+
+  it('handles forgot-password gracefully for non-existent user (anti-enumeration)', async () => {
+    const res = await request(app).post('/api/auth/forgot-password').send({
+      email: 'nonexistent@example.com'
+    })
+
+    expect(res.status).toBe(200)
+    expect(res.body.success).toBe(true)
+    expect(res.body.message).toContain('password reset instructions')
+  })
+
+  it('resets password with a valid token and allows login with new password', async () => {
+    const [user] = await db.select().from(users).where(eq(users.email, 'newowner@testhvac.com'))
+    const resetToken = jwt.sign(
+      { userId: user.id, email: user.email, type: 'password_reset' },
+      env.JWT_SECRET,
+      { expiresIn: '1h' }
+    )
+
+    const resetRes = await request(app).post('/api/auth/reset-password').send({
+      token: resetToken,
+      password: 'newpassword456'
+    })
+
+    expect(resetRes.status).toBe(200)
+    expect(resetRes.body.success).toBe(true)
+
+    // Verify login works with the updated password
+    const loginRes = await request(app).post('/api/auth/login').send({
+      email: 'newowner@testhvac.com',
+      password: 'newpassword456'
+    })
+
+    expect(loginRes.status).toBe(200)
+    expect(loginRes.body.success).toBe(true)
+  })
+
+  it('rejects reset-password with invalid token', async () => {
+    const resetRes = await request(app).post('/api/auth/reset-password').send({
+      token: 'invalid.token.here',
+      password: 'newpassword456'
+    })
+
+    expect(resetRes.status).toBe(400)
+    expect(resetRes.body.success).toBe(false)
   })
 
   it('authenticates user login and sets httpOnly refresh token cookie', async () => {
     const res = await request(app).post('/api/auth/login').send({
-      email: 'dispatcher@acmehvac.com',
+      email: 'admin@acmehvac.com',
       password: 'password123'
     })
 
@@ -97,7 +163,7 @@ describe('Auth Integration Tests — Token Rotation, Revocation & Rate Limiting'
     for (let i = 0; i < 22; i++) {
       const res = await request(app)
         .post('/api/auth/login')
-        .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
+        .send({ email: 'admin@acmehvac.com', password: 'password123' })
       lastStatus = res.status
       if (lastStatus === 429) {
         expect(res.body.success).toBe(false)

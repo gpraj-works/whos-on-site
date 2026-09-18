@@ -39,7 +39,7 @@ WhosOnSite is a `pnpm` monorepo organized into three primary packages:
 ## 3. Database & Multi-Company Security
 
 - **Multi-Company Data Isolation**:
-  - Every tenant table (`users`, `technicians`, `jobs`, `refresh_tokens`, `notifications`, `job_assignments`, `job_status_history`) has a `company_id` column.
+  - Every tenant table (`users`, `agents`, `jobs`, `refresh_tokens`, `notifications`, `job_assignments`, `job_status_history`) has a `company_id` column.
   - Every database repository query MUST include `companyId` in its `WHERE` clause.
   - `companyId` must be extracted centrally from the authenticated JWT token (`req.auth.companyId`).
 - **Database Client & Transactions**:
@@ -56,7 +56,7 @@ WhosOnSite is a `pnpm` monorepo organized into three primary packages:
 - **Token Rotation**: Single-use refresh token rotation with immediate reuse detection and chain revocation.
 - **Middleware**:
   - `authenticate`: Validates JWT and attaches `req.auth`.
-  - `authorize`: Enforces Role-Based Access Control (`owner`, `admin`, `dispatcher`, `technician`).
+  - `authorize`: Enforces Role-Based Access Control (`owner`, `admin`, `agent`).
   - `companyContext`: Enforces active company scope.
   - `authLimiter`: Protects `/api/auth/*` endpoints against rate limit abuse.
 

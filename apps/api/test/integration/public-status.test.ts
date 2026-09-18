@@ -8,7 +8,7 @@ import { jobs } from '../../src/infrastructure/database/schema'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 
 describe('Public Job Status & Share-Link Expiry Integration Tests', () => {
-  let dispatcherToken: string
+  let adminToken: string
   let customerId: string
   let activeJobShareToken: string
   let completedJobShareToken: string
@@ -18,25 +18,25 @@ describe('Public Job Status & Share-Link Expiry Integration Tests', () => {
 
     const login = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
+      .send({ email: 'admin@acmehvac.com', password: 'password123' })
     expect(login.status).toBe(200)
-    dispatcherToken = login.body.data.accessToken
+    adminToken = login.body.data.accessToken
 
     const cust = await request(app)
       .get('/api/customers')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
     customerId = cust.body.data[0].id
 
     const active = await request(app)
       .post('/api/jobs')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ customerId, scheduledAt: dayjs().add(1, 'day').toISOString() })
     expect(active.status).toBe(201)
     activeJobShareToken = active.body.data.shareToken
 
     const completed = await request(app)
       .post('/api/jobs')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ customerId })
     completedJobShareToken = completed.body.data.shareToken
 

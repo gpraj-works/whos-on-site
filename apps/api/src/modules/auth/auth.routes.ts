@@ -37,6 +37,8 @@ router.use(generalAuthLimiter)
 
 router.post('/register', loginLimiter, authController.register)
 router.post('/login', loginLimiter, authController.login)
+router.post('/forgot-password', loginLimiter, authController.forgotPassword)
+router.post('/reset-password', loginLimiter, authController.resetPassword)
 router.post('/refresh', authController.refresh)
 router.post('/logout', authController.logout)
 router.get('/me', authenticate, authController.me)

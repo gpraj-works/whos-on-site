@@ -5,7 +5,7 @@ import { app } from '../../src/app'
 import { seedDatabase } from '../../src/infrastructure/database/seed'
 
 describe('Jobs CRUD & RBAC Integration Tests', () => {
-  let dispatcherToken: string
+  let adminToken: string
   let techToken: string
   let createdJobId: string
   let customerId: string
@@ -14,13 +14,13 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
   beforeAll(async () => {
     await seedDatabase()
 
-    // Login as Dispatcher
-    const dispRes = await request(app)
+    // Login as Admin
+    const adminRes = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
-    dispatcherToken = dispRes.body.data.accessToken
+      .send({ email: 'admin@acmehvac.com', password: 'password123' })
+    adminToken = adminRes.body.data.accessToken
 
-    // Login as Technician
+    // Login as Agent (field technician)
     const techRes = await request(app)
       .post('/api/auth/login')
       .send({ email: 'tech1@acmehvac.com', password: 'password123' })
@@ -29,20 +29,20 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
     // Fetch customer list to obtain valid customerId for job creation
     const custRes = await request(app)
       .get('/api/customers')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
     customerId = custRes.body.data[0].id
 
-    // Fetch technicians list to find technician linked to tech1@acmehvac.com
+    // Fetch agents list to find agent linked to tech1@acmehvac.com
     const techListRes = await request(app)
       .get('/api/agents')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
     techId = techListRes.body.data[0].id
   })
 
-  it('creates a new job as dispatcher', async () => {
+  it('creates a new job as admin', async () => {
     const res = await request(app)
       .post('/api/jobs')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         customerId,
         location: { lat: 33.755, lng: -84.388 },
@@ -59,7 +59,7 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
   it('creates a job without coordinates, saving a null location', async () => {
     const res = await request(app)
       .post('/api/jobs')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ customerId, notes: 'No geocodable address available' })
 
     expect(res.status).toBe(201)
@@ -71,7 +71,7 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
   it('retrieves job details and status history trail', async () => {
     const res = await request(app)
       .get(`/api/jobs/${createdJobId}`)
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
 
     expect(res.status).toBe(200)
     expect(res.body.success).toBe(true)
@@ -79,17 +79,17 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
 
     const historyRes = await request(app)
       .get(`/api/jobs/${createdJobId}/status-history`)
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
 
     expect(historyRes.status).toBe(200)
     expect(historyRes.body.success).toBe(true)
     expect(historyRes.body.data.length).toBeGreaterThan(0)
   })
 
-  it('assigns job to technician', async () => {
+  it('assigns job to agent', async () => {
     const assignRes = await request(app)
       .post(`/api/jobs/${createdJobId}/assign`)
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ agentId: techId })
 
     expect(assignRes.status).toBe(200)
@@ -101,15 +101,15 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
   it('rejects illegal status transition e.g. ASSIGNED -> COMPLETE directly (returns 400)', async () => {
     const illegalRes = await request(app)
       .post(`/api/jobs/${createdJobId}/status`)
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({ status: 'complete' })
 
     expect(illegalRes.status).toBe(400)
     expect(illegalRes.body.success).toBe(false)
   })
 
-  it('enforces RBAC: technician can update status for assigned job', async () => {
-    // First update to EN_ROUTE as technician
+  it('enforces RBAC: agent can update status for assigned job', async () => {
+    // First update to EN_ROUTE as agent
     const resEnRoute = await request(app)
       .post(`/api/jobs/${createdJobId}/status`)
       .set('Authorization', `Bearer ${techToken}`)
@@ -118,7 +118,7 @@ describe('Jobs CRUD & RBAC Integration Tests', () => {
     expect(resEnRoute.status).toBe(200)
     expect(resEnRoute.body.data.status).toBe('en_route')
 
-    // Next update to ON_SITE as technician
+    // Next update to ON_SITE as agent
     const resOnSite = await request(app)
       .post(`/api/jobs/${createdJobId}/status`)
       .set('Authorization', `Bearer ${techToken}`)

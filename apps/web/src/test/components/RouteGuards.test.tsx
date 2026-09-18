@@ -74,7 +74,7 @@ describe('ProtectedRoute', () => {
   })
 
   it('renders the app layout and outlet content when authenticated', () => {
-    resetAuth({ isAuthenticated: true, user: { role: UserRole.DISPATCHER } })
+    resetAuth({ isAuthenticated: true, user: { role: UserRole.ADMIN } })
 
     render(
       <MemoryRouter initialEntries={['/jobs']}>
@@ -92,13 +92,13 @@ describe('ProtectedRoute', () => {
   })
 
   it('redirects to /dashboard when the user role is not allowed', () => {
-    resetAuth({ isAuthenticated: true, user: { role: UserRole.OWNER } })
+    resetAuth({ isAuthenticated: true, user: { role: UserRole.AGENT } })
 
     render(
-      <MemoryRouter initialEntries={['/dispatcher-only']}>
+      <MemoryRouter initialEntries={['/admin-only']}>
         <Routes>
-          <Route element={<ProtectedRoute allowedRoles={[UserRole.DISPATCHER]} />}>
-            <Route path="/dispatcher-only" element={<div>dispatcher-content</div>} />
+          <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
+            <Route path="/admin-only" element={<div>admin-content</div>} />
           </Route>
           <Route path="/dashboard" element={<div>dashboard-page</div>} />
           <Route path="/login" element={<div>login-page</div>} />
@@ -161,8 +161,8 @@ describe('AgentOnly', () => {
     expect(screen.getByText('tech-content')).toBeInTheDocument()
   })
 
-  it('renders children for a dispatcher role', () => {
-    resetAuth({ isAuthenticated: true, user: { role: UserRole.DISPATCHER } })
+  it('renders children for an admin role', () => {
+    resetAuth({ isAuthenticated: true, user: { role: UserRole.ADMIN } })
 
     render(
       <MemoryRouter>

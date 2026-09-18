@@ -54,12 +54,11 @@ docker compose up -d --build
 Migrations and the demo dataset are applied automatically on first start
 (set `SEED_DATABASE=false` in `.env` to skip the seed). Demo users:
 
-| Role       | Email                     | Password      |
-| ---------- | ------------------------- | ------------- |
-| Owner      | `owner@acmehvac.com`      | `password123` |
-| Admin      | `admin@acmehvac.com`      | `password123` |
-| Dispatcher | `dispatcher@acmehvac.com` | `password123` |
-| Agent      | `tech1@acmehvac.com`      | `password123` |
+| Role  | Email                | Password      |
+| ----- | -------------------- | ------------- |
+| Owner | `owner@acmehvac.com` | `password123` |
+| Admin | `admin@acmehvac.com` | `password123` |
+| Agent | `tech1@acmehvac.com` | `password123` |
 
 Stop all containers:
 

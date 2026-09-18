@@ -17,13 +17,34 @@ export type Coordinates = z.infer<typeof coordinatesSchema>
 export const registerSchema = z.object({
   companyName: z.string().min(2, 'Company name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters')
+  phone: z.string().min(7, 'Valid phone number is required (at least 7 digits)'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  address: z.string().min(5, 'Company address is required'),
+  latitude: z.number().min(-90).max(90).optional().nullable(),
+  longitude: z.number().min(-180).max(180).optional().nullable()
 })
+
+export type RegisterInput = z.infer<typeof registerSchema>
 
 export const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required')
 })
+
+export type LoginInput = z.infer<typeof loginSchema>
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Invalid email address')
+})
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Reset token is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters')
+})
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 
 export const createJobSchema = z.object({
   customerId: z.string().uuid('Invalid customer ID'),

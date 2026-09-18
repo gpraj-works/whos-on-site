@@ -16,20 +16,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
   const { user } = useAuth()
   const location = useLocation()
 
-  const userRole = user?.role || UserRole.DISPATCHER
+  const userRole = user?.role || UserRole.OWNER
 
   const navItems = [
     {
       icon: LayoutDashboard,
       label: t('nav.dashboard'),
       path: '/dashboard',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER, UserRole.AGENT]
+      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.AGENT]
     },
     {
       icon: Briefcase,
       label: t('nav.jobs', 'Jobs'),
       path: '/jobs',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+      roles: [UserRole.OWNER, UserRole.ADMIN]
     },
     {
       icon: Briefcase,
@@ -41,19 +41,19 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ onNavigate }) => {
       icon: Users,
       label: t('nav.agents'),
       path: '/agents',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+      roles: [UserRole.OWNER, UserRole.ADMIN]
     },
     {
       icon: UserCheck,
       label: t('nav.customers', 'Customers'),
       path: '/customers',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+      roles: [UserRole.OWNER, UserRole.ADMIN]
     },
     {
       icon: BarChart3,
       label: t('nav.analytics'),
       path: '/analytics',
-      roles: [UserRole.OWNER, UserRole.ADMIN, UserRole.DISPATCHER]
+      roles: [UserRole.OWNER, UserRole.ADMIN]
     }
   ]
 

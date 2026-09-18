@@ -19,7 +19,7 @@ const makeJob = (data: NotificationJobPayload): Job<NotificationJobPayload> =>
   ({ id: 'test-job', name: data.type, data }) as unknown as Job<NotificationJobPayload>
 
 describe('Notification Worker Processor Integration Tests', () => {
-  let dispatcherToken: string
+  let adminToken: string
   let companyId: string
   let customerId: string
 
@@ -28,13 +28,13 @@ describe('Notification Worker Processor Integration Tests', () => {
 
     const login = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
-    dispatcherToken = login.body.data.accessToken
+      .send({ email: 'admin@acmehvac.com', password: 'password123' })
+    adminToken = login.body.data.accessToken
     companyId = login.body.data.user.companyId
 
     const cust = await request(app)
       .get('/api/customers')
-      .set('Authorization', `Bearer ${dispatcherToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
     customerId = cust.body.data[0].id
   })
 

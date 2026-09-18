@@ -26,6 +26,11 @@ export interface CompanyDto {
   id: string
   name: string
   primaryColor: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
   createdAt: string
   updatedAt: string
 }
@@ -62,11 +67,24 @@ export interface AuthResponse {
 export interface RegisterRequest {
   companyName: string
   email: string
+  phone: string
   password: string
+  address: string
+  latitude?: number | null
+  longitude?: number | null
 }
 
 export interface LoginRequest {
   email: string
+  password: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  token: string
   password: string
 }
 

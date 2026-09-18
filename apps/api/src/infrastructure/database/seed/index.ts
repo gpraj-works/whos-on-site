@@ -27,24 +27,13 @@ export async function seedDatabase() {
     })
     .returning()
 
-  await db
+  const [adminA] = await db
     .insert(users)
     .values({
       companyId: companyA.id,
       email: 'admin@acmehvac.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.ADMIN,
-      createdBy: ownerA.id
-    })
-    .returning()
-
-  const [dispatcherA] = await db
-    .insert(users)
-    .values({
-      companyId: companyA.id,
-      email: 'dispatcher@acmehvac.com',
-      passwordHash: defaultPasswordHash,
-      role: UserRole.DISPATCHER,
       createdBy: ownerA.id
     })
     .returning()
@@ -56,7 +45,7 @@ export async function seedDatabase() {
       email: 'tech1@acmehvac.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.AGENT,
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     })
     .returning()
 
@@ -69,7 +58,7 @@ export async function seedDatabase() {
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-84.3850, 33.7500), 4326)`,
       lastLocationAt: dayjs().toDate(),
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     },
     {
       companyId: companyA.id,
@@ -78,7 +67,7 @@ export async function seedDatabase() {
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-84.2970, 33.7710), 4326)`,
       lastLocationAt: dayjs().toDate(),
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     }
   ])
 
@@ -91,7 +80,7 @@ export async function seedDatabase() {
       mobile: '404-555-0191',
       address: '245 Peachtree St NW, Atlanta, GA 30303',
       additionalInfo: { customerType: 'residential', priority: 'standard' },
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     })
     .returning()
 
@@ -104,7 +93,7 @@ export async function seedDatabase() {
       mobile: '404-555-0192',
       address: '880 Sidney Marcus Blvd NE, Atlanta, GA 30324',
       additionalInfo: { customerType: 'commercial', priority: 'high' },
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     })
     .returning()
 
@@ -115,7 +104,7 @@ export async function seedDatabase() {
       location: sql`ST_SetSRID(ST_MakePoint(-84.3879, 33.7574), 4326)`,
       status: 'unassigned',
       notes: 'AC unit not cooling on the second floor',
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     },
     {
       companyId: companyA.id,
@@ -129,7 +118,7 @@ export async function seedDatabase() {
           .where(sql`${agents.name} = 'John Atlanta Tech'`)
       )[0]?.id,
       notes: 'Routine HVAC filter replacement for common areas',
-      createdBy: dispatcherA.id
+      createdBy: adminA.id
     }
   ])
 
@@ -146,24 +135,13 @@ export async function seedDatabase() {
     })
     .returning()
 
-  await db
+  const [adminB] = await db
     .insert(users)
     .values({
       companyId: companyB.id,
       email: 'admin@apexplumbing.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.ADMIN,
-      createdBy: ownerB.id
-    })
-    .returning()
-
-  const [dispatcherB] = await db
-    .insert(users)
-    .values({
-      companyId: companyB.id,
-      email: 'dispatcher@apexplumbing.com',
-      passwordHash: defaultPasswordHash,
-      role: UserRole.DISPATCHER,
       createdBy: ownerB.id
     })
     .returning()
@@ -175,7 +153,7 @@ export async function seedDatabase() {
       email: 'tech1@apexplumbing.com',
       passwordHash: defaultPasswordHash,
       role: UserRole.AGENT,
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     })
     .returning()
 
@@ -188,7 +166,7 @@ export async function seedDatabase() {
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-73.9442, 40.6782), 4326)`,
       lastLocationAt: dayjs().toDate(),
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     },
     {
       companyId: companyB.id,
@@ -197,7 +175,7 @@ export async function seedDatabase() {
       status: 'available',
       currentLocation: sql`ST_SetSRID(ST_MakePoint(-73.7949, 40.7282), 4326)`,
       lastLocationAt: dayjs().toDate(),
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     }
   ])
 
@@ -210,7 +188,7 @@ export async function seedDatabase() {
       mobile: '212-555-0291',
       address: '310 Atlantic Ave, Brooklyn, NY 11201',
       additionalInfo: { customerType: 'residential', priority: 'high' },
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     })
     .returning()
 
@@ -223,7 +201,7 @@ export async function seedDatabase() {
       mobile: '212-555-0292',
       address: '45-21 Queens Blvd, Queens, NY 11104',
       additionalInfo: { customerType: 'commercial', priority: 'standard' },
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     })
     .returning()
 
@@ -234,7 +212,7 @@ export async function seedDatabase() {
       location: sql`ST_SetSRID(ST_MakePoint(-73.9781, 40.6840), 4326)`,
       status: 'unassigned',
       notes: 'Kitchen sink leaking under the cabinet',
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     },
     {
       companyId: companyB.id,
@@ -248,7 +226,7 @@ export async function seedDatabase() {
           .where(sql`${agents.name} = 'Mike Brooklyn Tech'`)
       )[0]?.id,
       notes: 'Replace broken water heater in back stock room',
-      createdBy: dispatcherB.id
+      createdBy: adminB.id
     }
   ])
 

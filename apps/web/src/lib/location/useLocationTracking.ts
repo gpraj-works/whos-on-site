@@ -21,7 +21,7 @@ export function useLocationTracking(agentId: string | null, enabled: boolean) {
       const { latitude: lat, longitude: lng } = position.coords
       lastPingTimeRef.current = now
 
-      // Send socket location ping for real-time dispatcher map updates
+      // Send socket location ping for real-time map updates
       const socket = getSocket()
       if (socket?.connected) {
         socket.emit('location:ping', { lat, lng })

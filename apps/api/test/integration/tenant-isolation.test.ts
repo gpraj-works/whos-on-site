@@ -13,20 +13,20 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
     // Ensure clean seeded multi-company database state
     await seedDatabase()
 
-    // Authenticate as Company A Dispatcher
+    // Authenticate as Company A Admin
     const resA = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@acmehvac.com', password: 'password123' })
+      .send({ email: 'admin@acmehvac.com', password: 'password123' })
 
     expect(resA.status).toBe(200)
     expect(resA.body.success).toBe(true)
     tokenCompanyA = resA.body.data.accessToken
     companyAId = resA.body.data.user.companyId
 
-    // Authenticate as Company B Dispatcher
+    // Authenticate as Company B Admin
     const resB = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'dispatcher@apexplumbing.com', password: 'password123' })
+      .send({ email: 'admin@apexplumbing.com', password: 'password123' })
 
     expect(resB.status).toBe(200)
     expect(resB.body.success).toBe(true)
@@ -85,8 +85,8 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
     })
   })
 
-  describe('Technicians Isolation', () => {
-    it('Company A receives ONLY Company A technicians on GET /api/agents', async () => {
+  describe('Agents Isolation', () => {
+    it('Company A receives ONLY Company A agents on GET /api/agents', async () => {
       const res = await request(app)
         .get('/api/agents')
         .set('Authorization', `Bearer ${tokenCompanyA}`)
@@ -100,7 +100,7 @@ describe('P0 — Multi-Tenant Isolation Integration Tests', () => {
       }
     })
 
-    it('Company A nearby technician query returns ONLY Company A technicians', async () => {
+    it('Company A nearby agent query returns ONLY Company A agents', async () => {
       const res = await request(app)
         .get('/api/agents/nearby')
         .query({ lat: 33.75, lng: -84.38, radiusKm: 50 })

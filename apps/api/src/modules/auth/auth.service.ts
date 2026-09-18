@@ -12,6 +12,12 @@ import {
 } from '@whosonsite/shared'
 import { env } from '../../config/env'
 import { withTransaction } from '../../infrastructure/database/client'
+import { logger } from '../../infrastructure/logging/logger'
+import { BadRequestError } from '../../common/app-error'
+import {
+  sendCompanyRegistrationEmail,
+  sendPasswordResetEmail
+} from '../../infrastructure/email'
 import * as authRepo from './auth.repository'
 
 function hashToken(token: string): string {
@@ -28,7 +34,9 @@ function generateAccessToken(user: { id: string; companyId: string; role: UserRo
     companyId: user.companyId,
     role: user.role
   }
-  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '15m' })
+  return jwt.sign(payload, env.JWT_SECRET, {
+    expiresIn: '15m'
+  })
 }
 
 function formatAuthUser(user: {
@@ -50,6 +58,11 @@ function formatAuthUser(user: {
 function formatCompany(company: {
   id: string
   name: string
+  email?: string | null
+  phone?: string | null
+  address?: string | null
+  latitude?: number | null
+  longitude?: number | null
   primaryColor?: string | null
   createdAt: Date
   updatedAt: Date
@@ -57,6 +70,11 @@ function formatCompany(company: {
   return {
     id: company.id,
     name: company.name,
+    email: company.email || null,
+    phone: company.phone || null,
+    address: company.address || null,
+    latitude: company.latitude ?? null,
+    longitude: company.longitude ?? null,
     primaryColor: company.primaryColor || 'teal',
     createdAt: dayjs(company.createdAt).toISOString(),
     updatedAt: dayjs(company.updatedAt).toISOString()
@@ -71,8 +89,18 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
 
   const passwordHash = await argon2.hash(data.password)
 
-  return withTransaction(async (tx) => {
-    const company = await authRepo.createCompany({ name: data.companyName }, tx)
+  const authResponse = await withTransaction(async (tx) => {
+    const company = await authRepo.createCompany(
+      {
+        name: data.companyName,
+        email: data.email.toLowerCase(),
+        phone: data.phone,
+        address: data.address,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null
+      },
+      tx
+    )
 
     const user = await authRepo.createUser(
       {
@@ -113,6 +141,18 @@ export async function register(data: RegisterRequest): Promise<AuthResponse> {
       company: formatCompany(company)
     }
   })
+
+  // Asynchronously dispatch company registration welcome email
+  sendCompanyRegistrationEmail({
+    to: data.email,
+    companyName: data.companyName,
+    phone: data.phone,
+    address: data.address
+  }).catch((err) => {
+    logger.warn({ err, email: data.email }, 'Failed to dispatch company registration email')
+  })
+
+  return authResponse
 }
 
 export async function login(email: string, password: string): Promise<AuthResponse> {
@@ -240,3 +280,60 @@ export async function getCurrentUser(
     company: company ? formatCompany(company) : undefined
   }
 }
+
+export async function forgotPassword(email: string): Promise<void> {
+  const user = await authRepo.findUserByEmail(email)
+  if (!user) {
+    // Return early to prevent user enumeration
+    return
+  }
+
+  const resetToken = jwt.sign(
+    {
+      userId: user.id,
+      email: user.email,
+      type: 'password_reset'
+    },
+    env.JWT_SECRET,
+    { expiresIn: '1h' }
+  )
+
+  const resetUrl = `${env.APP_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`
+
+  sendPasswordResetEmail({
+    to: user.email,
+    resetUrl
+  }).catch((err) => {
+    logger.warn({ err, email: user.email }, 'Failed to dispatch password reset email')
+  })
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  let decoded: { userId: string; email: string; type: string }
+  try {
+    decoded = jwt.verify(token, env.JWT_SECRET) as {
+      userId: string
+      email: string
+      type: string
+    }
+  } catch {
+    throw new BadRequestError('Invalid or expired password reset link.')
+  }
+
+  if (decoded.type !== 'password_reset' || !decoded.userId) {
+    throw new BadRequestError('Invalid password reset link.')
+  }
+
+  const user = await authRepo.findUserById(decoded.userId)
+  if (!user) {
+    throw new BadRequestError('User not found.')
+  }
+
+  const passwordHash = await argon2.hash(newPassword)
+
+  await withTransaction(async (tx) => {
+    await authRepo.updateUserPassword(user.id, passwordHash, tx)
+    await authRepo.revokeUserRefreshTokens(user.id, tx)
+  })
+}
+
